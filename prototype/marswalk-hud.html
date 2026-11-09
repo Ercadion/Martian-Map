@@ -1,0 +1,1474 @@
+<title>Marswalk HUD</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=B612:wght@400;700&family=B612+Mono:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600&display=swap">
+<style>
+/* Layout: full-bleed 3D view; helmet visor (EVA) or cabin hull (IronVision) drawn as an SVG frame on top; HUD panels in the visor corners per the team sketch. Single dark look by design. */
+:root{
+  --hud:#8dffb3; --hud-dim:rgba(141,255,179,.55); --hud-faint:rgba(141,255,179,.18);
+  --caution:#ffc24a; --warn:#ff5a4e; --link:#86c9ff;
+  --glass:rgba(3,14,9,.42); --helmet:#07090a; --chrome:#0d1114; --chrome-line:#26313a; --chrome-fg:#d6e2e9; --chrome-dim:#8b9aa5;
+  --mono:"B612 Mono","IBM Plex Sans KR",ui-monospace,monospace;
+  --sans:"B612","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:var(--helmet);color:var(--hud);font-family:var(--sans);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+#app{position:relative;height:100%;width:100%;overflow:hidden;touch-action:none}
+#view{position:absolute;inset:0;display:block;width:100%;height:100%}
+#frame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hudtxt{font-family:var(--mono);fill:var(--hud);font-size:12px}
+/* operator bar (prototype chrome, outside the HUD) */
+#bar{position:absolute;left:0;right:0;top:0;z-index:20;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  padding:calc(6px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) 6px max(10px,env(safe-area-inset-left,0px));
+  background:linear-gradient(var(--chrome),rgba(13,17,20,.0));font-family:var(--sans);color:var(--chrome-fg);font-size:12px}
+#bar .seg{display:flex;border:1px solid var(--chrome-line);border-radius:6px;overflow:hidden}
+#bar button{font:inherit;color:var(--chrome-fg);background:transparent;border:0;padding:5px 10px;cursor:pointer}
+#bar .seg button[aria-pressed="true"]{background:var(--hud);color:#04140b;font-weight:700}
+#bar .btn{border:1px solid var(--chrome-line);border-radius:6px}
+#bar .btn[aria-pressed="true"]{border-color:var(--hud);color:var(--hud)}
+#bar .sp{flex:1}
+#bar .tag{color:var(--chrome-dim)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+/* HUD panels */
+.panel{position:absolute;z-index:10;font-family:var(--mono);color:var(--hud);font-size:11.5px;line-height:1.35;
+  border:1px solid var(--hud-dim);background:var(--glass);border-radius:4px;padding:8px;backdrop-filter:blur(1px);
+  text-shadow:0 0 4px rgba(0,0,0,.9)}
+.panel h4{margin:0 0 6px;font-size:10.5px;letter-spacing:.12em;font-weight:700;color:var(--hud-dim);display:flex;justify-content:space-between;gap:8px}
+.panel h4 b{color:var(--hud);font-weight:700}
+#leftcol{position:absolute;z-index:10;display:grid;gap:8px;width:212px}
+#leftcol .panel{position:relative}
+#mini{display:block;width:194px;height:194px;border-radius:3px}
+#route .row,#status .row,#cabin .row{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.bar{height:4px;background:var(--hud-faint);border-radius:2px;margin:2px 0 5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--hud)}
+.caution{color:var(--caution)} .warn{color:var(--warn)}
+.bar i.caution{background:var(--caution)} .bar i.warn{background:var(--warn)}
+#comms{width:268px}
+#comms .vid{display:flex;gap:8px;align-items:center;border:1px solid var(--hud-faint);border-radius:3px;padding:6px;margin-bottom:6px}
+#comms .vid svg{flex:none}
+#comms .tabs{display:flex;gap:4px;margin-bottom:6px}
+#comms .tabs button{font:inherit;font-size:11px;color:var(--hud-dim);background:transparent;border:1px solid var(--hud-faint);border-radius:3px;padding:3px 6px;cursor:pointer;pointer-events:auto}
+#comms .tabs button[aria-pressed="true"]{color:#04140b;background:var(--hud);border-color:var(--hud)}
+#log{height:104px;overflow:auto;border-top:1px solid var(--hud-faint);padding-top:4px;margin-bottom:6px;pointer-events:auto}
+#log p{margin:0 0 3px}
+#log .me{color:var(--hud)} #log .them{color:#e6fff0} #log .sys{color:var(--hud-dim)} #log .mcc{color:var(--link)}
+#sendf{display:flex;gap:4px;pointer-events:auto}
+#msg{flex:1;min-width:0;font:inherit;font-size:11.5px;color:var(--hud);background:rgba(0,0,0,.45);border:1px solid var(--hud-faint);border-radius:3px;padding:4px 6px}
+#sendf button{font:inherit;font-size:11px;color:#04140b;background:var(--hud);border:0;border-radius:3px;padding:3px 8px;cursor:pointer}
+#cw{position:absolute;z-index:11;left:50%;transform:translateX(-50%);font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.06em;
+  padding:5px 12px;border-radius:3px;border:1px solid currentColor;background:rgba(0,0,0,.55);text-align:center;white-space:nowrap}
+#nav{position:absolute;z-index:10;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:12px;text-align:center;text-shadow:0 0 4px #000;white-space:nowrap}
+#nav b{font-size:15px}
+.tagl{position:absolute;z-index:9;font-family:var(--mono);font-size:11px;color:var(--hud);white-space:nowrap;transform:translate(-50%,-100%);
+  text-shadow:0 0 4px #000;pointer-events:none;text-align:center}
+.tagl .d{display:block;width:10px;height:10px;margin:2px auto 0;border:1.5px solid currentColor;transform:rotate(45deg)}
+.tagl.ev{color:#e9f3ff} .tagl.haz{color:var(--caution)} .tagl.edge{opacity:.85}
+#stop{width:260px}
+#status,#env{width:300px}
+#ret{width:270px;border-color:var(--caution)}
+#ret h4 b{color:var(--caution)}
+#ret .row{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+#ret .ok{color:var(--hud)} #ret .off{color:var(--hud-dim)}
+#homearr{position:absolute;z-index:10;left:50%;transform:translateX(-50%);text-align:center;font-family:var(--mono);font-size:12px;color:var(--caution);text-shadow:0 0 4px #000;pointer-events:none;white-space:nowrap}
+#homearr svg{display:block;margin:0 auto 2px;filter:drop-shadow(0 0 3px #000)}
+#homearr b{font-size:15px}
+#comms.los{border-color:var(--warn)}
+#comms.los h4 b{color:var(--warn)}
+.cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px 10px;font-variant-numeric:tabular-nums}
+.cells.two{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:5px}
+.cells>div>span{display:block;color:var(--hud-dim);font-size:9.5px;letter-spacing:.03em;white-space:nowrap}
+.cells .bar{margin:2px 0 0}
+.pfoot{margin-top:5px;color:var(--hud-dim);display:flex;justify-content:space-between;gap:8px;font-size:10.5px}
+.comp{display:flex;height:6px;border-radius:2px;overflow:hidden;margin:6px 0 3px;background:var(--hud-faint)}
+.comp i{display:block;height:100%}
+.compl{font-size:10px;color:var(--hud-dim);display:flex;flex-wrap:wrap;gap:2px 8px}
+.compl b{font-weight:400;color:var(--hud)}
+#stop.nopov .pov{display:none}
+body.tight #mini{width:150px;height:150px}
+.tagl.mk-sci{color:#86c9ff} .tagl.mk-sample{color:#d3a6ff} .tagl.mk-haz{color:#ff6b5e} .tagl.mk-note{color:#ffffff}
+.tagl.mk-sci .d,.tagl.mk-sample .d,.tagl.mk-haz .d,.tagl.mk-note .d{border-radius:50%;transform:none}
+#stop .pov{margin-top:6px;border:1px dashed var(--hud-dim);border-radius:3px;height:62px;display:grid;place-items:center;color:var(--hud-dim);font-size:10.5px;text-align:center;padding:4px}
+/* overlays */
+.sheet{position:absolute;z-index:30;inset:0;display:grid;place-items:center;background:rgba(4,6,7,.72);padding:max(16px,env(safe-area-inset-left,0px))}
+.sheet .card{width:min(860px,100%);max-height:88%;overflow:auto;background:var(--chrome);border:1px solid var(--chrome-line);border-radius:8px;color:var(--chrome-fg);font-family:var(--sans);font-size:13px;line-height:1.55;padding:18px 20px}
+.sheet h2{margin:0 0 8px;font-size:17px}
+.sheet h3{margin:14px 0 6px;font-size:13.5px;color:var(--hud)}
+.sheet table{border-collapse:collapse;width:100%;font-size:12.5px}
+.sheet td,.sheet th{border-top:1px solid var(--chrome-line);padding:5px 6px;text-align:left;vertical-align:top}
+.sheet th{color:var(--chrome-dim);font-weight:600}
+.sheet a{color:var(--link)}
+.sheet .x{float:right;font:inherit;color:var(--chrome-fg);background:transparent;border:1px solid var(--chrome-line);border-radius:6px;padding:4px 10px;cursor:pointer}
+.sheet kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--chrome-line);border-radius:3px;padding:0 4px}
+#mapcard{width:min(1040px,100%);display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px}
+#mapcard h3{margin:6px 0 2px}
+.lg .seg{display:flex;border:1px solid var(--chrome-line);border-radius:6px;overflow:hidden}
+.lg .seg button{flex:1;font:inherit;font-size:12px;color:var(--chrome-fg);background:transparent;border:0;border-left:1px solid var(--chrome-line);padding:5px 4px;cursor:pointer}
+.lg .seg button:first-child{border-left:0}
+.lg .seg button[aria-pressed="true"]{background:var(--hud);color:#04140b;font-weight:700}
+.lg input[type=text],.lg select{font:inherit;font-size:12px;color:var(--chrome-fg);background:#0a0e10;border:1px solid var(--chrome-line);border-radius:4px;padding:4px 6px;width:100%;box-sizing:border-box}
+.plist{display:grid;gap:3px;max-height:116px;overflow:auto;font-size:12px}
+.plist>div{display:flex;gap:6px;align-items:center}
+.plist button{margin-left:auto;font:inherit;font-size:11px;color:var(--chrome-dim);background:transparent;border:1px solid var(--chrome-line);border-radius:4px;padding:0 6px;cursor:pointer}
+.chip{flex:none;width:10px;height:10px;border-radius:50%;display:inline-block}
+.go{font:inherit;font-weight:700;color:#04140b;background:var(--hud);border:0;border-radius:6px;padding:6px 10px;cursor:pointer}
+.go:disabled{opacity:.4;cursor:default}
+.row2{display:flex;gap:6px;flex-wrap:wrap}
+#planstat{font-size:12px;line-height:1.5}
+#bigmap{width:100%;height:auto;aspect-ratio:1;display:block;border-radius:4px;cursor:crosshair;max-width:100%}
+.lg{display:grid;gap:6px;font-size:12px}
+.lg label{display:flex;gap:6px;align-items:center}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px}
+[hidden]{display:none!important}
+/* gaze */
+#greticle{position:absolute;z-index:45;width:34px;height:34px;margin:-17px 0 0 -17px;pointer-events:none}
+#greticle circle{fill:none}
+#greticle #gdot{fill:#ff1f4b;filter:drop-shadow(0 0 3px #ff1f4b) drop-shadow(0 0 6px rgba(255,31,75,.8))}
+body.gaze .panel{opacity:.5;transition:opacity .25s}
+body.gaze .panel.gfocus{opacity:1}
+.gaze-hover{outline:2px solid var(--hud)!important;outline-offset:2px}
+.tagl .more{display:block;color:#eafff1;font-size:10.5px;margin-top:2px}
+.tagl.focus{font-weight:700}
+#calib{position:absolute;inset:0;z-index:40;background:rgba(3,6,6,.82)}
+#calib .dot{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:2px solid var(--hud);background:transparent;cursor:pointer;padding:0}
+#calib .dot[data-n="1"]{background:rgba(141,255,179,.35)} #calib .dot[data-n="2"]{background:rgba(141,255,179,.65)}
+#calib .dot.done{background:var(--hud);opacity:.35;pointer-events:none}
+#calib p{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;max-width:440px;text-align:center;color:var(--chrome-fg);font-family:var(--sans);font-size:13px;line-height:1.5}
+#calib .skip{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:16px}
+#webgazerVideoContainer{left:30%!important;right:auto!important;top:auto!important;bottom:16px!important;transform:translateX(-50%);z-index:41!important;border:1px solid var(--hud);pointer-events:none!important;opacity:.85}
+#webgazerVideoContainer *{pointer-events:none!important}
+#gazemsg{color:var(--caution);min-height:1.2em}
+#fallback{position:absolute;inset:0;display:grid;place-items:center;color:var(--chrome-fg);font-family:var(--sans);text-align:center;padding:24px}
+@media (max-width:760px){
+  #leftcol{width:150px} #mini{width:132px;height:132px}
+  #status,#env{width:220px} .cells{grid-template-columns:repeat(2,minmax(0,1fr))} .compl{display:none}
+  #comms{width:200px} #log{height:64px} #comms .vid{display:none}
+  #stop{display:none} #cw{font-size:11px}
+  #mapcard{grid-template-columns:1fr}
+}
+</style>
+
+<div id="app">
+  <canvas id="view" aria-label="화성 표면 3D 시뮬레이션 화면"></canvas>
+  <svg id="frame" aria-hidden="true"></svg>
+
+  <div id="bar">
+    <div class="seg" role="group" aria-label="모드">
+      <button id="m-eva" type="button" aria-pressed="true">우주비행사 EVA</button>
+      <button id="m-iv" type="button" aria-pressed="false">우주선 아이언비전</button>
+    </div>
+    <div class="seg" id="phase" role="group" aria-label="우주선 단계" hidden>
+      <button id="p-app" type="button" aria-pressed="true">접근 비행</button>
+      <button id="p-land" type="button" aria-pressed="false">착륙 후 (고정)</button>
+    </div>
+    <button id="b-auto" class="btn" type="button" aria-pressed="true">자동 보행</button>
+    <button id="b-ff" class="btn" type="button" aria-pressed="false">시간 ×1</button>
+    <button id="b-see" class="btn" type="button" aria-pressed="true" hidden>투시 ON</button>
+    <button id="b-home" class="btn" type="button">귀환 경로</button>
+    <button id="b-sep" class="btn" type="button">SEP 경보 시험</button>
+    <button id="b-los" class="btn" type="button" aria-pressed="false">통신 두절 시험</button>
+    <button id="b-map" class="btn" type="button">전체 지도 (M)</button>
+    <button id="b-gaze" class="btn" type="button" aria-pressed="false">시선 추적</button>
+    <span class="sp"></span>
+    <span class="tag" id="gazetag" hidden></span>
+    <span class="tag" id="simtag">프로토타입 · 지형·원격측정은 시뮬레이션</span>
+    <button id="b-info" class="btn" type="button">데이터·조작법</button>
+  </div>
+
+  <div id="leftcol">
+    <div class="panel" id="minipanel"><h4><span id="mtitle">MAP · 북쪽 위</span><b id="mscale">150 m</b></h4><canvas id="mini" width="388" height="388"></canvas></div>
+    <div class="panel" id="route"></div>
+    <div class="panel" id="cabin" hidden></div>
+  </div>
+  <div class="panel" id="status"></div>
+  <div class="panel" id="env"></div>
+
+  <div class="panel" id="comms">
+    <h4><span>COMMS</span><b id="relay">릴레이 —</b></h4>
+    <div class="vid">
+      <svg width="46" height="46" viewBox="0 0 46 46"><rect x="1" y="1" width="44" height="44" rx="4" fill="none" stroke="currentColor" stroke-opacity=".6"/><circle cx="23" cy="17" r="7" fill="none" stroke="currentColor"/><path d="M10 40c2-9 8-13 13-13s11 4 13 13" fill="none" stroke="currentColor"/></svg>
+      <div><div id="callwho">EV2 · 동료 우주비행사</div><div id="callsub" style="color:var(--hud-dim)">음성 연결 · 지연 없음</div></div>
+    </div>
+    <div class="tabs" role="group" aria-label="통신 채널">
+      <button type="button" data-ch="ev2" aria-pressed="true">EV2</button>
+      <button type="button" data-ch="hab" aria-pressed="false">기지 HAB</button>
+      <button type="button" data-ch="mcc" aria-pressed="false">지구 MCC</button>
+    </div>
+    <div id="log" aria-live="polite"></div>
+    <form id="sendf"><input id="msg" autocomplete="off" placeholder="메시지 입력" aria-label="메시지"><button type="submit">송신</button></form>
+  </div>
+
+  <div class="panel" id="stop" hidden></div>
+  <div class="panel" id="ret" hidden></div>
+  <div id="homearr" hidden><svg width="64" height="64" viewBox="-32 -32 64 64" aria-hidden="true"><g id="harot"><path d="M0 -28 L18 4 L6 0 L6 26 L-6 26 L-6 0 L-18 4 Z" fill="none" stroke="#ffc24a" stroke-width="3" stroke-linejoin="round"/></g></svg><span id="hatxt"></span></div>
+  <div id="cw" hidden></div>
+  <div id="nav"></div>
+  <div id="tags"></div>
+
+  <div class="sheet" id="mapsheet" hidden>
+    <div class="card" id="mapcard">
+      <div><canvas id="bigmap" width="800" height="800" aria-label="주변 지도. 고른 도구에 따라 클릭한 지점에 경유지나 마커를 놓습니다."></canvas></div>
+      <div class="lg">
+        <button class="x" type="button" id="mapclose">닫기</button>
+        <h2 id="maptitle">전체 지도</h2>
+        <p id="mapsub" style="margin:0;color:var(--chrome-dim)"></p>
+        <div class="seg" role="group" aria-label="지도 범위">
+          <button type="button" data-r="100" aria-pressed="false">반경 100 m</button><button type="button" data-r="200" aria-pressed="true">200 m</button><button type="button" data-r="400" aria-pressed="false">400 m</button>
+        </div>
+        <h3>도구</h3>
+        <div class="seg" role="group" aria-label="지도 도구">
+          <button type="button" data-tool="route" aria-pressed="true">경로 지점</button><button type="button" data-tool="marker" aria-pressed="false">마커</button><button type="button" data-tool="erase" aria-pressed="false">지우기</button>
+        </div>
+        <div id="mkopts" hidden style="display:grid;gap:6px">
+          <select id="mktype" aria-label="마커 종류">
+            <option value="sci">과학 관심 지점</option><option value="sample">시료 채취</option><option value="haz">위험</option><option value="note">메모</option>
+          </select>
+          <input type="text" id="mklabel" maxlength="24" placeholder="마커 이름 (비우면 종류 이름)" aria-label="마커 이름">
+        </div>
+        <h3>탐사 경로 계획</h3>
+        <div id="planlist" class="plist"></div>
+        <div id="planstat" style="color:var(--chrome-dim)"></div>
+        <div class="row2">
+          <button class="go" type="button" id="plansend" disabled>EV팀에 경로 전송</button>
+          <button class="x" style="float:none" type="button" id="planundo">되돌리기</button>
+          <button class="x" style="float:none" type="button" id="planclear">비우기</button>
+          <button class="x" style="float:none" type="button" id="planreset">기본 계획</button>
+        </div>
+        <h3>마커</h3>
+        <div id="mklist" class="plist"></div>
+        <h3>레이어</h3>
+        <label><input type="checkbox" id="ly-slope" checked> 경사 색</label>
+        <label><input type="checkbox" id="ly-route" checked> 현재 경로</label>
+        <label><input type="checkbox" id="ly-ring" checked> 거리 링 · 도보 귀환 한계</label>
+        <label><input type="checkbox" id="ly-rock" checked> 바위</label>
+        <div><span class="sw" style="background:#3fbf6a"></span> 0–10° <span class="sw" style="background:#e0b23a"></span> 10–20° <span class="sw" style="background:#e0553a"></span> 20°+</div>
+        <div id="mapinfo" style="color:var(--chrome-dim)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet" id="infosheet" hidden>
+    <div class="card">
+      <button class="x" type="button" id="infoclose">닫기</button>
+      <h2>Marswalk HUD 프로토타입</h2>
+      <p>NASA Space Apps 2026 「Interplanetary Survival Guide: Martian Map」용 UI 시안이다. 게일 크레이터 Mount Sharp 박스워크 지대 탐사를 가정한다. <b>지형·바위·원격측정 값은 브라우저에서 만든 시뮬레이션</b>이며, 환경 수치의 범위만 아래 공개 자료를 따른다. 실제 HiRISE DTM·로버 사진은 해커톤 데이터 단계에서 교체한다.</p>
+      <h3>조작</h3>
+      <p><kbd>드래그</kbd> 둘러보기 · <kbd>W A S D</kbd> 또는 방향키 걷기(자동 보행 해제) · <kbd>M</kbd> 전체 지도(경로 지점·마커 도구) · <kbd>Tab</kbd> 모드 전환 · <kbd>H</kbd> 귀환 경로(통신 두절 중에는 왔던 길 역추적) · 우주선 모드에서는 위쪽에서 <b>접근 비행 / 착륙 후</b>를 고르고 <b>시간 ×</b> 버튼으로 시간을 빨리 돌린다</p>
+      <h3>두 가지 모드</h3>
+      <table>
+        <tr><th>모드</th><th>설계 의도</th></tr>
+        <tr><td>우주비행사 EVA</td><td>헬멧 바이저 가장자리에만 정보를 둔다. 중앙은 비워 지형을 본다. 왼쪽 위 미니맵·경로·슈트 상태, 오른쪽 위 통신, 위쪽 곡선 방위 테이프, 경고는 시선 가까이.</td></tr>
+        <tr><td>우주선 아이언비전 · 접근 비행</td><td>Elbit IronVision의 ‘장갑 투시’ 개념을 빌렸다. 화성으로 다가가는 캡슐 안에서 선체를 투시해 화성과 착륙 목표(게일 크레이터)를 본다. 표면까지 거리, 접근 속도, 대기권 진입까지 남은 시간과 진입 절차를 보여준다.</td></tr>
+        <tr><td>우주선 아이언비전 · 착륙 후</td><td>착륙선은 땅에 고정되어 움직이지 않는다. 시점만 돌려 360° 주변을 보며 밖에 나간 EV 대원·정차 지점·위험 지형을 추적한다.</td></tr>
+      </table>
+      <h3>값의 근거</h3>
+      <table>
+        <tr><th>표시</th><th>값</th><th>근거</th></tr>
+        <tr><td>방사선 선량률</td><td>평균 0.67 mSv/일(≈ 28 µSv/h)</td><td>Curiosity RAD, 게일 크레이터 2012–2013 (<a href="https://www.sciencedaily.com/releases/2013/12/131209181133.htm" target="_blank" rel="noopener">ScienceDaily 요약</a>)</td></tr>
+        <tr><td>외기 온도·기압</td><td>약 −70 ~ +6 °C, 685 ~ 780 Pa 범위에서 시뮬레이션</td><td>Curiosity REMS 초기 관측 (<a href="https://livescience.com/23646-mars-weather-curiosity-rover-discovery.html" target="_blank" rel="noopener">Live Science</a>)</td></tr>
+        <tr><td>접근 비행 궤적</td><td>화성 GM 42,828 km³/s², 반지름 3,389.5 km, 자전 24.6229시간으로 쌍곡선 접근 속도를 계산. 무한원 속도 2.24 km/s는 진입 속도가 약 5.4 km/s가 되도록 맞춘 시나리오 값</td><td><a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html" target="_blank" rel="noopener">NASA Mars Fact Sheet</a></td></tr>
+        <tr><td>진입 절차</td><td>순항 단 분리 진입 약 10분 전, 진입 속도 약 19,500 km/h, 낙하산 진입 약 240초 뒤·고도 약 11 km, EDL 약 7분. 진입 고도 125 km는 시나리오 값</td><td><a href="https://www.jpl.nasa.gov/news/press_kits/mars_2020/landing/mission" target="_blank" rel="noopener">Mars 2020 착륙 보도자료</a></td></tr>
+        <tr><td>시선 추적</td><td>노트북 카메라 + WebGazer.js 3.3.0, 클릭 9점 보정. 얼굴 메시 랜드마크(눈꼬리·이마·턱)로 고개 yaw/pitch를 추정해 시선 보정과 화면 회전에 쓴다. claude.ai 화면 안에서는 카메라가 막혀 있어 마우스 체험 모드로 동작하고, 내려받은 HTML을 브라우저에서 직접 열면 카메라 모드를 쓸 수 있다</td><td><a href="https://webgazer.cs.brown.edu/" target="_blank" rel="noopener">WebGazer.js</a> (GPL-3.0)</td></tr>
+        <tr><td>지구 통신 지연</td><td>편도 약 3 ~ 22.4분. 시안은 12분 40초 시나리오</td><td><a href="https://science.nasa.gov/mars/mars-relay-network/" target="_blank" rel="noopener">NASA Mars Relay Network</a></td></tr>
+        <tr><td>릴레이 궤도선</td><td>TGO·MRO·Odyssey, 하루 2–4회 통과</td><td>같은 출처</td></tr>
+        <tr><td>대기 성분</td><td>CO₂ 95.1 · N₂ 2.59 · Ar 1.94 · O₂ 0.16 · CO 0.06 %</td><td>Curiosity SAM 계절 평균 (<a href="https://www.nasa.gov/missions/with-mars-methane-mystery-unsolved-curiosity-serves-scientists-a-new-one-oxygen/" target="_blank" rel="noopener">NASA</a>)</td></tr>
+        <tr><td>외기 기온·기압·바람·습도·UV</td><td>시나리오 곡선(기온 약 −79~−5 °C, 기압 약 740 Pa 하루 ±1%, 바람 수 m/s). 해커톤에서 REMS 실측 시계열로 교체</td><td>Curiosity REMS (<a href="https://deepblue.lib.umich.edu/bitstream/2027.42/108302/1/jgre20265.pdf" target="_blank" rel="noopener">첫 100 sol 개관</a>)</td></tr>
+        <tr><td>도보 귀환 한계</td><td>착륙선에서 300 m</td><td>팀 설정값(시나리오)</td></tr>
+        <tr><td>HUD 항목</td><td>슈트·생체 원격측정, 2D 지도, 귀환 브레드크럼, 이상치 경고</td><td>NASA SUITS 2024 미션 설명 (<a href="https://nasa.gov/wp-content/uploads/2023/09/fy24-suits-mission-description.pdf" target="_blank" rel="noopener">PDF</a>)</td></tr>
+        <tr><td>투시 개념</td><td>선체 너머 360° 실시간 영상</td><td><a href="https://elbitsystems.com/news/elbit-systems-introduces-ironvisiontm-helmet-mounted-system-armored-fighting-vehicles" target="_blank" rel="noopener">Elbit Systems IronVision</a></td></tr>
+        <tr><td>슈트 O₂·압력·배터리·심박, 객실 압력·전력</td><td>시나리오 값</td><td>근거 확보 전까지 ‘설정값’</td></tr>
+        <tr><td>경사 경고</td><td>15° 주의, 25° 통행 불가</td><td>팀 설정값(근거 조사 필요)</td></tr>
+      </table>
+      <p style="color:var(--chrome-dim)">경로는 브라우저 안에서 5 m 격자 A* 탐색으로 계산한다(경사가 클수록 비용 증가, 25° 이상·바위 셀 제외). 박스워크 능선 높이는 보이도록 과장했다. 실제 능선은 수 인치 높이다.</p>
+    </div>
+  </div>
+  <div class="sheet" id="gazesheet" hidden>
+    <div class="card" style="max-width:560px">
+      <button class="x" type="button" id="gazeclose">닫기</button>
+      <h2>시선 추적</h2>
+      <p>우주복 장갑을 끼면 손으로 조작하기 어렵다. 그래서 눈으로 화면을 다룬다.</p>
+      <ul style="margin:0 0 8px;padding-left:18px">
+        <li>바라보는 패널만 또렷해지고 나머지는 흐려진다.</li>
+        <li>버튼을 0.9초 바라보면 눌린다(통신 채널, 귀환 경로, 모드 전환 등).</li>
+        <li>정차 지점·대원 표시를 바라보면 세부 정보가 펼쳐진다.</li>
+        <li>화면 좌우 끝을 바라보면 시점이 그쪽으로 돈다.</li>
+        <li>카메라 모드에서는 고개 방향도 읽는다. 고개를 돌린 만큼 시선 위치를 보정하고, 배경도 같은 방향·같은 각도로 돈다.</li>
+        <li>지금 인식된 시선 위치는 형광 빨간 점으로 표시된다.</li>
+      </ul>
+      <p style="color:var(--chrome-dim)">카메라 모드는 노트북 카메라로 눈을 추적한다(WebGazer.js, GPL-3.0). 영상은 브라우저 안에서만 처리되고 어디로도 전송되지 않는다. 시작하면 9개 점을 하나씩 바라보며 각각 3번씩 클릭해 보정한다.</p>
+      <p id="gazemsg" role="status"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="x" style="float:none" type="button" id="gaze-cam">카메라로 시작</button>
+        <button class="x" style="float:none" type="button" id="gaze-mouse">마우스로 체험</button>
+        <button class="x" style="float:none" type="button" id="gaze-off">시선 추적 끄기</button>
+      </div>
+      <h3>고개 방향 (카메라 모드)</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="x" style="float:none" type="button" id="head-view" aria-pressed="true">고개 따라 화면 회전: 켜짐</button>
+        <button class="x" style="float:none" type="button" id="head-zero">지금 자세를 정면으로</button>
+        <button class="x" style="float:none" type="button" id="head-flip" aria-pressed="false">좌우 반전</button>
+      </div>
+      <p style="color:var(--chrome-dim);margin-bottom:0">고개를 오른쪽으로 돌렸는데 화면이 왼쪽으로 돌면 ‘좌우 반전’을 누른다. 키보드 <kbd>C</kbd>로도 정면을 다시 맞출 수 있다.</p>
+    </div>
+  </div>
+  <div id="calib" hidden><p>점을 바라본 채로 각 점을 3번씩 클릭하세요.<br>머리는 고정하고 눈만 움직이면 더 정확합니다.</p><button class="x skip" type="button" id="calibskip">보정 건너뛰기</button></div>
+  <svg id="greticle" viewBox="0 0 34 34" hidden aria-hidden="true"><circle id="gdot" cx="17" cy="17" r="3.5"/><circle id="gprog" cx="17" cy="17" r="14" stroke="#8dffb3" stroke-width="2.5" stroke-dasharray="0 88" transform="rotate(-90 17 17)"/></svg>
+  <div class="sheet" id="edlsheet" hidden>
+    <div class="card" style="text-align:center;max-width:520px">
+      <h2>대기권 진입 · EDL 시작</h2>
+      <p>진입 속도 약 5.4 km/s. 열 차폐막 최고 가열은 진입 약 75초 뒤, 낙하산은 약 240초 뒤 고도 약 11 km에서 펼쳐진다. 진입부터 착륙까지 약 7분(Perseverance 기준).</p>
+      <p id="edlcount" style="font-family:var(--mono);color:var(--hud)">E+0 s</p>
+      <button class="x" style="float:none" type="button" id="edlgo">착륙 후 화면으로</button>
+    </div>
+  </div>
+  <div id="fallback" hidden>3D 화면을 띄우지 못했습니다. WebGL을 지원하는 브라우저에서 다시 열어 주세요.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+if (!window.THREE) { $('fallback').hidden = false; return; }
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- terrain model (procedural stand-in for a HiRISE DTM) ---------- */
+const HALF = 400;
+function hash(x, z) { const n = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return n - Math.floor(n); }
+function vnoise(x, z) {
+  const xi = Math.floor(x), zi = Math.floor(z), xf = x - xi, zf = z - zi;
+  const u = xf * xf * (3 - 2 * xf), v = zf * zf * (3 - 2 * zf);
+  const a = hash(xi, zi), b = hash(xi + 1, zi), c = hash(xi, zi + 1), d = hash(xi + 1, zi + 1);
+  return (a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v) * 2 - 1;
+}
+function fbm(x, z, o) { let s = 0, a = .5, f = 1; for (let i = 0; i < o; i++) { s += a * vnoise(x * f, z * f); f *= 2.03; a *= .5; } return s; }
+function smooth(e0, e1, x) { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); }
+function cellEdge(x, z, C) {
+  const cx = Math.floor(x / C), cz = Math.floor(z / C); let f1 = 1e9, f2 = 1e9;
+  for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+    const gx = cx + i, gz = cz + j;
+    const px = (gx + .15 + .7 * hash(gx, gz)) * C, pz = (gz + .15 + .7 * hash(gz + 17.3, gx - 4.1)) * C;
+    const d = Math.hypot(x - px, z - pz);
+    if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+  }
+  return (f2 - f1) / 2;
+}
+const BOX = { x: 55, z: -40 }, MESA = { x: -120, z: -75 };
+function ridgeAt(x, z) { const e = cellEdge(x, z, 26); return Math.max(0, 1 - e / 2.2) ** 1.5; }
+function H(x, z) {
+  let h = 0.035 * z;
+  h += 7 * fbm(x / 220 + 3.1, z / 220 - 1.7, 4);
+  h += 0.9 * fbm(x / 34, z / 34, 3);
+  const m = smooth(170, 90, Math.hypot(x - BOX.x, z - BOX.z));
+  if (m > 0) h += m * 0.9 * ridgeAt(x, z);
+  const dm = Math.hypot(x - MESA.x, z - MESA.z);
+  h += 16 * smooth(50, 34, dm + 4 * vnoise(x / 9, z / 9));
+  return h;
+}
+function slopeDeg(x, z) { const e = 1.5; const gx = (H(x + e, z) - H(x - e, z)) / (2 * e), gz = (H(x, z + e) - H(x, z - e)) / (2 * e); return Math.atan(Math.hypot(gx, gz)) * 180 / Math.PI; }
+
+/* rocks */
+const rocks = [];
+for (let i = 0; i < 520; i++) {
+  const x = (hash(i, 7.7) * 2 - 1) * (HALF - 20), z = (hash(i + 3.3, 1.9) * 2 - 1) * (HALF - 20);
+  const r = 0.15 + Math.pow(hash(i, 99.1), 3) * 1.6;
+  rocks.push({ x, z, r });
+}
+
+/* ---------- route planner: A* on a 5 m grid ---------- */
+const CELL = 5, N = (2 * HALF) / CELL;
+const cSlope = new Float32Array(N * N), cBlock = new Uint8Array(N * N);
+for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+  const x = -HALF + (i + .5) * CELL, z = -HALF + (j + .5) * CELL, s = slopeDeg(x, z);
+  cSlope[j * N + i] = s; if (s > 25) cBlock[j * N + i] = 1;
+}
+rocks.forEach(r => { if (r.r > 0.9) { const i = Math.floor((r.x + HALF) / CELL), j = Math.floor((r.z + HALF) / CELL); if (i >= 0 && j >= 0 && i < N && j < N) cBlock[j * N + i] = 1; } });
+function toCell(x, z) { return [Math.min(N - 1, Math.max(0, Math.floor((x + HALF) / CELL))), Math.min(N - 1, Math.max(0, Math.floor((z + HALF) / CELL)))]; }
+function astar(ax, az, bx, bz) {
+  const [si, sj] = toCell(ax, az), [ti, tj] = toCell(bx, bz), S = sj * N + si, T = tj * N + ti;
+  cBlock[S] = 0; cBlock[T] = 0;
+  const g = new Float32Array(N * N).fill(Infinity), came = new Int32Array(N * N).fill(-1), closed = new Uint8Array(N * N);
+  const heap = []; const push = (k, f) => { heap.push([f, k]); let c = heap.length - 1; while (c > 0) { const p = (c - 1) >> 1; if (heap[p][0] <= heap[c][0]) break; [heap[p], heap[c]] = [heap[c], heap[p]]; c = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let c = 0; for (;;) { const l = 2 * c + 1, r = l + 1; let m = c; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === c) break; [heap[m], heap[c]] = [heap[c], heap[m]]; c = m; } } return top; };
+  g[S] = 0; push(S, 0);
+  const D = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  while (heap.length) {
+    const [, k] = pop(); if (closed[k]) continue; closed[k] = 1; if (k === T) break;
+    const i = k % N, j = (k / N) | 0;
+    for (const [di, dj] of D) {
+      const ni = i + di, nj = j + dj; if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue;
+      const nk = nj * N + ni; if (cBlock[nk] || closed[nk]) continue;
+      const step = Math.hypot(di, dj) * CELL, s = cSlope[nk];
+      const ng = g[k] + step * (1 + Math.pow(s / 10, 2) * 0.8);
+      if (ng < g[nk]) { g[nk] = ng; came[nk] = k; push(nk, ng + Math.hypot(ni - ti, nj - tj) * CELL); }
+    }
+  }
+  if (came[T] < 0 && S !== T) return [[ax, az], [bx, bz]];
+  const pts = []; for (let k = T; k >= 0; k = came[k]) { pts.push([-HALF + (k % N + .5) * CELL, -HALF + (((k / N) | 0) + .5) * CELL]); if (k === S) break; }
+  pts.reverse(); pts[0] = [ax, az]; pts[pts.length - 1] = [bx, bz];
+  let p = pts; for (let it = 0; it < 2; it++) { const q = [p[0]]; for (let a = 0; a < p.length - 1; a++) { const [x0, z0] = p[a], [x1, z1] = p[a + 1]; q.push([.75 * x0 + .25 * x1, .75 * z0 + .25 * z1], [.25 * x0 + .75 * x1, .25 * z0 + .75 * z1]); } q.push(p[p.length - 1]); p = q; }
+  return p;
+}
+
+/* ---------- mission plan ---------- */
+const LANDER = { x: -10, z: 70 };
+const STOPS = [
+  { id: 'WP1', name: '정차 1 · 능선 단면', x: 30, z: 5, task: '능선과 골 사이 단면 관찰, 황산염 광맥 사진', dwell: '15분' },
+  { id: 'WP2', name: '정차 2 · 능선 시료', x: 88, z: -62, task: '굳은 능선 암석 시료 채취(유기물 분석용)', dwell: '25분' },
+  { id: 'WP3', name: '정차 3 · 경계부', x: 20, z: -138, task: '박스워크 경계에서 층 구성 변화 확인', dwell: '20분' },
+];
+let legs = [], legIdx = 0, routePts = [], target = STOPS[0];
+function planFrom(x, z, list) {
+  const seq = [{ x, z }, ...list]; legs = [];
+  for (let a = 0; a < seq.length - 1; a++) legs.push({ to: seq[a + 1], pts: astar(seq[a].x, seq[a].z, seq[a + 1].x, seq[a + 1].z) });
+  legIdx = 0; routePts = legs.flatMap((l, i) => i ? l.pts.slice(1) : l.pts);
+}
+planFrom(LANDER.x, LANDER.z, [...STOPS, { id: 'AIR', name: '에어록 · 착륙선', x: LANDER.x, z: LANDER.z }]);
+
+/* ---------- three.js scene ---------- */
+const canvas = $('view');
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); } catch (e) { $('fallback').hidden = false; return; }
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+const scene = new THREE.Scene();
+const SKY = 0xc9a07a;
+scene.fog = new THREE.Fog(SKY, 250, 9000);
+(function sky() {
+  const c = document.createElement('canvas'); c.width = 4; c.height = 256; const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#6f5545'); gr.addColorStop(.55, '#b88d68'); gr.addColorStop(.8, '#d8b08a'); gr.addColorStop(1, '#c9a07a');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 256); const t = new THREE.CanvasTexture(c); scene.background = t;
+})();
+const camera = new THREE.PerspectiveCamera(70, 1, 0.1, 20000);
+scene.add(new THREE.HemisphereLight(0xe6c3a0, 0x4a2a1e, 0.55));
+const sun = new THREE.DirectionalLight(0xfff0dc, 1.3); sun.position.set(-320, 110, -200); scene.add(sun);
+
+const SEG = 320;
+const geo = new THREE.PlaneGeometry(2 * HALF, 2 * HALF, SEG, SEG); geo.rotateX(-Math.PI / 2);
+const pos = geo.attributes.position, col = new Float32Array(pos.count * 3);
+for (let i = 0; i < pos.count; i++) {
+  const x = pos.getX(i), z = pos.getZ(i), y = H(x, z); pos.setY(i, y);
+  const n = .5 + .5 * fbm(x / 13 + 9, z / 13, 2), m = smooth(170, 90, Math.hypot(x - BOX.x, z - BOX.z));
+  const rd = m > 0 ? m * ridgeAt(x, z) : 0;
+  const r = .6 + .12 * n - .05 * m + .16 * rd, gch = .37 + .08 * n + .03 * m + .14 * rd, b = .24 + .05 * n + .05 * m + .12 * rd;
+  col[i * 3] = r; col[i * 3 + 1] = gch; col[i * 3 + 2] = b;
+}
+geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.computeVertexNormals();
+scene.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true })));
+
+// outer ground so the detailed 800 m tile does not float in the sky
+(function outer() {
+  const g = new THREE.PlaneGeometry(16000, 16000, 160, 160); g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); p.setY(i, 0.035 * z + 7 * fbm(x / 220 + 3.1, z / 220 - 1.7, 4) - 2.2); }
+  g.computeVertexNormals(); scene.add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: 0x9c6448 })));
+})();
+// distant Mount Sharp (south, +z) and crater rim (north)
+function farRidge(z0, height, spread, color, seed) {
+  const g = new THREE.PlaneGeometry(40000, 6000, 200, 30); g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); const prof = Math.exp(-Math.pow(x / spread, 2)) * height + (fbm(x / 1500 + seed, z / 1500, 4) * .5 + .5) * height * .25; p.setY(i, prof * smooth(3000, -1200, Math.abs(z)) - 60); }
+  g.computeVertexNormals(); const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color })); m.position.z = z0; scene.add(m);
+}
+farRidge(7000, 1400, 9000, 0xa9765a, 1.3);
+farRidge(-14000, 500, 30000, 0x9b6d55, 5.1);
+
+// rocks (instanced)
+const rockGeo = new THREE.DodecahedronGeometry(1, 0);
+const rockMesh = new THREE.InstancedMesh(rockGeo, new THREE.MeshLambertMaterial({ color: 0x5b4034 }), rocks.length);
+const tmp = new THREE.Object3D();
+rocks.forEach((r, i) => { tmp.position.set(r.x, H(r.x, r.z) + r.r * .35, r.z); tmp.rotation.set(hash(i, 1) * 3, hash(i, 2) * 3, 0); tmp.scale.set(r.r, r.r * .7, r.r * 1.1); tmp.updateMatrix(); rockMesh.setMatrixAt(i, tmp.matrix); });
+scene.add(rockMesh);
+
+// lander (fixed on the ground after landing)
+const rover = new THREE.Group();
+const hullMat = new THREE.MeshLambertMaterial({ color: 0xe8e4dc }), darkMat = new THREE.MeshLambertMaterial({ color: 0x444a50 });
+const body = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.6, 3.4, 20), hullMat); body.position.y = 3.6; rover.add(body);
+const nose = new THREE.Mesh(new THREE.ConeGeometry(2.4, 2.2, 20), hullMat); nose.position.y = 6.4; rover.add(nose);
+const band = new THREE.Mesh(new THREE.CylinderGeometry(2.62, 2.62, .5, 20), darkMat); band.position.y = 2.1; rover.add(band);
+for (let k = 0; k < 4; k++) {
+  const a = k * Math.PI / 2 + Math.PI / 4, leg = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, 3.4, 6), darkMat);
+  leg.position.set(Math.cos(a) * 3.1, 1.3, Math.sin(a) * 3.1); leg.rotation.set(Math.sin(a) * .5, 0, -Math.cos(a) * .5); rover.add(leg);
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(.55, .55, .12, 12), darkMat); pad.position.set(Math.cos(a) * 3.9, .06, Math.sin(a) * 3.9); rover.add(pad);
+}
+const ladder = new THREE.Mesh(new THREE.BoxGeometry(.7, 2.6, .1), darkMat); ladder.position.set(0, 1.3, 2.75); ladder.rotation.x = -.25; rover.add(ladder);
+rover.position.set(LANDER.x, H(LANDER.x, LANDER.z), LANDER.z); scene.add(rover);
+
+/* ---------- approach phase: spacecraft closing on Mars (km units) ---------- */
+const MU = 42828, RM = 3389.5, HEI = 125, REI = RM + HEI, VINF = 2.24, R0 = 100000, OMEGA = 2 * Math.PI / (24.6229 * 3600);
+const vAt = r => Math.sqrt(VINF * VINF + 2 * MU / r);
+function tte(r) { if (r <= REI) return 0; const n = 240, a = Math.log(REI), b = Math.log(r); let s = 0; for (let i = 0; i < n; i++) { const rr = Math.exp(a + (b - a) * (i + .5) / n); s += rr / vAt(rr); } return s * (b - a) / n; }
+const TTE0 = tte(R0);
+let R10 = REI; { let lo = REI, hi = R0; for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (tte(mid) > 600) hi = mid; else lo = mid; } R10 = (lo + hi) / 2; }
+const scene2 = new THREE.Scene(); scene2.background = new THREE.Color(0x000000);
+(function stars() {
+  const n = 3500, p = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const u = hash(i, 3.1) * 2 - 1, t = hash(i, 8.7) * Math.PI * 2, s = Math.sqrt(1 - u * u); p[i * 3] = s * Math.cos(t) * 4e5; p[i * 3 + 1] = u * 4e5; p[i * 3 + 2] = s * Math.sin(t) * 4e5; }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+  scene2.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xdfe8ff, size: 1.3, sizeAttenuation: false })));
+})();
+const marsTex = (function () {
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const g = c.getContext('2d'), im = g.createImageData(1024, 512);
+  for (let y = 0; y < 512; y++) for (let x = 0; x < 1024; x++) {
+    const lon = x / 1024 * Math.PI * 2, lat = (.5 - y / 512) * Math.PI;
+    const sx = Math.cos(lat) * Math.cos(lon) * 3, sz = Math.cos(lat) * Math.sin(lon) * 3, sy = Math.sin(lat) * 3;
+    const n = fbm(sx + sy * .7 + 11, sz - sy * .4 + 5, 5), dark = smooth(.05, .3, fbm(sx * .6 + 2, sz * .6 + sy, 4));
+    let r = 178 + 40 * n - 60 * dark, gg = 92 + 22 * n - 30 * dark, b = 58 + 12 * n - 16 * dark;
+    const cap = smooth(78, 84, Math.abs(lat * 180 / Math.PI) + 3 * n); r += (235 - r) * cap; gg += (232 - gg) * cap; b += (228 - b) * cap;
+    const k = (y * 1024 + x) * 4; im.data[k] = r; im.data[k + 1] = gg; im.data[k + 2] = b; im.data[k + 3] = 255;
+  }
+  g.putImageData(im, 0, 0); return new THREE.CanvasTexture(c);
+})();
+const mars = new THREE.Mesh(new THREE.SphereGeometry(RM, 96, 64), new THREE.MeshLambertMaterial({ map: marsTex })); scene2.add(mars);
+const atmo = new THREE.Mesh(new THREE.SphereGeometry(RM * 1.018, 64, 48), new THREE.MeshBasicMaterial({ color: 0xe8a070, transparent: true, opacity: .16, side: THREE.BackSide })); scene2.add(atmo);
+scene2.add(new THREE.AmbientLight(0xffffff, 0.06));
+const sun2 = new THREE.DirectionalLight(0xfff4e8, 1.25); scene2.add(sun2);
+function spherePt(latDeg, lonDeg, R) { const phi = (lonDeg + 180) / 360 * Math.PI * 2, th = (90 - latDeg) * Math.PI / 180; return new THREE.Vector3(-R * Math.cos(phi) * Math.sin(th), R * Math.cos(th), R * Math.sin(phi) * Math.sin(th)); }
+const GALE = spherePt(-5.4, 137.8, RM);
+const galeUnit = GALE.clone().normalize();
+const sideV = new THREE.Vector3(0, 1, 0).cross(galeUnit).normalize();
+const APPROACH = galeUnit.clone().multiplyScalar(1).addScaledVector(sideV, .32).addScaledVector(new THREE.Vector3(0, 1, 0), .12).normalize();
+sun2.position.copy(APPROACH.clone().multiplyScalar(.75).addScaledVector(sideV, -.66).multiplyScalar(1e5));
+
+// beacons at stops
+const beaconMat = new THREE.MeshBasicMaterial({ color: 0x8dffb3, transparent: true, opacity: .55 });
+STOPS.forEach(s => { const b = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, 6, 6), beaconMat); b.position.set(s.x, H(s.x, s.z) + 3, s.z); scene.add(b); });
+
+// route ribbon
+let ribbon = null;
+function buildRibbon() {
+  if (ribbon) { scene.remove(ribbon); ribbon.geometry.dispose(); }
+  const pts = routePts.slice(Math.max(0, nearestIdx - 1)); if (pts.length < 2) return;
+  const v = [], idx = []; const w = .16;
+  for (let i = 0; i < pts.length; i++) {
+    const [x, z] = pts[i], [x2, z2] = pts[Math.min(pts.length - 1, i + 1)], [x0, z0] = pts[Math.max(0, i - 1)];
+    let dx = x2 - x0, dz = z2 - z0; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
+    const nx = -dz * w, nz = dx * w;
+    v.push(x + nx, H(x + nx, z + nz) + .12, z + nz, x - nx, H(x - nx, z - nz) + .12, z - nz);
+    if (i < pts.length - 1) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.setIndex(idx);
+  ribbon = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0x8dffb3, transparent: true, opacity: .38, side: THREE.DoubleSide, depthWrite: false }));
+  scene.add(ribbon);
+}
+
+// EV crew figures (seen in IronVision)
+function crewFigure(c) { const g = new THREE.Group(); const m = new THREE.MeshLambertMaterial({ color: c }); const t = new THREE.Mesh(new THREE.CylinderGeometry(.32, .36, 1.1, 10), m); t.position.y = .95; g.add(t); const h = new THREE.Mesh(new THREE.SphereGeometry(.28, 12, 10), m); h.position.y = 1.7; g.add(h); const pk = new THREE.Mesh(new THREE.BoxGeometry(.5, .6, .25), m); pk.position.set(0, 1.05, .3); g.add(pk); scene.add(g); return g; }
+const ev1Fig = crewFigure(0xf3f3f3), ev2Fig = crewFigure(0xd9e4f2);
+
+/* ---------- state ---------- */
+const st = {
+  mode: 'eva', auto: true, ff: false, see: true,
+  ev1: { x: LANDER.x + 4, z: LANDER.z - 6, yaw: 0 },
+  look: { yaw: 0, pitch: -0.06 }, iv: { yaw: Math.PI, pitch: -0.1 },
+  elapsed: 72 * 60, dose: 0, o2: 0.78, batt: 0.81, hr: 92, sep: false, keys: {}, ch: 'ev2',
+  sc: 'approach', app: { r: R0, t: 0, sep: false, entered: false, edl: -1 }, ivA: { yaw: 0, pitch: 0 },
+  warp: { eva: [1, 8], app: [60, 600, 3600] }, wi: { eva: 0, app: 1 }
+};
+const inApproach = () => st.mode === 'iv' && st.sc === 'approach';
+const warpKey = () => inApproach() ? 'app' : 'eva';
+const warpNow = () => st.warp[warpKey()][st.wi[warpKey()]];
+let nearestIdx = 0;
+st.dose = st.elapsed / 3600 * 27.9;
+buildRibbon();
+
+/* ---------- input ---------- */
+let drag = null;
+canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => {
+  if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag = { x: e.clientX, y: e.clientY };
+  const L = st.mode === 'eva' ? st.look : inApproach() ? st.ivA : st.iv; L.yaw -= dx * 0.004; L.pitch = Math.max(-1.2, Math.min(0.9, L.pitch - dy * 0.003));
+});
+canvas.addEventListener('pointerup', () => drag = null);
+window.addEventListener('keydown', e => {
+  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'tab') { setMode(st.mode === 'eva' ? 'iv' : 'eva'); e.preventDefault(); return; }
+  if (inApproach()) return;
+  if (k === 'm') { toggleMap(); e.preventDefault(); return; }
+  if (k === 'h') { st.los.on ? losReturn('수동') : goHome(); return; }
+  if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) { st.keys[k] = true; if (st.auto) setAuto(false); e.preventDefault(); }
+});
+window.addEventListener('keyup', e => { st.keys[e.key.toLowerCase()] = false; });
+
+function press(id, on) { $(id).setAttribute('aria-pressed', String(on)); }
+function applyChrome() {
+  const m = st.mode, app = inApproach();
+  press('m-eva', m === 'eva'); press('m-iv', m === 'iv');
+  $('phase').hidden = m !== 'iv'; press('p-app', st.sc === 'approach'); press('p-land', st.sc === 'landed');
+  $('b-see').hidden = m !== 'iv';
+  ['b-auto', 'b-home', 'b-sep', 'b-map', 'b-los'].forEach(id => { $(id).hidden = app; });
+  if (app) { $('ret').hidden = true; $('homearr').hidden = true; $('comms').classList.remove('los'); }   // LOS belongs to the surface timeline
+  $('status').hidden = m !== 'eva'; $('cabin').hidden = m !== 'iv'; $('env').hidden = app;
+  if (!$('mapsheet').hidden) { if (app) $('mapsheet').hidden = true; else { computeDraft(); renderPlanSide(); drawBig(); } }
+  const evTab = document.querySelector('#comms .tabs button[data-ch="ev2"]');
+  evTab.hidden = app;
+  if (app && st.ch === 'ev2') { st.ch = 'hab'; document.querySelectorAll('#comms .tabs button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ch === 'hab'))); }
+  chans.hab.who = app ? 'CREW · 선내 승무원' : 'HAB · 착륙선 승무원';
+  renderLog();
+  $('b-ff').textContent = '시간 ×' + warpNow(); press('b-ff', warpNow() > 1);
+  $('simtag').textContent = app ? '프로토타입 · 화성 표면 무늬·궤적은 시뮬레이션' : '프로토타입 · 지형·원격측정은 시뮬레이션';
+  canvas.setAttribute('aria-label', app ? '화성 접근 비행 3D 시뮬레이션 화면' : '화성 표면 3D 시뮬레이션 화면');
+  layout();
+}
+function setMode(m) {
+  st.mode = m;
+  if (m === 'iv') st.iv.yaw = Math.atan2(-(st.ev1.x - LANDER.x), st.ev1.z - LANDER.z) + Math.PI;
+  applyChrome();
+}
+function setPhase(p) { st.sc = p; if (p === 'approach' && st.app.entered) { st.app = { r: R0, t: 0, sep: false, entered: false, edl: -1 }; } $('edlsheet').hidden = true; applyChrome(); }
+function setAuto(on) { st.auto = on; press('b-auto', on); }
+$('m-eva').onclick = () => setMode('eva');
+$('m-iv').onclick = () => setMode('iv');
+$('p-app').onclick = () => setPhase('approach');
+$('p-land').onclick = () => setPhase('landed');
+$('edlgo').onclick = () => setPhase('landed');
+$('b-auto').onclick = () => setAuto(!st.auto);
+$('b-ff').onclick = () => { const k = warpKey(); st.wi[k] = (st.wi[k] + 1) % st.warp[k].length; applyChrome(); };
+$('b-see').onclick = () => { st.see = !st.see; press('b-see', st.see); $('b-see').textContent = st.see ? '투시 ON' : '투시 OFF'; };
+$('b-home').onclick = () => st.los.on ? losReturn('수동') : goHome();
+$('b-los').onclick = () => losSet(!st.los.on);
+$('b-sep').onclick = () => { st.sep = !st.sep; press('b-sep', st.sep); if (st.sep) { sys('[HAB] 태양 고에너지 입자(SEP) 경보 수신. EV팀 즉시 귀환.', 'them'); goHome(); } };
+$('b-map').onclick = toggleMap; $('mapclose').onclick = toggleMap;
+$('b-info').onclick = () => { $('infosheet').hidden = false; }; $('infoclose').onclick = () => { $('infosheet').hidden = true; };
+function goHome() { planFrom(st.ev1.x, st.ev1.z, [{ id: 'AIR', name: '에어록 · 착륙선', x: LANDER.x, z: LANDER.z }]); nearestIdx = 0; buildRibbon(); setAuto(true); sys('귀환 경로 계산 완료 · 에어록까지 ' + Math.round(pathLen(routePts)) + ' m', 'sys'); }
+function pathLen(p) { let s = 0; for (let i = 1; i < p.length; i++) s += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return s; }
+
+/* ---------- comms ---------- */
+const DELAY = 12 * 60 + 40;
+const chans = {
+  ev2: { who: 'EV2 · 동료 우주비행사', sub: '음성 연결 · 지연 없음', log: [['them', 'EV2: 정차 1 앞 능선 사진 확인했어. 오른쪽 바위 조심.']] },
+  hab: { who: 'HAB · 착륙선·선내 승무원', sub: 'UHF 근거리 · 지연 없음', log: [['them', 'HAB: 슈트 원격측정 정상 수신 중.']] },
+  mcc: { who: 'MCC · 지구 관제', sub: '편도 지연 12분 40초 (시나리오)', log: [['sys', '지구 송신은 릴레이 궤도선 통과 때 전달됩니다.']] }
+};
+function renderLog() {
+  const c = chans[st.ch]; $('callwho').textContent = c.who; $('callsub').textContent = c.sub;
+  const L = $('log'); L.innerHTML = '';
+  c.log.forEach(([cls, t]) => { const p = document.createElement('p'); p.className = cls; p.textContent = t; L.appendChild(p); });
+  L.scrollTop = L.scrollHeight;
+}
+function sys(t, cls) { chans[st.ch].log.push([cls || 'sys', t]); renderLog(); }
+document.querySelectorAll('#comms .tabs button').forEach(b => b.onclick = () => { st.ch = b.dataset.ch; document.querySelectorAll('#comms .tabs button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderLog(); });
+$('sendf').addEventListener('submit', e => {
+  e.preventDefault(); const v = $('msg').value.trim(); if (!v) return; $('msg').value = '';
+  const c = chans[st.ch]; c.log.push(['me', '나: ' + v]);
+  if (st.los.on && st.ch !== 'ev2') { c.log.push(['sys', '링크 없음 · 송신 대기열에 보관, 복구되면 자동 전송']); losQueue.push([st.ch, v]); }
+  else if (st.ch === 'mcc') {
+    const t = new Date(Date.now() + DELAY * 1000);
+    c.log.push(['mcc', '송신 대기열 등록 · 지구 도착 예정 ' + t.toTimeString().slice(0, 8) + ' · 답신은 빨라도 ' + Math.round(2 * DELAY / 60) + '분 뒤']);
+  } else {
+    const who = st.ch; setTimeout(() => { chans[who].log.push(['them', (who === 'ev2' ? 'EV2' : 'HAB') + ': 수신.']); if (st.ch === who) renderLog(); }, 1500);
+  }
+  renderLog();
+});
+renderLog();
+
+/* ---------- maps ---------- */
+const MAPPX = 400;
+const shade = document.createElement('canvas'); shade.width = shade.height = MAPPX;
+const slopeImg = document.createElement('canvas'); slopeImg.width = slopeImg.height = MAPPX;
+(function buildMaps() {
+  const s = shade.getContext('2d'), sl = slopeImg.getContext('2d');
+  const a = s.createImageData(MAPPX, MAPPX), b = sl.createImageData(MAPPX, MAPPX);
+  const step = (2 * HALF) / MAPPX, hs = new Float32Array((MAPPX + 1) * (MAPPX + 1));
+  for (let j = 0; j <= MAPPX; j++) for (let i = 0; i <= MAPPX; i++) hs[j * (MAPPX + 1) + i] = H(-HALF + i * step, -HALF + j * step);
+  for (let j = 0; j < MAPPX; j++) for (let i = 0; i < MAPPX; i++) {
+    const h0 = hs[j * (MAPPX + 1) + i], hx = hs[j * (MAPPX + 1) + i + 1], hz = hs[(j + 1) * (MAPPX + 1) + i];
+    const gx = (hx - h0) / step, gz = (hz - h0) / step;
+    const lit = Math.max(0, Math.min(1, .62 + (-gx * .55 - gz * .45) * 1.4));
+    const k = (j * MAPPX + i) * 4;
+    a.data[k] = 30 + 150 * lit; a.data[k + 1] = 22 + 95 * lit; a.data[k + 2] = 18 + 70 * lit; a.data[k + 3] = 255;
+    const sd = Math.atan(Math.hypot(gx, gz)) * 180 / Math.PI;
+    const c = sd < 10 ? [63, 191, 106] : sd < 20 ? [224, 178, 58] : [224, 85, 58];
+    b.data[k] = c[0]; b.data[k + 1] = c[1]; b.data[k + 2] = c[2]; b.data[k + 3] = 120;
+  }
+  s.putImageData(a, 0, 0); sl.putImageData(b, 0, 0);
+})();
+const w2m = (x, z, S, cx, cz, R) => [S / 2 + (x - cx) / R * (S / 2), S / 2 + (z - cz) / R * (S / 2)];
+function drawRoute(g, map, S) {
+  g.strokeStyle = '#8dffb3'; g.lineWidth = Math.max(1.5, S / 260); g.setLineDash([S / 90, S / 140]); g.beginPath();
+  routePts.forEach((p, i) => { const [u, v] = map(p[0], p[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); }); g.stroke(); g.setLineDash([]);
+}
+function drawMini() {
+  const c = $('mini'), g = c.getContext('2d'), S = c.width, R = 150, cx = st.ev1.x, cz = st.ev1.z;
+  g.fillStyle = '#05100a'; g.fillRect(0, 0, S, S);
+  const px = (cx - R + HALF) / (2 * HALF) * MAPPX, pz = (cz - R + HALF) / (2 * HALF) * MAPPX, pw = 2 * R / (2 * HALF) * MAPPX;
+  g.globalAlpha = .75; g.drawImage(shade, px, pz, pw, pw, 0, 0, S, S); g.globalAlpha = .35; g.drawImage(slopeImg, px, pz, pw, pw, 0, 0, S, S); g.globalAlpha = 1;
+  const map = (x, z) => w2m(x, z, S, cx, cz, R);
+  drawRoute(g, map, S);
+  g.fillStyle = '#ffc24a'; rocks.forEach(r => { if (r.r > .9) { const [u, v] = map(r.x, r.z); if (u > 0 && v > 0 && u < S && v < S) g.fillRect(u - 2, v - 2, 4, 4); } });
+  g.font = `${S / 22}px "B612 Mono", monospace`; g.textAlign = 'left';
+  [...STOPS, { id: 'AIR', x: LANDER.x, z: LANDER.z }].forEach(s => { const [u, v] = map(s.x, s.z); g.strokeStyle = '#8dffb3'; g.lineWidth = 2; g.strokeRect(u - 6, v - 6, 12, 12); g.fillStyle = '#8dffb3'; g.fillText(s.id, u + 9, v + 5); });
+  plan.markers.forEach(m => { const [u, v] = map(m.x, m.z); if (u < 0 || v < 0 || u > S || v > S) return; g.fillStyle = MK[m.type][1]; g.beginPath(); g.arc(u, v, 6, 0, 7); g.fill(); g.fillText(m.id, u + 8, v - 6); });
+  const e2 = map(ev2Fig.position.x, ev2Fig.position.z); g.fillStyle = '#d9e4f2'; g.beginPath(); g.arc(e2[0], e2[1], 5, 0, 7); g.fill();
+  g.save(); g.translate(S / 2, S / 2); g.rotate(st.ev1.yaw + (st.mode === 'eva' ? st.look.yaw : 0));
+  g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(0, -14); g.lineTo(9, 10); g.lineTo(0, 5); g.lineTo(-9, 10); g.closePath(); g.fill(); g.restore();
+  drawCrumbs(g, map, S, R);
+  g.strokeStyle = 'rgba(141,255,179,.35)'; g.lineWidth = 1; g.beginPath(); g.arc(S / 2, S / 2, S * .33, 0, 7); g.stroke();
+  g.fillStyle = '#8dffb3'; g.fillText('N', S / 2 - 6, S / 22 + 4);
+}
+/* ---------- nearby map: range, route planning, markers ---------- */
+const MK = { sci: ['과학 관심', '#86c9ff'], sample: ['시료 채취', '#d3a6ff'], haz: ['위험', '#ff6b5e'], note: ['메모', '#ffffff'] };
+const plan = { wps: [], markers: [], tool: 'route', range: 200, draft: [], stat: null, n: 0, m: 0 };
+const AIR = { id: 'AIR', name: '에어록 · 착륙선', x: LANDER.x, z: LANDER.z };
+const WALKBACK = 300;   // scenario walk-back limit from the lander (m)
+const WALK = 1.1 * .9;  // average walking speed used by the route panel (m/s)
+const markerMat = {}; Object.keys(MK).forEach(k => { markerMat[k] = new THREE.MeshBasicMaterial({ color: MK[k][1] }); });
+const poleGeo = new THREE.CylinderGeometry(.12, .12, 3, 6), flagGeo = new THREE.BoxGeometry(1.1, .6, .05);
+function mapCenter() { return st.mode === 'iv' ? [LANDER.x, LANDER.z] : [st.ev1.x, st.ev1.z]; }
+function mapFns() {
+  const S = $('bigmap').width, R = plan.range, [cx, cz] = mapCenter();
+  return { S, R, cx, cz, to: (x, z) => w2m(x, z, S, cx, cz, R), from: (u, v) => [cx + (u / S * 2 - 1) * R, cz + (v / S * 2 - 1) * R] };
+}
+function dur(t) { const m = Math.max(1, Math.round(t / 60)); return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간 ${m % 60}분`; }
+function bearing(fx, fz, x, z) { return ((Math.atan2(x - fx, -(z - fz)) * 180 / Math.PI) + 360) % 360; }
+function computeDraft() {
+  plan.draft = []; plan.stat = null;
+  if (!plan.wps.length) return;
+  const seq = [{ x: st.ev1.x, z: st.ev1.z }, ...plan.wps, AIR];
+  let len = 0, maxS = 0;
+  for (let a = 0; a < seq.length - 1; a++) { const p = astar(seq[a].x, seq[a].z, seq[a + 1].x, seq[a + 1].z); plan.draft.push(p); len += pathLen(p); p.forEach(q => { maxS = Math.max(maxS, slopeDeg(q[0], q[1])); }); }
+  const far = Math.max(...plan.wps.map(w => Math.hypot(w.x - LANDER.x, w.z - LANDER.z)));
+  const t = len / WALK, o2Need = t / (8 * 3600);
+  plan.stat = { len, t, maxS, far, o2Need };
+}
+function renderPlanSide() {
+  const iv = st.mode === 'iv';
+  $('maptitle').textContent = iv ? '착륙선 주변 지도' : '전체 지도 · EV1 중심';
+  $('mapsub').textContent = iv ? '착륙선이 가운데 고정. 경로 지점을 찍어 EV팀 탐사 경로를 짜고, 마커로 위치를 공유한다.' : 'EV1이 가운데. 경로 지점을 찍어 다음 경로를 짜고, 마커로 본 것을 남긴다.';
+  document.querySelectorAll('#mapcard [data-r]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.r === plan.range)));
+  document.querySelectorAll('#mapcard [data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === plan.tool)));
+  $('mkopts').hidden = plan.tool !== 'marker';
+  $('planlist').innerHTML = plan.wps.length
+    ? ['EV1 현재 위치', ...plan.wps.map(w => `${w.id} · 착륙선에서 ${Math.round(Math.hypot(w.x - LANDER.x, w.z - LANDER.z))} m, ${String(Math.round(bearing(LANDER.x, LANDER.z, w.x, w.z))).padStart(3, '0')}°`), 'AIR · 에어록 귀환']
+        .map((t, i) => `<div><span class="chip" style="background:${i === 0 ? '#fff' : t.startsWith('AIR') ? '#8dffb3' : '#5fe0ff'}"></span>${t}</div>`).join('')
+    : '<div style="color:var(--chrome-dim)">‘경로 지점’ 도구로 지도를 클릭해 경유지를 순서대로 찍는다. 끝에는 자동으로 에어록 귀환이 붙는다.</div>';
+  const S = plan.stat;
+  if (S) {
+    const o2Left = st.o2 - S.o2Need, short = o2Left < .15;
+    const bad = [S.maxS > 25 ? '25° 넘는 구간' : '', S.far > WALKBACK ? `도보 귀환 한계 ${WALKBACK} m 밖` : '', short ? 'O₂ 예비 15% 미만' : ''].filter(Boolean);
+    $('planstat').innerHTML = `총 ${Math.round(S.len)} m · 약 ${dur(S.t)} 소요 · 최대 경사 ${S.maxS.toFixed(0)}°<br>` +
+      `O₂ 소요 약 ${Math.round(S.o2Need * 100)}% → 귀환 시 ${Math.round(o2Left * 100)}% 남음` +
+      (bad.length ? `<br><span style="color:var(--caution)">주의: ${bad.join(' · ')}</span>` : '');
+  } else $('planstat').textContent = '';
+  $('plansend').disabled = !plan.wps.length;
+  $('mklist').innerHTML = plan.markers.length
+    ? plan.markers.map((m, i) => `<div><span class="chip" style="background:${MK[m.type][1]}"></span>${m.id} · ${m.label} · ${Math.round(Math.hypot(m.x - LANDER.x, m.z - LANDER.z))} m<button type="button" data-del="${i}" aria-label="${m.id} 삭제">×</button></div>`).join('')
+    : '<div style="color:var(--chrome-dim)">‘마커’ 도구로 지도를 클릭하면 놓인다. 3D 화면에도 깃대로 보인다.</div>';
+}
+function drawBig() {
+  const c = $('bigmap'), g = c.getContext('2d'), F = mapFns(), { S, R, cx, cz } = F, map = F.to;
+  g.fillStyle = '#120c09'; g.fillRect(0, 0, S, S);
+  const px = (cx - R + HALF) / (2 * HALF) * MAPPX, pz = (cz - R + HALF) / (2 * HALF) * MAPPX, pw = 2 * R / (2 * HALF) * MAPPX;
+  const drawSub = img => { // source rect may hang off the map edge: clip it and shrink the destination to match
+    const sx0 = Math.max(0, px), sz0 = Math.max(0, pz), sx1 = Math.min(MAPPX, px + pw), sz1 = Math.min(MAPPX, pz + pw); if (sx1 <= sx0 || sz1 <= sz0) return;
+    g.drawImage(img, sx0, sz0, sx1 - sx0, sz1 - sz0, (sx0 - px) / pw * S, (sz0 - pz) / pw * S, (sx1 - sx0) / pw * S, (sz1 - sz0) / pw * S); };
+  drawSub(shade); if ($('ly-slope').checked) { g.globalAlpha = .45; drawSub(slopeImg); g.globalAlpha = 1; }
+  g.font = '15px "B612 Mono", monospace'; g.textAlign = 'left';
+  if ($('ly-ring').checked) {
+    const [lu, lv] = map(LANDER.x, LANDER.z), k = S / 2 / R;
+    [50, 100, 200].forEach(r => { g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1; g.setLineDash([4, 6]); g.beginPath(); g.arc(lu, lv, r * k, 0, 7); g.stroke(); g.fillStyle = 'rgba(255,255,255,.7)'; g.fillText(r + ' m', lu + r * k * .71 + 4, lv - r * k * .71); });
+    g.setLineDash([10, 6]); g.strokeStyle = '#ffc24a'; g.lineWidth = 2; g.beginPath(); g.arc(lu, lv, WALKBACK * k, 0, 7); g.stroke(); g.setLineDash([]);
+    g.fillStyle = '#ffc24a'; g.fillText(`도보 귀환 한계 ${WALKBACK} m`, lu - 70, lv - WALKBACK * k - 8);
+  }
+  if ($('ly-rock').checked) { g.fillStyle = '#ffc24a'; const sz = Math.max(2, 600 / R); rocks.forEach(r => { if (r.r > .6) { const [u, v] = map(r.x, r.z); if (u > -5 && v > -5 && u < S + 5 && v < S + 5) g.fillRect(u - sz / 2, v - sz / 2, sz, sz); } }); }
+  if ($('ly-route').checked) drawRoute(g, map, S);
+  if (plan.draft.length) {   // planned (not yet sent) route
+    g.strokeStyle = '#5fe0ff'; g.lineWidth = 3; g.setLineDash([12, 7]); g.beginPath();
+    plan.draft.forEach(p => p.forEach((q, i) => { const [u, v] = map(q[0], q[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); })); g.stroke(); g.setLineDash([]);
+  }
+  g.font = '17px "B612 Mono", monospace';
+  [...STOPS, AIR].forEach(s => { const [u, v] = map(s.x, s.z); g.strokeStyle = '#8dffb3'; g.lineWidth = 3; g.strokeRect(u - 9, v - 9, 18, 18); g.fillStyle = '#eafff1'; g.fillText(s.id, u + 13, v + 6); });
+  plan.wps.forEach((w, i) => { const [u, v] = map(w.x, w.z); g.fillStyle = '#5fe0ff'; g.beginPath(); g.arc(u, v, 13, 0, 7); g.fill(); g.fillStyle = '#04140b'; g.textAlign = 'center'; g.fillText(String(i + 1), u, v + 6); g.textAlign = 'left'; });
+  plan.markers.forEach(m => { const [u, v] = map(m.x, m.z), col = MK[m.type][1];
+    g.strokeStyle = '#000'; g.lineWidth = 3; g.fillStyle = col; g.beginPath(); g.moveTo(u, v); g.lineTo(u - 9, v - 20); g.arc(u, v - 22, 9, Math.PI * .85, Math.PI * .15); g.closePath(); g.stroke(); g.fill();
+    g.fillStyle = col; g.fillText(`${m.id} ${m.label}`, u + 12, v - 16); });
+  drawCrumbs(g, map, S, R);
+  const e2 = map(ev2Fig.position.x, ev2Fig.position.z); g.fillStyle = '#d9e4f2'; g.beginPath(); g.arc(e2[0], e2[1], 6, 0, 7); g.fill();
+  const [u, v] = map(st.ev1.x, st.ev1.z); g.fillStyle = '#ffffff'; g.beginPath(); g.arc(u, v, 8, 0, 7); g.fill(); g.fillText('EV1', u + 12, v - 10);
+  const sb = R >= 300 ? 100 : 50, sbp = sb / R * S / 2;   // scale bar
+  g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 3; g.beginPath(); g.moveTo(S - 30 - sbp, S - 30); g.lineTo(S - 30, S - 30); g.stroke(); g.fillStyle = '#fff'; g.fillText(sb + ' m', S - 30 - sbp, S - 40);
+  g.fillText('N ↑', 18, 30);
+  if (!plan.hover) $('mapinfo').textContent = '현재 경로 남은 ' + Math.round(pathLen(routePts.slice(nearestIdx))) + ' m · 지형은 시뮬레이션';
+}
+function mapEvt(e) { const c = $('bigmap'), r = c.getBoundingClientRect(); const u = (e.clientX - r.left) / r.width * c.width, v = (e.clientY - r.top) / r.height * c.height; const F = mapFns(); return { u, v, w: F.from(u, v), F }; }
+function addMarkerMesh(m) {
+  const g = new THREE.Group(), y = H(m.x, m.z);
+  const pole = new THREE.Mesh(poleGeo, markerMat[m.type]); pole.position.y = 1.5; g.add(pole);
+  const flag = new THREE.Mesh(flagGeo, markerMat[m.type]); flag.position.set(.55, 2.7, 0); g.add(flag);
+  g.position.set(m.x, y, m.z); scene.add(g); m.mesh = g;
+}
+function planChanged() { computeDraft(); renderPlanSide(); drawBig(); }
+$('bigmap').addEventListener('click', e => {
+  const { u, v, w, F } = mapEvt(e); const [x, z] = w;
+  if (Math.abs(x) > HALF - 3 || Math.abs(z) > HALF - 3) { $('mapinfo').textContent = '탐사 지역(800 m × 800 m) 밖입니다.'; return; }
+  if (plan.tool === 'route') {
+    plan.n++; plan.wps.push({ id: 'P' + plan.n, name: '경유지 P' + plan.n, x, z, task: '지도에서 지정한 경유지', dwell: '—' });
+  } else if (plan.tool === 'marker') {
+    const type = $('mktype').value, label = ($('mklabel').value.trim() || MK[type][0]).slice(0, 24);
+    plan.m++; const m = { id: 'M' + plan.m, type, label, x, z }; plan.markers.push(m); addMarkerMesh(m); $('mklabel').value = '';
+    sys(`[${st.mode === 'iv' ? 'HAB' : 'EV1'}] 마커 ${m.id} ‘${label}’ · 착륙선에서 ${Math.round(Math.hypot(x - LANDER.x, z - LANDER.z))} m, 방위 ${String(Math.round(bearing(LANDER.x, LANDER.z, x, z))).padStart(3, '0')}°`, 'sys');
+  } else {
+    let best = null, bd = 16;
+    plan.wps.forEach((p, i) => { const [a, b] = F.to(p.x, p.z), d = Math.hypot(a - u, b - v); if (d < bd) { bd = d; best = ['w', i]; } });
+    plan.markers.forEach((m, i) => { const [a, b] = F.to(m.x, m.z - 0), d = Math.min(Math.hypot(a - u, b - v), Math.hypot(a - u, b - 22 - v)); if (d < bd) { bd = d; best = ['m', i]; } });
+    if (best && best[0] === 'w') plan.wps.splice(best[1], 1); else if (best) delMarker(best[1]);
+  }
+  planChanged();
+});
+$('bigmap').addEventListener('pointermove', e => {
+  const { w } = mapEvt(e); const [x, z] = w; plan.hover = true;
+  if (Math.abs(x) > HALF || Math.abs(z) > HALF) { $('mapinfo').textContent = '탐사 지역 밖'; return; }
+  $('mapinfo').textContent = `커서: 착륙선에서 ${Math.round(Math.hypot(x - LANDER.x, z - LANDER.z))} m · 방위 ${String(Math.round(bearing(LANDER.x, LANDER.z, x, z))).padStart(3, '0')}° · 경사 ${slopeDeg(x, z).toFixed(0)}° · EV1에서 ${Math.round(Math.hypot(x - st.ev1.x, z - st.ev1.z))} m`;
+});
+$('bigmap').addEventListener('pointerleave', () => { plan.hover = false; });
+function delMarker(i) { const m = plan.markers[i]; if (m && m.mesh) scene.remove(m.mesh); plan.markers.splice(i, 1); }
+$('mklist').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) { delMarker(+b.dataset.del); planChanged(); } });
+document.querySelectorAll('#mapcard [data-r]').forEach(b => b.addEventListener('click', () => { plan.range = +b.dataset.r; renderPlanSide(); drawBig(); }));
+document.querySelectorAll('#mapcard [data-tool]').forEach(b => b.addEventListener('click', () => { plan.tool = b.dataset.tool; renderPlanSide(); }));
+$('planundo').onclick = () => { plan.wps.pop(); planChanged(); };
+$('planclear').onclick = () => { plan.wps = []; planChanged(); };
+$('planreset').onclick = () => {
+  const left = STOPS.filter(s => !legs.slice(0, legIdx).some(l => l.to.id === s.id));
+  planFrom(st.ev1.x, st.ev1.z, [...left, AIR]); nearestIdx = 0; buildRibbon(); setAuto(true); drawBig(); sys('기본 탐사 계획으로 복원', 'sys');
+};
+$('plansend').onclick = () => {
+  if (!plan.wps.length) return; const S = plan.stat;
+  if (st.los.on) { sys('[HAB] 경로 전송 실패 · EV 링크 두절. 링크가 돌아오면 다시 보내세요.', 'sys'); return; }
+  planFrom(st.ev1.x, st.ev1.z, [...plan.wps, AIR]); nearestIdx = 0; buildRibbon(); setAuto(true);
+  sys(`[HAB] 새 탐사 경로 전송 · ${plan.wps.map(w => w.id).join(' → ')} → AIR · ${Math.round(S.len)} m · 약 ${dur(S.t)}`, 'them');
+  plan.wps = []; planChanged();
+};
+['ly-slope', 'ly-route', 'ly-rock', 'ly-ring'].forEach(id => $(id).addEventListener('change', drawBig));
+function toggleMap() { const s = $('mapsheet'); s.hidden = !s.hidden; if (!s.hidden) { computeDraft(); renderPlanSide(); drawBig(); } }
+
+/* ---------- HUD frame (SVG) ---------- */
+let W = 0, Hh = 0;
+const svg = $('frame'), NS = 'http://www.w3.org/2000/svg';
+function el(tag, at, parent) { const n = document.createElementNS(NS, tag); for (const k in at) n.setAttribute(k, at[k]); (parent || svg).appendChild(n); return n; }
+let tapeG, ivG, helmetG;
+function visorPath() {
+  const top = (x) => { const t = (x / W - .5) * 2; return Hh * (.07 + .06 * t * t); };
+  const bot = (x) => { const t = (x / W - .5) * 2; return Hh * (.80 + .17 * t * t); };
+  let d = `M ${W * .02} ${top(W * .02)}`; for (let x = W * .02; x <= W * .98; x += W / 40) d += ` L ${x} ${top(x)}`;
+  d += ` L ${W * .98} ${bot(W * .98)}`; for (let x = W * .98; x >= W * .02; x -= W / 40) d += ` L ${x} ${bot(x)}`; return d + ' Z';
+}
+function buildFrame() {
+  svg.setAttribute('viewBox', `0 0 ${W} ${Hh}`); svg.innerHTML = '';
+  const defs = el('defs', {});
+  const mk = el('mask', { id: 'vm' }, defs); el('rect', { x: 0, y: 0, width: W, height: Hh, fill: 'white' }, mk); el('path', { d: visorPath(), fill: 'black' }, mk);
+  const fl = el('filter', { id: 'soft' }, defs); el('feGaussianBlur', { stdDeviation: 6 }, fl);
+  helmetG = el('g', {});
+  el('rect', { x: 0, y: 0, width: W, height: Hh, fill: '#07090a', mask: 'url(#vm)', opacity: .96 }, helmetG);
+  el('path', { d: visorPath(), fill: 'none', stroke: '#2b3238', 'stroke-width': 10, filter: 'url(#soft)' }, helmetG);
+  el('path', { d: visorPath(), fill: 'none', stroke: 'rgba(141,255,179,.25)', 'stroke-width': 1 }, helmetG);
+  ivG = el('g', {});
+  tapeG = el('g', {});
+}
+function drawTape(heading) {
+  tapeG.innerHTML = '';
+  const cx = W / 2, x0 = W * .2, x1 = W * .8, yMid = Hh * .17, ySide = Hh * .24;
+  const arcY = x => { const t = (x - cx) / (x1 - cx); return yMid + (ySide - yMid) * t * t; };
+  let d = `M ${x0} ${arcY(x0)}`; for (let x = x0; x <= x1; x += 8) d += ` L ${x} ${arcY(x)}`;
+  el('path', { d, fill: 'none', stroke: 'rgba(141,255,179,.6)', 'stroke-width': 1.2 }, tapeG);
+  const span = 60;
+  for (let a = Math.ceil((heading - span) / 5) * 5; a <= heading + span; a += 5) {
+    const x = cx + (a - heading) / span * (x1 - cx), y = arcY(x), big = a % 30 === 0;
+    el('line', { x1: x, y1: y, x2: x, y2: y + (big ? 11 : 6), stroke: '#8dffb3', 'stroke-width': big ? 1.6 : 1, opacity: .9 }, tapeG);
+    if (big) { const n = ((a % 360) + 360) % 360; const lab = { 0: 'N', 90: 'E', 180: 'S', 270: 'W' }[n] || String(n / 10).padStart(2, '0'); const t = el('text', { x, y: y + 24, 'text-anchor': 'middle', class: 'hudtxt', 'font-weight': 700 }, tapeG); t.textContent = lab; }
+  }
+  el('path', { d: `M ${cx - 7} ${yMid - 12} L ${cx + 7} ${yMid - 12} L ${cx} ${yMid - 2} Z`, fill: '#8dffb3' }, tapeG);
+  const hb = el('text', { x: cx, y: yMid - 18, 'text-anchor': 'middle', class: 'hudtxt', 'font-weight': 700, 'font-size': 14 }, tapeG); hb.textContent = String(Math.round(((heading % 360) + 360) % 360)).padStart(3, '0') + '°';
+  if (target) {
+    const brg = Math.atan2(target.x - st.ev1.x, -(target.z - st.ev1.z)) * 180 / Math.PI;
+    let rel = ((brg - heading + 540) % 360) - 180; const clamp = Math.max(-span, Math.min(span, rel));
+    const x = cx + clamp / span * (x1 - cx), y = arcY(x);
+    el('path', { d: `M ${x} ${y - 3} l -7 -10 h 14 Z`, fill: 'none', stroke: Math.abs(rel) > span ? '#ffc24a' : '#8dffb3', 'stroke-width': 1.8 }, tapeG);
+  }
+}
+function drawIV() {
+  ivG.innerHTML = ''; if (st.mode !== 'iv') return;
+  const a = st.see ? .14 : .93, line = st.see ? 'rgba(160,190,210,.75)' : 'rgba(160,190,210,.3)';
+  const hull = '#1a2128';
+  if (inApproach()) {
+    const cap = [
+      `M0 0 H${W} V${Hh * .16} Q${W / 2} ${Hh * .04} 0 ${Hh * .16} Z`,
+      `M0 ${Hh} V${Hh * .76} Q${W / 2} ${Hh * .86} ${W} ${Hh * .76} V${Hh} Z`,
+      `M0 ${Hh * .16} L${W * .14} ${Hh * .12} L${W * .2} ${Hh * .79} L0 ${Hh * .76} Z`,
+      `M${W} ${Hh * .16} L${W * .86} ${Hh * .12} L${W * .8} ${Hh * .79} L${W} ${Hh * .76} Z`,
+      `M${W * .355} ${Hh * .09} L${W * .365} ${Hh * .09} L${W * .375} ${Hh * .82} L${W * .36} ${Hh * .82} Z`,
+      `M${W * .635} ${Hh * .09} L${W * .645} ${Hh * .09} L${W * .64} ${Hh * .82} L${W * .625} ${Hh * .82} Z`
+    ];
+    cap.forEach(d => el('path', { d, fill: hull, 'fill-opacity': a, stroke: line, 'stroke-width': 1.2 }, ivG));
+    const lab = el('text', { x: W / 2, y: Hh * .86 + 26, 'text-anchor': 'middle', class: 'hudtxt', 'font-weight': 700 }, ivG);
+    lab.textContent = st.see ? 'IRONVISION · 캡슐 선체 투시 · 접근 비행' : 'IRONVISION · 투시 OFF · 창문 시야만';
+    el('circle', { cx: W / 2, cy: Hh / 2, r: 9, fill: 'none', stroke: '#8dffb3', 'stroke-width': 1.4 }, ivG);
+    el('path', { d: `M${W / 2 - 22} ${Hh / 2} h10 M${W / 2 + 12} ${Hh / 2} h10 M${W / 2} ${Hh / 2 - 22} v10`, stroke: '#8dffb3', 'stroke-width': 1.4 }, ivG);
+    return;
+  }
+  // dashboard, roof, pillars: cabin silhouette
+  const parts = [
+    `M0 0 H${W} V${Hh * .14} Q${W / 2} ${Hh * .08} 0 ${Hh * .14} Z`,
+    `M0 ${Hh} V${Hh * .74} Q${W / 2} ${Hh * .66} ${W} ${Hh * .74} V${Hh} Z`,
+    `M0 ${Hh * .14} L${W * .1} ${Hh * .13} L${W * .16} ${Hh * .72} L0 ${Hh * .74} Z`,
+    `M${W} ${Hh * .14} L${W * .9} ${Hh * .13} L${W * .84} ${Hh * .72} L${W} ${Hh * .74} Z`,
+    `M${W * .485} ${Hh * .1} L${W * .515} ${Hh * .1} L${W * .51} ${Hh * .68} L${W * .49} ${Hh * .68} Z`
+  ];
+  parts.forEach(d => el('path', { d, fill: hull, 'fill-opacity': a, stroke: line, 'stroke-width': 1.2 }, ivG));
+  for (let i = 1; i < 6; i++) el('line', { x1: W * i / 6, y1: Hh * .7, x2: W * i / 6 + (i - 3) * 20, y2: Hh, stroke: line, 'stroke-width': .8 }, ivG);
+  const lab = el('text', { x: W / 2, y: Hh * .7 + 34, 'text-anchor': 'middle', class: 'hudtxt', 'font-weight': 700 }, ivG);
+  lab.textContent = st.see ? 'IRONVISION · 착륙선 고정 · 선체 투시 ON · 시점만 360° 회전' : 'IRONVISION · 착륙선 고정 · 투시 OFF · 창문 시야만';
+}
+
+/* ---------- panels ---------- */
+function bar(frac, cls) { return `<div class="bar"><i class="${cls || ''}" style="width:${Math.round(Math.max(0, Math.min(1, frac)) * 100)}%"></i></div>`; }
+function fmt(s) { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}`; }
+function layout() {
+  const top = Math.max(Hh * .1, 46);
+  const lc = $('leftcol'); lc.style.left = Math.max(12, W * .045) + 'px'; lc.style.top = top + 'px';
+  const cm = $('comms'); cm.style.right = Math.max(12, W * .045) + 'px'; cm.style.top = top + 'px';
+  $('cw').style.top = (Hh * .3) + 'px'; $('nav').style.top = (Hh * .3 + 34) + 'px';
+  const sp = $('stop'); sp.style.right = Math.max(12, W * .045) + 'px'; sp.style.top = (top + cm.offsetHeight + 10) + 'px';
+  // bottom corners: suit status (left) and outside environment (right), kept inside the visor curve
+  const eva = st.mode === 'eva', bot = eva ? Hh * .16 : Math.max(16, Hh * .05);
+  const su = $('status'), en = $('env');
+  su.style.left = lc.style.left; su.style.bottom = bot + 'px';
+  en.style.right = cm.style.right; en.style.bottom = bot + 'px';
+  document.body.classList.remove('tight');
+  if (!su.hidden && lc.offsetTop + lc.offsetHeight > Hh - bot - su.offsetHeight - 8) document.body.classList.add('tight');
+  const rt = $('ret');   // RETURN panel: bottom centre between SUIT and ENV when there is room, else under COMMS
+  if (W - 2 * (Math.max(12, W * .045) + 300 + 16) >= 280) { rt.style.left = '50%'; rt.style.right = 'auto'; rt.style.top = 'auto'; rt.style.transform = 'translateX(-50%)'; rt.style.bottom = (st.mode === 'eva' ? Hh * .2 : 20) + 'px'; }
+  else { rt.style.left = 'auto'; rt.style.transform = ''; rt.style.right = sp.style.right; rt.style.top = sp.style.top; rt.style.bottom = 'auto'; }
+  sp.classList.remove('nopov'); sp.style.visibility = '';
+  const clash = () => !sp.hidden && !en.hidden && sp.offsetTop + sp.offsetHeight > Hh - bot - en.offsetHeight - 8;
+  if (clash()) sp.classList.add('nopov');
+  if (clash()) sp.style.visibility = 'hidden';   // short screens: the next stop is still in ROUTE and the nav line
+}
+function resize() {
+  W = $('app').clientWidth; Hh = $('app').clientHeight;
+  renderer.setSize(W, Hh, false); camera.aspect = W / Hh; camera.updateProjectionMatrix(); buildFrame(); layout();
+}
+window.addEventListener('resize', resize);
+
+/* ---------- labels projected from 3D ---------- */
+const tagBox = $('tags');
+function tagAt(x, y, z, text, cls, more) {
+  const v = new THREE.Vector3(x, y, z).project(camera); let sx = (v.x * .5 + .5) * W, sy = (-v.y * .5 + .5) * Hh, edge = false;
+  if (v.z > 1) { sx = W - sx; sy = Hh * .55; edge = true; }
+  if (sx < 30 || sx > W - 30) edge = true; sx = Math.max(100, Math.min(W - 100, sx)); sy = Math.max(60, Math.min(Hh - 40, sy));
+  const d = document.createElement('div'); d.className = 'tagl ' + (cls || '') + (edge ? ' edge' : ''); d.style.left = sx + 'px'; d.style.top = sy + 'px'; if (sx <= 100) d.style.transform = 'translate(-12px,-100%)'; else if (sx >= W - 100) d.style.transform = 'translate(calc(-100% + 12px),-100%)';
+  d.textContent = text; const s = document.createElement('span'); s.className = 'd'; d.appendChild(s);
+  if (more && gz.on && !gz.calib && Math.hypot(gz.x - sx, gz.y - (sy - 10)) < 48) { d.classList.add('focus'); const m = document.createElement('span'); m.className = 'more'; m.textContent = more; d.appendChild(m); }
+  tagBox.appendChild(d);
+}
+
+/* ---------- main loop ---------- */
+let last = performance.now(), hudTick = 0, relayT = 41 * 60 + 12;
+function frame(now) {
+  gazeTick(Math.min(.5, (now - last) / 1000));
+  const dt = Math.min(.1, (now - last) / 1000); last = now;
+  if (inApproach()) { approachFrame(dt); requestAnimationFrame(frame); return; }
+  const sim = dt * warpNow();
+  camera.up.set(0, 1, 0); camera.near = 0.1; camera.far = 20000;
+  const ev = st.ev1, ox = ev.x, oz = ev.z;
+  // movement
+  if (st.auto && routePts.length > 1) {
+    let best = nearestIdx, bd = 1e9;
+    for (let i = nearestIdx; i < Math.min(routePts.length, nearestIdx + 40); i++) { const d = Math.hypot(routePts[i][0] - ev.x, routePts[i][1] - ev.z); if (d < bd) { bd = d; best = i; } }
+    if (best !== nearestIdx) { nearestIdx = best; if (nearestIdx % 8 === 0) buildRibbon(); }
+    const tgt = routePts[Math.min(routePts.length - 1, nearestIdx + 3)];
+    const dx = tgt[0] - ev.x, dz = tgt[1] - ev.z, L = Math.hypot(dx, dz);
+    if (L > .3) { const sl = slopeDeg(ev.x, ev.z); const v = 1.1 * Math.exp(-3.5 * Math.abs(Math.tan(sl * Math.PI / 180) * .6 + .05)) / Math.exp(-3.5 * .05) * .9; ev.x += dx / L * v * sim; ev.z += dz / L * v * sim; const want = Math.atan2(dx, -dz); let dy = ((want - ev.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI; ev.yaw += dy * Math.min(1, sim * 1.5); }
+  } else if (!st.auto) {
+    const k = st.keys, f = (k.w || k.arrowup ? 1 : 0) - (k.s || k.arrowdown ? 1 : 0), r = (k.d || k.arrowright ? 1 : 0) - (k.a || k.arrowleft ? 1 : 0);
+    ev.yaw += r * 1.4 * dt; const yaw = ev.yaw + st.look.yaw; const nx = ev.x + Math.sin(yaw) * f * 1.4 * sim, nz = ev.z - Math.cos(yaw) * f * 1.4 * sim;
+    if (slopeDeg(nx, nz) < 32 && Math.abs(nx) < HALF - 5 && Math.abs(nz) < HALF - 5) { ev.x = nx; ev.z = nz; }
+  }
+  // breadcrumbs: a point every 5 m walked, always recorded (onboard, needs no link)
+  const moved = Math.hypot(ev.x - ox, ev.z - oz), lc = crumbs[crumbs.length - 1];
+  if (Math.hypot(ev.x - lc[0], ev.z - lc[1]) > 5 && crumbs.length < 4000) crumbs.push([ev.x, ev.z]);
+  if (st.los.on) losTick(sim, moved);
+  // stop reached?
+  const legTo = legs[legIdx] && legs[legIdx].to; target = legTo;
+  if (legTo && Math.hypot(legTo.x - ev.x, legTo.z - ev.z) < 6 && legIdx < legs.length - 1) { legIdx++; sys((legTo.name || legTo.id) + ' 도착 · 작업: ' + (legTo.task || '—'), 'sys'); }
+  // telemetry (scenario)
+  st.elapsed += sim; st.dose += sim / 3600 * 27.9; st.o2 = Math.max(0, st.o2 - sim / (8 * 3600)); st.batt = Math.max(0, st.batt - sim / (9 * 3600));
+  const sl = slopeDeg(ev.x, ev.z); st.hr += ((88 + sl * 2.2 + (st.auto || Object.values(st.keys).some(Boolean) ? 8 : 0)) - st.hr) * Math.min(1, dt * .5);
+  relayT -= sim; if (relayT < 0) relayT = 95 * 60;
+  // crew figures
+  const hy = H(ev.x, ev.z);
+  ev1Fig.position.set(ev.x, hy, ev.z); ev1Fig.rotation.y = -ev.yaw;
+  const e2x = ev.x + Math.cos(ev.yaw) * 4 - Math.sin(ev.yaw) * 3, e2z = ev.z + Math.sin(ev.yaw) * 4 + Math.cos(ev.yaw) * 3; ev2Fig.position.set(e2x, H(e2x, e2z), e2z);
+  // camera
+  if (st.mode === 'eva') {
+    ev1Fig.visible = false; ev2Fig.visible = true; const bob = reduceMotion ? 0 : Math.sin(now / 260) * .025 * (st.auto ? 1 : 0);
+    camera.position.set(ev.x, hy + 1.65 + bob, ev.z); const yaw = ev.yaw + st.look.yaw + hv.yaw, p = Math.max(-1.3, Math.min(1.1, st.look.pitch + hv.pitch));
+    camera.lookAt(ev.x + Math.sin(yaw) * Math.cos(p) * 10, hy + 1.65 + Math.sin(p) * 10, ev.z - Math.cos(yaw) * Math.cos(p) * 10);
+    camera.fov = 70;
+  } else {
+    // lander is fixed on the surface: camera position never changes, only the view direction
+    ev1Fig.visible = true; ev2Fig.visible = true; const ry = H(LANDER.x, LANDER.z) + 4.6;
+    camera.position.set(LANDER.x, ry, LANDER.z); const yaw = st.iv.yaw + hv.yaw, p = Math.max(-1.3, Math.min(1.1, st.iv.pitch + hv.pitch));
+    camera.lookAt(LANDER.x + Math.sin(yaw) * Math.cos(p) * 10, ry + Math.sin(p) * 10, LANDER.z - Math.cos(yaw) * Math.cos(p) * 10);
+    camera.fov = 78;
+  }
+  rover.visible = st.mode === 'eva';
+  camera.updateProjectionMatrix();
+  renderer.render(scene, camera);
+
+  // HUD overlays
+  const heading = ((st.mode === 'eva' ? (ev.yaw + st.look.yaw) : st.iv.yaw) + hv.yaw) * 180 / Math.PI;
+  helmetG.style.display = st.mode === 'eva' ? '' : 'none';
+  drawTape(heading); drawIV();
+  tagBox.innerHTML = '';
+  const legsLeft = legs.slice(legIdx).map(l => l.to);
+  legsLeft.forEach((s, i) => { const d = Math.hypot(s.x - ev.x, s.z - ev.z); if (st.mode === 'eva' && i > 1) return; tagAt(s.x, H(s.x, s.z) + 3, s.z, `${s.id} · ${Math.round(st.mode === 'eva' ? d : Math.hypot(s.x - LANDER.x, s.z - LANDER.z))} m`, '', s.task ? `${s.task} · 체류 ${s.dwell}` : '착륙선 · 귀환 지점'); });
+  if (st.mode === 'iv') {
+    const d1 = Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z);
+    if (st.los.on) tagAt(ev.x, hy + 2.3, ev.z, `EV1 · 원격측정 끊김 ${fmt(st.los.t).slice(3)}`, 'haz', `마지막 수신 O₂ ${Math.round(st.los.last.o2 * 100)}% · 심박 ${Math.round(st.los.last.hr)} bpm · 착륙선 카메라로만 보임`);
+    else tagAt(ev.x, hy + 2.3, ev.z, `EV1 · ${Math.round(d1)} m · O₂ ${Math.round(st.o2 * 100)}%`, 'ev', `심박 ${Math.round(st.hr)} bpm · 배터리 ${Math.round(st.batt * 100)}% · 누적 선량 ${st.dose.toFixed(0)} μGy`);
+    tagAt(e2x, H(e2x, e2z) + 2.3, e2z, `EV2 · ${Math.round(Math.hypot(e2x - LANDER.x, e2z - LANDER.z))} m`, 'ev', 'EV1 뒤 15 m 동행 · 음성 채널 EV2');
+    tagAt(MESA.x, H(MESA.x, MESA.z) + 4, MESA.z, '급경사 대지 · 통행 불가', 'haz', '경사 25° 이상 · 경로 탐색에서 제외');
+  } else {
+    let near = null, nd = 1e9; rocks.forEach(r => { if (r.r > .7) { const d = Math.hypot(r.x - ev.x, r.z - ev.z) - r.r; if (d < nd) { nd = d; near = r; } } });
+    if (near && nd < 12) tagAt(near.x, H(near.x, near.z) + near.r + .4, near.z, `바위 ${near.r.toFixed(1)} m · ${Math.max(0, nd).toFixed(0)} m`, 'haz', '경로 셀에서 제외됨 · 우회');
+    ROCK_NEAR = nd;
+  }
+  plan.markers.forEach(m => { const d = Math.hypot(m.x - ev.x, m.z - ev.z), dl = Math.hypot(m.x - LANDER.x, m.z - LANDER.z);
+    if (st.mode === 'eva' && d > 160) return;
+    tagAt(m.x, H(m.x, m.z) + 3.4, m.z, `${m.id} ${m.label} · ${Math.round(st.mode === 'eva' ? d : dl)} m`, 'mk-' + m.type, `${MK[m.type][0]} 마커 · 방위 ${String(Math.round(bearing(st.mode === 'eva' ? ev.x : LANDER.x, st.mode === 'eva' ? ev.z : LANDER.z, m.x, m.z))).padStart(3, '0')}°`); });
+  // caution & warning
+  const cw = $('cw'); let msg = '', cls = '';
+  if (st.sep) { msg = 'WARNING · SEP 경보 · 에어록으로 즉시 귀환'; cls = 'warn'; }
+  else if (st.mode === 'eva' && sl > 25) { msg = 'WARNING · 경사 ' + sl.toFixed(0) + '° · 통행 불가 구역'; cls = 'warn'; }
+  else if (st.mode === 'eva' && sl > 15) { msg = 'CAUTION · 경사 ' + sl.toFixed(0) + '°'; cls = 'caution'; }
+  else if (st.mode === 'eva' && ROCK_NEAR < 2.5) { msg = 'CAUTION · 바위 근접'; cls = 'caution'; }
+  else if (st.los.on && st.los.deadline <= 0) { msg = 'WARNING · 산소 마감 · 지금 귀환 출발'; cls = 'warn'; }
+  else if (st.los.on) { msg = st.mode === 'eva' ? 'CAUTION · 통신 두절 · 자율 귀환 항법' : 'CAUTION · EV 링크 두절 · 마지막 수신 ' + fmt(st.los.t).slice(3) + ' 전'; cls = 'caution'; }
+  else if (st.o2 < .25) { msg = 'CAUTION · O₂ 25% 미만'; cls = 'caution'; }
+  cw.hidden = !msg; cw.textContent = msg; cw.className = cls;
+  // nav readout
+  const rem = pathLen([[ev.x, ev.z], ...routePts.slice(nearestIdx + 1)]);
+  $('nav').innerHTML = st.mode === 'eva'
+    ? `<b>${legTo ? legTo.id : '—'}</b> ${legTo ? Math.round(Math.hypot(legTo.x - ev.x, legTo.z - ev.z)) : 0} m · 발밑 경사 ${sl.toFixed(0)}° · 전체 남은 ${Math.round(rem)} m`
+    : `<b>EV1 추적${st.los.on ? '(카메라)' : ''}</b> ${Math.round(Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z))} m · 방위 ${String(Math.round(((Math.atan2(ev.x - LANDER.x, -(ev.z - LANDER.z)) * 180 / Math.PI) + 360) % 360)).padStart(3, '0')}°`;
+
+  losArrow(heading);
+  if ((hudTick += dt) > .25) { hudTick = 0; updatePanels(sl, rem); drawMini(); if (!$('mapsheet').hidden) drawBig(); }
+  requestAnimationFrame(frame);
+}
+let ROCK_NEAR = 99;
+/* outside environment — scenario values shaped by Curiosity REMS/SAM ranges at Gale crater */
+const COMP = [['CO₂', 95.1, '#e8a070'], ['N₂', 2.59, '#86c9ff'], ['Ar', 1.94, '#c9a0ff'], ['O₂', 0.16, '#8dffb3'], ['CO', 0.06, '#ffc24a']];   // SAM, Franz et al. 2017
+const SOL = 88775, MH = SOL / 24;   // one Mars hour ≈ 3,699 s
+function envNow() {
+  const h = (9.8 + st.elapsed / MH) % 24, tau = 2 * Math.PI / 24;
+  const T = -42 + 37 * Math.cos(tau * (h - 14));                       // air: ≈ −5 °C mid-afternoon, ≈ −79 °C before dawn
+  const sunUp = Math.sin(Math.PI * (h - 6) / 12);                       // >0 between 06 and 18 LMST
+  const Tg = T + (sunUp > 0 ? 16 * sunUp : -6);                        // ground warmer than air by day
+  const P = 742 * (1 + .012 * Math.cos(tau * (h - 7)));                 // daily thermal tide ±1%
+  const e = st.elapsed, wind = Math.max(.5, 4.5 + 2.5 * Math.sin(e / 700) + 1.3 * Math.sin(e / 173)), gust = wind * 1.8;
+  const deg = (200 + 40 * Math.sin(e / 2400) + 360) % 360, dir = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(deg / 45) % 8];
+  const rh = 1 + 69 * smooth(-35, -78, T);
+  const uv = sunUp <= 0 ? '없음(밤)' : sunUp < .35 ? '보통' : sunUp < .75 ? '높음' : '매우 높음';
+  const mm = x => { const H2 = Math.floor(x), M = Math.floor((x - H2) * 60); return String(H2).padStart(2, '0') + ':' + String(M).padStart(2, '0'); };
+  const sunTxt = sunUp > 0 ? `일몰까지 ${mm(18 - h)}` : `일출까지 ${mm((30 - h) % 24)}`;
+  return { lmst: mm(h), T, Tg, P, wind, gust, dir, rh, uv, tau: .6 + .05 * Math.sin(e / 5000), sunTxt, sun: sunUp > 0.05 };
+}
+function updatePanels(sl, rem) {
+  const ev = st.ev1, legTo = legs[legIdx] && legs[legIdx].to;
+  $('mscale').textContent = '반경 150 m'; $('mtitle').textContent = 'MAP · 북쪽 위';
+  const speed = 1.1 * 3600 / 1000 * .9;
+  $('route').innerHTML = `<h4><span>ROUTE</span><b>${legIdx + 1}/${legs.length}</b></h4>` +
+    legs.map((l, i) => `<div class="row" style="opacity:${i < legIdx ? .45 : 1}"><span>${i === legIdx ? '▶' : i < legIdx ? '✓' : '·'} ${l.to.id}</span><span>${l.to.name ? l.to.name.split('·').pop().trim() : ''}</span></div>`).join('') +
+    `<div class="row" style="margin-top:4px;color:var(--hud-dim)"><span>남은 거리</span><span>${Math.round(rem)} m</span></div>` +
+    `<div class="row" style="color:var(--hud-dim)"><span>예상 시간</span><span>${fmt(rem / (speed / 3.6))}</span></div>`;
+  const o2c = st.o2 < .25 ? 'warn' : st.o2 < .4 ? 'caution' : '';
+  const remain = st.o2 * 8 * 3600;
+  const watts = Math.round(255 + (st.auto || Object.values(st.keys).some(Boolean) ? 45 : 0) + 6 * Math.sin(st.elapsed / 300));
+  const battT = st.batt * 9 * 3600, limT = Math.min(remain, battT), co2 = 2.1 + .3 * Math.sin(st.elapsed / 900);
+  const met = Math.round(110 + (st.hr - 60) * 6), cool = 17.5 + (st.hr - 90) * .05;
+  const cell = (k, v, c) => `<div><span>${k}</span><b style="font-weight:400" class="${c || ''}">${v}</b></div>`;
+  $('status').innerHTML = `<h4><span>SUIT · EV1</span><b>EVA ${fmt(st.elapsed)}</b></h4>` +
+    `<div class="cells two">${cell('산소 O₂', `${Math.round(st.o2 * 100)}% · ${fmt(remain).slice(0, 5)}`, o2c)}${cell('전력 배터리', `${Math.round(st.batt * 100)}% · ${watts} W`)}` +
+    `<div>${bar(st.o2, o2c)}</div><div>${bar(st.batt)}</div></div>` +
+    `<div class="cells">${cell('슈트 압력', '29.6 kPa')}${cell('O₂ 탱크', (6.2 * st.o2 / .78 > 6.2 ? 6.2 : 6.2 * st.o2 / .78).toFixed(1) + ' MPa')}${cell('헬멧 CO₂', co2.toFixed(1) + ' mmHg', co2 > 7.6 ? 'caution' : '')}` +
+    `${cell('심박', Math.round(st.hr) + ' bpm', st.hr > 150 ? 'caution' : '')}${cell('대사량', met + ' W')}${cell('냉각수', cool.toFixed(1) + ' °C')}</div>` +
+    `<div class="pfoot"><span>소모품 여유 ${fmt(limT).slice(0, 5)} (${remain < battT ? 'O₂' : '배터리'} 기준)</span><span>선량 ${st.dose.toFixed(0)} µSv</span></div>` +
+    `<div class="pfoot" style="margin-top:2px"><span>EV2 · O₂ ${Math.round(st.o2 * 100 + 4)}% · 정상</span><span>${Math.round(Math.hypot(ev2Fig.position.x - ev.x, ev2Fig.position.z - ev.z))} m</span></div>`;
+  const E = envNow();
+  $('env').innerHTML = `<h4><span>ENV · 외기 · 게일</span><b>LMST ${E.lmst}</b></h4>` +
+    `<div class="cells">${cell('기온', `${E.T.toFixed(0)} °C`)}${cell('지면 온도', `${E.Tg.toFixed(0)} °C`)}${cell('기압', `${E.P.toFixed(0)} Pa`)}` +
+    `${cell('바람', `${E.dir} ${E.wind.toFixed(1)} m/s`)}${cell('돌풍', `${E.gust.toFixed(0)} m/s`, E.gust > 15 ? 'caution' : '')}${cell('상대 습도', `${E.rh.toFixed(0)}%`)}` +
+    `${cell('자외선', E.uv)}${cell('먼지 τ', E.tau.toFixed(2))}${cell('선량률', '약 28 µSv/h')}</div>` +
+    `<div class="comp" aria-hidden="true">${COMP.map(c => `<i style="width:${Math.max(c[1], .9)}%;background:${c[2]}"></i>`).join('')}</div>` +
+    `<div class="compl">${COMP.map(c => `<span><b>${c[0]}</b> ${c[1] < 1 ? c[1].toFixed(2) : c[1].toFixed(1)}%</span>`).join('')}</div>` +
+    `<div class="pfoot"><span>${E.sunTxt}</span><span>지구 기압의 ${(E.P / 101325 * 100).toFixed(1)}%</span></div>`;
+  $('cabin').innerHTML = `<h4><span>CABIN · 착륙선</span><b>정상</b></h4>` +
+    `<div class="row"><span>객실 압력</span><span>70.3 kPa</span></div>` +
+    `<div class="row"><span>전력</span><span>${Math.round(st.batt * 100 + 9)}%</span></div>${bar(st.batt + .09)}` +
+    (st.los.on ? `<div class="row off"><span>EV1 O₂ · 심박</span><span>— 수신 없음</span></div>` :
+    `<div class="row"><span>EV1 O₂</span><span class="${o2c}">${Math.round(st.o2 * 100)}%</span></div>` +
+    `<div class="row"><span>EV1 심박</span><span>${Math.round(st.hr)} bpm</span></div>` +
+    `<div class="row"><span>EV 누적 선량</span><span>${st.dose.toFixed(0)} µSv</span></div>`) +
+    `<div class="row" style="color:var(--hud-dim)"><span>선량률(RAD 평균)</span><span>28 µSv/h</span></div>` +
+    (st.los.on ? `<div class="row warn"><span>EV 링크</span><span>두절 ${fmt(st.los.t).slice(3)}</span></div>` : '');
+  $('relay').textContent = st.los.on ? 'LOS · 신호 없음 ' + fmt(st.los.t).slice(3) : '다음 릴레이 TGO ' + fmt(relayT).slice(0, 5);
+  $('comms').classList.toggle('los', st.los.on);
+  renderRet();
+  const sp = $('stop');
+  if (st.mode === 'eva' && legTo && legTo.task && !st.los.on) {
+    sp.hidden = false;
+    sp.innerHTML = `<h4><span>NEXT STOP</span><b>${legTo.id}</b></h4><div>${legTo.name}</div><div style="color:var(--hud-dim)">${legTo.task} · 예정 ${legTo.dwell}</div><div class="pov">현장 사진 자리<br>해커톤 단계에서 Curiosity 원본 이미지로 교체</div>`;
+  } else sp.hidden = true;
+  layout();
+}
+
+/* ---------- approach phase loop ---------- */
+function approachFrame(dt) {
+  const A = st.app;
+  if (!A.entered) {
+    let rem = dt * warpNow();
+    while (rem > 0 && A.r > REI) { const h = Math.min(rem, 5); A.r -= vAt(A.r) * h; A.t += h; rem -= h; }
+    if (A.r <= REI) { A.r = REI; A.entered = true; A.edl = 0; $('edlsheet').hidden = false; sys('[선내] 대기권 진입 · EDL 시작', 'them'); }
+  } else {
+    A.edl += dt * 60;   // EDL shown compressed: 1 s on screen = 1 min
+    $('edlcount').textContent = `E+${Math.round(A.edl)} s · ${A.edl < 75 ? '감속·가열' : A.edl < 240 ? '열 차폐막 최고 가열 지남' : A.edl < 420 ? '낙하산 전개(고도 약 11 km)' : '착륙'}`;
+    if (A.edl >= 430) { setPhase('landed'); return; }
+  }
+  const T = tte(A.r);
+  if (!A.sep && T <= 600) { A.sep = true; sys('[선내] 순항 단 분리 완료 · 진입 자세 정렬', 'them'); }
+  mars.rotation.y = OMEGA * (A.t - TTE0); mars.updateMatrixWorld();
+  const gW = GALE.clone().applyMatrix4(mars.matrixWorld);
+  const camPos = APPROACH.clone().multiplyScalar(A.r);
+  camera.position.copy(camPos);
+  camera.near = Math.max(0.05, (A.r - RM) * 0.02); camera.far = A.r + 5e5; camera.fov = 60;
+  const aim = new THREE.Vector3().lerpVectors(new THREE.Vector3(0, 0, 0), gW, smooth(30000, 6000, A.r));
+  const f = aim.clone().sub(camPos).normalize(), right = f.clone().cross(new THREE.Vector3(0, 1, 0)).normalize(), up = right.clone().cross(f);
+  const y = st.ivA.yaw + hv.yaw, p = st.ivA.pitch + hv.pitch;
+  const dir = f.clone().multiplyScalar(Math.cos(p) * Math.cos(y)).addScaledVector(right, Math.sin(y) * Math.cos(p)).addScaledVector(up, Math.sin(p));
+  camera.up.copy(up); camera.lookAt(camPos.clone().add(dir)); camera.updateProjectionMatrix();
+  renderer.render(scene2, camera);
+
+  helmetG.style.display = 'none'; tapeG.innerHTML = ''; drawIV(); tagBox.innerHTML = '';
+  const alt = A.r - RM;
+  if (alt > 2500) tagAt(0, RM * 1.1, 0, `화성 · 표면까지 ${Math.round(alt).toLocaleString('ko-KR')} km`);
+  const vis = gW.clone().normalize().dot(camPos.clone().sub(gW).normalize()) > 0;
+  tagAt(gW.x, gW.y, gW.z, vis ? '착륙 목표 · 게일 크레이터' : '착륙 목표 · 뒷면 (진입 시각에 맞춰 돌아옴)', vis ? '' : 'haz', '약 5.4°S 137.8°E · 지름 약 154 km · 중앙에 샤프 산');
+  const cw = $('cw');
+  if (A.entered) { cw.hidden = false; cw.className = 'warn'; cw.textContent = 'EDL 진행 중 · 대기권 진입'; }
+  else if (T <= 600) { cw.hidden = false; cw.className = 'caution'; cw.textContent = 'CAUTION · 순항 단 분리 · 진입 자세 정렬'; }
+  else cw.hidden = true;
+  $('nav').innerHTML = `<b>진입까지 ${fmt(T)}</b> · 고도 ${Math.round(alt).toLocaleString('ko-KR')} km · 접근 속도 ${vAt(A.r).toFixed(2)} km/s`;
+  if ((hudTick += dt) > .25) { hudTick = 0; updateApproachPanels(T); drawTraj(); }
+}
+function updateApproachPanels(T) {
+  const A = st.app;
+  const stage = !A.entered ? (T > 600 ? 0 : 1) : (A.edl < 240 ? 2 : A.edl < 420 ? 3 : 4);
+  const steps = [['순항·접근', fmt(T) + ' 전'], ['순항 단 분리', 'E−10분'], ['대기권 진입', '고도 ' + HEI + ' km'], ['낙하산', 'E+240 s · 11 km'], ['착륙', 'E+약 7분']];
+  $('route').innerHTML = `<h4><span>APPROACH · EDL</span><b>${stage + 1}/5</b></h4>` +
+    steps.map((s, i) => `<div class="row" style="opacity:${i < stage ? .45 : 1}"><span>${i === stage ? '▶' : i < stage ? '✓' : '·'} ${s[0]}</span><span>${s[1]}</span></div>`).join('') +
+    `<div class="row" style="margin-top:4px;color:var(--hud-dim)"><span>진입 예상 속도</span><span>${vAt(REI).toFixed(2)} km/s</span></div>` +
+    `<div class="row" style="color:var(--hud-dim)"><span>시간 배속</span><span>×${warpNow()}</span></div>`;
+  $('cabin').innerHTML = `<h4><span>SPACECRAFT · 캡슐</span><b>정상</b></h4>` +
+    `<div class="row"><span>자세</span><span>${T > 600 ? '순항 자세' : '진입 자세'}</span></div>` +
+    `<div class="row"><span>객실 압력</span><span>70.3 kPa</span></div>` +
+    `<div class="row"><span>전력</span><span>88%</span></div>${bar(.88)}` +
+    `<div class="row"><span>열 차폐막</span><span>${A.entered ? (A.edl < 240 ? '가열 중' : '분리 예정') : '대기'}</span></div>` +
+    `<div class="row"><span>지구 지연</span><span>12:40 (시나리오)</span></div>` +
+    `<div class="row" style="color:var(--hud-dim)"><span>화성 자전</span><span>24.6229 h</span></div>`;
+  $('relay').textContent = '지구 직접 통신 · 편도 12:40';
+  $('mtitle').textContent = 'TRAJECTORY'; $('mscale').textContent = '로그 거리';
+  $('stop').hidden = true; layout();
+}
+function drawTraj() {
+  const c = $('mini'), g = c.getContext('2d'), S = c.width, A = st.app;
+  g.fillStyle = '#05100a'; g.fillRect(0, 0, S, S);
+  const cx = S / 2, cy = S * .8, rm = S * .1, span = S * .64;
+  const px = r => rm + span * Math.log(r / RM) / Math.log(R0 / RM);
+  g.fillStyle = '#a8603f'; g.beginPath(); g.arc(cx, cy, rm, 0, 7); g.fill();
+  g.strokeStyle = 'rgba(232,160,112,.6)'; g.setLineDash([4, 4]); g.beginPath(); g.arc(cx, cy, px(REI), Math.PI * 1.15, Math.PI * 1.85); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = '#8dffb3'; g.lineWidth = 2; g.setLineDash([8, 6]); g.beginPath(); g.moveTo(cx, cy - px(R0)); g.lineTo(cx, cy - px(REI)); g.stroke(); g.setLineDash([]);
+  g.font = `${S / 22}px "B612 Mono", monospace`; g.fillStyle = '#8dffb3'; g.textAlign = 'left';
+  const y10 = cy - px(R10); g.beginPath(); g.moveTo(cx - 10, y10); g.lineTo(cx + 10, y10); g.stroke(); g.fillText('E−10분 분리', cx + 16, y10 + 6);
+  g.fillText('진입 ' + HEI + ' km', cx + 16, cy - px(REI) + 6);
+  g.fillStyle = 'rgba(141,255,179,.6)'; g.fillText('100,000 km', cx + 16, cy - px(R0) + 14);
+  const ys = cy - px(Math.max(REI, A.r));
+  g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(cx, ys + 12); g.lineTo(cx - 9, ys - 8); g.lineTo(cx + 9, ys - 8); g.closePath(); g.fill();
+  g.fillStyle = '#eafff1'; g.textAlign = 'right'; g.fillText(Math.round(A.r - RM).toLocaleString('ko-KR') + ' km', cx - 16, ys + 6);
+  g.textAlign = 'center'; g.fillStyle = '#f3d2bf'; g.fillText('화성', cx, cy + 6);
+}
+
+/* ---------- loss of signal (LOS): onboard return navigation ---------- */
+// Everything here runs on the suit alone: inertial dead reckoning + breadcrumbs, corrected by
+// terrain matching against the stored orbital map, a sun compass (heading) and the lander's short-range beacon.
+const LOS_RULE = 90, BEACON_R = 120, RESERVE = .15;
+const crumbs = [[LANDER.x, LANDER.z], [st.ev1.x, st.ev1.z]];
+const losQueue = [];
+st.los = { on: false };
+function losSet(on) {
+  press('b-los', on);
+  if (on) {
+    st.los = { on: true, t: 0, err: 3, ang: Math.random() * 6.28, fixT: 0, lastFix: '출발 시 위치', fixAgo: 0, home: false, deadline: 1,
+      last: { o2: st.o2, hr: st.hr }, est: [st.ev1.x, st.ev1.z] };
+    chans.hab.sub = chans.mcc.sub = '신호 없음 · LOS';
+    chans.hab.log.push(['sys', '[시스템] 착륙선·궤도선 링크 두절 · 우주복 자율 귀환 항법으로 전환']);
+    chans.ev2.log.push(['them', `EV2: 기지 신호 끊겼어. 규칙대로 ${LOS_RULE}초 기다려 보고 안 돌아오면 왔던 길로 귀환하자.`]);
+    if (st.ch !== 'ev2') { st.ch = 'ev2'; document.querySelectorAll('#comms .tabs button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ch === 'ev2'))); }
+  } else {
+    const was = st.los; st.los = { on: false };
+    chans.hab.sub = 'UHF 근거리 · 지연 없음'; chans.mcc.sub = '편도 지연 12분 40초 (시나리오)';
+    chans.hab.log.push(['them', `HAB: 링크 복구. 두절 ${fmt(was.t || 0).slice(3)} 동안 위치 기록 수신 완료.` + (losQueue.length ? ` 대기열 메시지 ${losQueue.length}건 전송됨.` : '')]);
+    losQueue.length = 0; $('homearr').hidden = true; $('ret').hidden = true;
+  }
+  renderLog(); updatePanels(slopeDeg(st.ev1.x, st.ev1.z), pathLen(routePts.slice(nearestIdx)));
+}
+function losTick(sim, moved) {
+  const L = st.los, ev = st.ev1, E = envNow();
+  L.t += sim; L.fixAgo += sim;
+  L.err += moved * (E.sun ? .02 : .035) + sim * .003;   // drift: ~2 % of distance with a sun-compass heading check, ~3.5 % without
+  L.ang += (Math.random() - .5) * .08 * Math.min(1, sim);
+  const dL = Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z);
+  if (dL < BEACON_R) { const e = 1.5 + dL * .015; if (L.err > e) { L.err = e; L.lastFix = '착륙선 비컨'; L.fixAgo = 0; } }
+  else if ((L.fixT += sim) > 45) { L.fixT = 0; if (L.err > 6) { L.err = 6; L.lastFix = '지형 대조'; L.fixAgo = 0; sys('[항법] 궤도 지도와 지형 대조 · 위치 오차 ±6 m로 보정', 'sys'); } }
+  L.est = [ev.x + Math.cos(L.ang) * L.err * .55, ev.z + Math.sin(L.ang) * L.err * .55];
+  const back = pathLen(crumbs) + Math.hypot(ev.x - crumbs[crumbs.length - 1][0], ev.z - crumbs[crumbs.length - 1][1]);
+  L.back = back; L.deadline = st.o2 * 8 * 3600 - RESERVE * 8 * 3600 - back / WALK * 1.15;
+  if (!L.home && L.t >= LOS_RULE) losReturn('자동');
+}
+function losReturn(why) {
+  const ev = st.ev1, pts = [[ev.x, ev.z], ...crumbs.slice().reverse()];
+  legs = [{ to: AIR, pts }]; legIdx = 0; routePts = pts; nearestIdx = 0; buildRibbon(); setAuto(true);
+  st.los.home = true;
+  sys(`[항법] ${why === '자동' ? `응답 없음 ${LOS_RULE}초 · 규칙에 따라 ` : ''}브레드크럼 역추적 귀환 시작 · 왔던 길 ${Math.round(pathLen(pts))} m`, 'sys');
+}
+function drawCrumbs(g, map, S, R) {
+  if (crumbs.length < 2) return;
+  const on = st.los.on; g.fillStyle = on ? 'rgba(255,194,74,.9)' : 'rgba(255,255,255,.35)';
+  const r = on ? Math.max(1.6, S / 220) : Math.max(1.2, S / 320);
+  crumbs.forEach(c => { const [u, v] = map(c[0], c[1]); if (u > -4 && v > -4 && u < S + 4 && v < S + 4) { g.beginPath(); g.arc(u, v, r, 0, 7); g.fill(); } });
+  if (on && st.mode === 'eva') {   // uncertainty circle around the suit's own position estimate
+    const [u, v] = map(st.los.est[0], st.los.est[1]), rr = st.los.err / R * S / 2;
+    g.strokeStyle = '#ffc24a'; g.lineWidth = 2; g.setLineDash([5, 4]); g.beginPath(); g.arc(u, v, Math.max(4, rr), 0, 7); g.stroke(); g.setLineDash([]);
+  }
+}
+function losArrow(heading) {
+  const a = $('homearr'), L = st.los;
+  if (!L.on || st.mode !== 'eva') { a.hidden = true; return; }
+  const [x, z] = L.est, brg = bearing(x, z, LANDER.x, LANDER.z), d = Math.hypot(LANDER.x - x, LANDER.z - z);
+  const rel = ((brg - heading) % 360 + 540) % 360 - 180;
+  a.hidden = false; a.style.top = (Hh * .4) + 'px';
+  $('harot').setAttribute('transform', `rotate(${rel.toFixed(1)})`);
+  $('hatxt').innerHTML = `<b>AIR ${Math.round(d)} m</b> ±${Math.round(L.err)} · ${String(Math.round(brg)).padStart(3, '0')}°`;
+}
+function renderRet() {
+  const r = $('ret'), L = st.los;
+  if (!L.on) { r.hidden = true; return; }
+  r.hidden = false;
+  if (st.mode === 'iv') {
+    r.innerHTML = `<h4><span>EV 링크 두절</span><b>LOS ${fmt(L.t).slice(3)}</b></h4>` +
+      `<div class="row"><span>EV1 마지막 수신</span><span>O₂ ${Math.round(L.last.o2 * 100)}% · ${Math.round(L.last.hr)} bpm</span></div>` +
+      `<div class="row"><span>착륙선 비컨</span><span class="ok">송신 중 · 반경 ${BEACON_R} m</span></div>` +
+      `<div class="row"><span>섬광등</span><span class="ok">점멸 중</span></div>` +
+      `<div class="row"><span>규칙</span><span>${L.home ? 'EV팀 귀환 중(예상)' : `${Math.max(0, LOS_RULE - L.t).toFixed(0)}초 뒤 EV 자동 귀환`}</span></div>` +
+      `<div class="row off"><span>아이언비전 카메라로 EV1 직접 관찰</span><span></span></div>`;
+    return;
+  }
+  const ev = st.ev1, [x, z] = L.est, d = Math.hypot(LANDER.x - x, LANDER.z - z), dL = Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z), E = envNow();
+  const dbm = Math.round(-40 - 20 * Math.log10(Math.max(1, dL)));
+  const dl = L.deadline;
+  r.innerHTML = `<h4><span>RETURN · 자율 귀환</span><b>LOS ${fmt(L.t).slice(3)}</b></h4>` +
+    `<div class="row"><span>착륙선</span><span>${String(Math.round(bearing(x, z, LANDER.x, LANDER.z))).padStart(3, '0')}° · ${Math.round(d)} m</span></div>` +
+    `<div class="row"><span>위치 오차</span><span class="${L.err > 15 ? 'caution' : ''}">±${L.err.toFixed(0)} m · ${L.lastFix} ${L.fixAgo < 2 ? '방금' : fmt(L.fixAgo).slice(3) + ' 전'}</span></div>` +
+    `<div class="row"><span>관성 항법·걸음</span><span class="ok">작동</span></div>` +
+    `<div class="row"><span>태양 나침반</span><span class="${E.sun ? 'ok' : 'off'}">${E.sun ? '방위 보정 중' : '밤 · 사용 불가'}</span></div>` +
+    `<div class="row"><span>착륙선 비컨</span><span class="${dL < BEACON_R ? 'ok' : 'off'}">${dL < BEACON_R ? `수신 ${dbm} dBm` : `범위 밖 (${BEACON_R} m)`}</span></div>` +
+    `<div class="row"><span>브레드크럼</span><span>${crumbs.length}점 · 귀환 ${Math.round(L.back || 0)} m</span></div>` +
+    `<div class="row"><span>규칙</span><span>${L.home ? '귀환 중 · 왔던 길 역추적' : `${Math.max(0, LOS_RULE - L.t).toFixed(0)}초 뒤 자동 귀환 (H: 지금)`}</span></div>` +
+    `<div class="row"><span>출발 마감</span><span class="${dl <= 0 ? 'warn' : dl < 1800 ? 'caution' : ''}">${dl <= 0 ? '지금 출발' : dur(dl) + ' 안에'}</span></div>`;
+}
+
+/* ---------- head pose (from WebGazer's face mesh) ---------- */
+// MediaPipe face-mesh indices: 33 / 263 outer eye corners, 10 forehead, 152 chin. Points are in raw (unmirrored) video pixels.
+const head = { ok: false, yaw: 0, pitch: 0, y0: null, p0: null, vy: 0, vp: 0, view: true, flip: false, seen: 0 };
+const hv = { yaw: 0, pitch: 0 };   // what the 3D cameras add on top of their own look angles
+function headPose(P) {
+  const L = P[33], R = P[263], F = P[10], C = P[152];
+  if (!L || !R || !F || !C) return null;
+  // turning to the user's right brings the left eye (263) closer → its z gets smaller
+  const yaw = Math.atan2(-(R[2] - L[2]), R[0] - L[0]);
+  // tilting the head up brings the chin closer than the forehead
+  const pitch = Math.atan2(-(C[2] - F[2]), C[1] - F[1]);
+  return [yaw, pitch];
+}
+function headUpdate(wg) {
+  let P = null; try { P = wg.getTracker().getPositions(); } catch (e) {}
+  const hp = P && P.length > 263 ? headPose(P) : null;
+  if (!hp) { if (++head.seen > 15) head.ok = false; return; }
+  head.seen = 0; const yaw = head.flip ? -hp[0] : hp[0];
+  if (!head.ok) { head.yaw = yaw; head.pitch = hp[1]; } else { head.yaw += (yaw - head.yaw) * .35; head.pitch += (hp[1] - head.pitch) * .35; }
+  head.ok = true; if (head.y0 === null) headZero();
+}
+function headZero() { head.y0 = head.yaw; head.p0 = head.pitch; }
+function headRel() { return head.ok && head.y0 !== null ? [head.yaw - head.y0, head.pitch - head.p0] : [0, 0]; }
+function headViewTick(dt) {
+  let ty = 0, tp = 0;
+  if (gz.on && gz.src === 'cam' && head.view && head.ok && !gz.calib) {
+    const [dy, dp] = headRel(), dz = 0.026;   // ±1.5° dead zone keeps the scene still when the head is still
+    ty = Math.sign(dy) * Math.max(0, Math.abs(dy) - dz); tp = Math.sign(dp) * Math.max(0, Math.abs(dp) - dz);
+    ty = Math.max(-0.8, Math.min(0.8, ty)); tp = Math.max(-0.5, Math.min(0.5, tp));
+  }
+  const k = Math.min(1, dt * 8); hv.yaw += (ty - hv.yaw) * k; hv.pitch += (tp - hv.pitch) * k;   // same direction, same angle
+}
+/* eye + head fusion: screen gaze = WebGazer estimate + a + k·(head angle change).
+   Prior k from geometry: a head turn of θ moves the gaze on the screen by about D·tanθ (D ≈ 55 cm, screen ≈ 30 cm wide).
+   The 9-point calibration then refines a, k by ridge regression pulled toward that prior. */
+const fuse = { ax: 0, ay: 0, kx: 0, ky: 0, samples: [] };
+function fusePrior() { const ppr = W * 55 / 30; fuse.ax = fuse.ay = 0; fuse.kx = ppr; fuse.ky = -ppr; }
+function ridge2(rs, ds, prior) {   // minimise Σ(r − a − k·d)² + λa·a² + λk·(k − prior)²
+  const n = rs.length, la = n, lk = n * 0.0025;
+  let sd = 0, sdd = 0, sr = 0, srd = 0; for (let i = 0; i < n; i++) { sd += ds[i]; sdd += ds[i] * ds[i]; sr += rs[i]; srd += rs[i] * ds[i]; }
+  const A = n + la, B = sd, D = sdd + lk, e = sr, f = srd + lk * prior, det = A * D - B * B;
+  return det > 1e-9 ? [(e * D - B * f) / det, (A * f - B * e) / det] : [0, prior];
+}
+function fuseFit() {
+  fusePrior();
+  const S = fuse.samples.slice(3);   // the first dots come before the model has learned anything
+  if (S.length < 4) return;
+  const fx = ridge2(S.map(s => s.cx - s.px), S.map(s => s.dy), fuse.kx), fy = ridge2(S.map(s => s.cy - s.py), S.map(s => s.dp), fuse.ky);
+  fuse.ax = fx[0]; fuse.kx = fx[1]; fuse.ay = fy[0]; fuse.ky = fy[1];
+}
+
+/* ---------- gaze (eye tracking) ---------- */
+const gz = { on: false, src: '', calib: false, x: -1, y: -1, raw: null, el: null, t0: 0, cool: 0, used: null, wg: null };
+const DWELL = 0.9, DWELL_SEL = '#bar button, #comms .tabs button, #mapclose, #edlgo, #mapcard .seg button, #plansend, #planundo';
+const reticle = $('greticle'), gprog = $('gprog');
+function gazeTag(t) { const g = $('gazetag'); g.hidden = !t; g.textContent = t || ''; }
+function gazeMsg(t) { $('gazemsg').textContent = t || ''; }
+function appXY(cx, cy) { const r = $('app').getBoundingClientRect(); return [cx - r.left, cy - r.top]; }
+window.addEventListener('pointermove', e => { if (gz.on && gz.src === 'mouse') gz.raw = appXY(e.clientX, e.clientY); });
+// a real click on the same element cancels its dwell so it is not pressed twice
+window.addEventListener('pointerdown', e => { if (gz.on) { gz.used = e.target.closest && e.target.closest(DWELL_SEL); gz.t0 = 0; } }, true);
+
+function gazeStart(src) {
+  gz.on = true; gz.src = src; gz.x = gz.y = -1; gz.raw = null; gz.pred = null;
+  head.ok = false; head.y0 = head.p0 = null; head.vy = head.vp = 0; fusePrior();
+  document.body.classList.add('gaze'); reticle.toggleAttribute('hidden', false);
+  press('b-gaze', true); gazeTag(src === 'cam' ? '시선 · 카메라' : '시선 · 마우스 체험');
+}
+function gazeStop() {
+  gz.on = false; gz.calib = false; $('calib').hidden = true;
+  if (gz.wg) { try { gz.wg.end(); } catch (e) {} gz.wg = null; }
+  document.body.classList.remove('gaze'); reticle.toggleAttribute('hidden', true);
+  document.querySelectorAll('.gfocus,.gaze-hover').forEach(el => el.classList.remove('gfocus', 'gaze-hover'));
+  press('b-gaze', false); gazeTag('');
+}
+function loadWG() {
+  if (window.webgazer) return Promise.resolve(window.webgazer);
+  return new Promise((ok, no) => {
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/webgazer@3.3.0/dist/webgazer.js';
+    sc.onload = () => window.webgazer ? ok(window.webgazer) : no(new Error('load')); sc.onerror = () => no(new Error('load'));
+    document.head.appendChild(sc);
+  });
+}
+async function gazeCamera() {
+  gazeMsg('카메라 확인 중…');
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error(), { name: 'NoAPI' });
+    const test = await navigator.mediaDevices.getUserMedia({ video: true }); test.getTracks().forEach(t => t.stop());
+  } catch (e) {
+    const why = e.name === 'NotAllowedError' || e.name === 'SecurityError' ? '이 화면에서는 카메라 사용이 막혀 있습니다(claude.ai 미리보기 포함).'
+      : e.name === 'NotFoundError' ? '카메라를 찾지 못했습니다.' : '이 브라우저에서는 카메라를 쓸 수 없습니다.';
+    gazeMsg(why + ' 내려받은 HTML 파일을 Chrome에서 직접 열면 카메라로 쓸 수 있습니다. 지금은 마우스로 체험해 보세요.'); return;
+  }
+  gazeMsg('시선 추적 모델 불러오는 중…(인터넷 연결 필요)');
+  let wg; try { wg = await loadWG(); } catch (e) { gazeMsg('WebGazer를 불러오지 못했습니다. 인터넷 연결을 확인하세요.'); return; }
+  try {
+    wg.saveDataAcrossSessions(false);
+    wg.setGazeListener(d => {
+      if (!d || !gz.on || gz.src !== 'cam') return;
+      headUpdate(wg);
+      gz.pred = appXY(d.x, d.y);                        // WebGazer's eye-only estimate
+      const [dy, dp] = headRel();
+      gz.raw = [gz.pred[0] + fuse.ax + fuse.kx * dy, gz.pred[1] + fuse.ay + fuse.ky * dp];   // + head term
+    });
+    await wg.begin();
+    wg.showPredictionPoints(false); wg.applyKalmanFilter(true); wg.setVideoViewerSize(240, 180); wg.showVideoPreview(true);
+  } catch (e) { gazeMsg('시선 추적을 시작하지 못했습니다: ' + (e.message || e.name)); return; }
+  gz.wg = wg; gazeMsg(''); $('gazesheet').hidden = true; gazeStart('cam'); calibStart();
+}
+function calibStart() {
+  const c = $('calib'); c.querySelectorAll('.dot').forEach(d => d.remove());
+  gz.calib = true; c.hidden = false; reticle.toggleAttribute('hidden', false); gazeTag('시선 · 보정 0/9');
+  let done = 0; fuse.samples = []; head.y0 = head.p0 = null;   // neutral pose = pose at calibration start
+  [10, 50, 90].forEach(py => [10, 50, 90].forEach(px => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'dot'; b.dataset.n = '0';
+    b.style.left = px + '%'; b.style.top = py + '%'; b.setAttribute('aria-label', '보정 점');
+    b.addEventListener('click', () => {   // WebGazer learns from every click at the click position
+      const n = +b.dataset.n + 1; b.dataset.n = String(n);
+      // first click on a dot = the model has not been trained on this spot yet → honest residual sample
+      if (n === 1 && gz.pred && head.ok) { const r = $('app').getBoundingClientRect(), bb = b.getBoundingClientRect(); const [hy, hp] = headRel();
+        fuse.samples.push({ px: gz.pred[0], py: gz.pred[1], dy: hy, dp: hp, cx: bb.left + bb.width / 2 - r.left, cy: bb.top + bb.height / 2 - r.top }); }
+      if (n >= 3) { b.classList.add('done'); done++; gazeTag(`시선 · 보정 ${done}/9`); if (done === 9) calibEnd(); }
+    });
+    c.appendChild(b);
+  }));
+}
+function calibEnd() {
+  gz.calib = false; $('calib').hidden = true; reticle.toggleAttribute('hidden', false);
+  if (gz.wg) gz.wg.showVideoPreview(false);
+  fuseFit();
+  gazeTag(gz.src === 'cam' ? '시선 · 카메라' : '시선 · 마우스 체험');
+  sys('[시스템] 시선 보정 완료 · 버튼을 0.9초 바라보면 눌립니다', 'them');
+}
+
+function gazeTick(dt) {
+  headViewTick(dt);
+  if (!gz.on || !gz.raw) return;
+  const a = gz.src === 'cam' ? 0.25 : 1;   // smooth the noisy camera estimate
+  if (gz.x < 0) { gz.x = gz.raw[0]; gz.y = gz.raw[1]; } else { gz.x += (gz.raw[0] - gz.x) * a; gz.y += (gz.raw[1] - gz.y) * a; }
+  const x = Math.max(0, Math.min(W, gz.x)), y = Math.max(0, Math.min(Hh, gz.y));
+  reticle.style.left = x + 'px'; reticle.style.top = y + 'px';
+  if (gz.calib) { gprog.setAttribute('stroke-dasharray', '0 88'); return; }   // show the dot only while calibrating
+  if (gz.src === 'cam' && (gz.tagT = (gz.tagT || 0) + dt) > .3) { gz.tagT = 0;
+    const [hy, hp] = headRel(); gazeTag(head.ok ? `시선 · 카메라 · 고개 ${hy >= 0 ? '우' : '좌'} ${Math.abs(hy * 57.3).toFixed(0)}° ${hp >= 0 ? '위' : '아래'} ${Math.abs(hp * 57.3).toFixed(0)}°` : '시선 · 카메라 · 얼굴 찾는 중'); }
+  const r = $('app').getBoundingClientRect();
+  const hit = document.elementFromPoint(r.left + x, r.top + y);
+  // panel focus: the panel being looked at is sharp, the others fade
+  document.querySelectorAll('#app .panel').forEach(p => {
+    if (p.hidden) return; const b = p.getBoundingClientRect();
+    p.classList.toggle('gfocus', x + r.left > b.left - 20 && x + r.left < b.right + 20 && y + r.top > b.top - 20 && y + r.top < b.bottom + 20);
+  });
+  // dwell-to-press
+  const tgt = hit && hit.closest ? hit.closest(DWELL_SEL) : null;
+  const ok = tgt && tgt.id !== 'b-gaze' && !tgt.disabled && tgt !== gz.used;
+  if (tgt !== gz.used) gz.used = null;
+  if (gz.cool > 0) gz.cool -= dt;
+  if (ok && tgt === gz.el) gz.t0 += dt; else { if (gz.el) gz.el.classList.remove('gaze-hover'); gz.el = ok ? tgt : null; gz.t0 = 0; if (gz.el) gz.el.classList.add('gaze-hover'); }
+  const prog = gz.el && gz.cool <= 0 ? Math.min(1, gz.t0 / DWELL) : 0;
+  gprog.setAttribute('stroke-dasharray', `${(prog * 88).toFixed(1)} 88`);
+  if (prog >= 1) { const el = gz.el; el.classList.remove('gaze-hover'); gz.used = el; gz.el = null; gz.t0 = 0; gz.cool = 1.2; el.click(); }
+  // edge pan: looking at the left or right edge of the open view turns it
+  const overUI = hit && hit.closest && hit.closest('.panel, #bar, .sheet, #stop');
+  const headSteer = gz.src === 'cam' && head.view && head.ok;   // head turning already steers the view
+  if (!overUI && !headSteer && y > Hh * .2 && y < Hh * .85 && !document.querySelector('#app .sheet:not([hidden])')) {
+    const L = st.mode === 'eva' ? st.look : inApproach() ? st.ivA : st.iv;
+    const e = x < W * .07 ? -(1 - x / (W * .07)) : x > W * .93 ? (x - W * .93) / (W * .07) : 0;
+    L.yaw += e * 0.9 * dt;
+  }
+}
+$('b-gaze').addEventListener('click', () => { gazeMsg(''); $('gazesheet').hidden = false; });
+$('gazeclose').addEventListener('click', () => { $('gazesheet').hidden = true; });
+$('gaze-cam').addEventListener('click', () => { if (gz.on) gazeStop(); gazeCamera(); });
+$('gaze-mouse').addEventListener('click', () => { if (gz.on) gazeStop(); $('gazesheet').hidden = true; gazeStart('mouse'); sys('[시스템] 시선 추적(마우스 체험) 켜짐 · 커서가 시선 역할을 합니다', 'them'); });
+$('gaze-off').addEventListener('click', () => { gazeStop(); $('gazesheet').hidden = true; });
+$('calibskip').addEventListener('click', calibEnd);
+$('head-view').addEventListener('click', () => { head.view = !head.view; press('head-view', head.view); $('head-view').textContent = '고개 따라 화면 회전: ' + (head.view ? '켜짐' : '꺼짐'); });
+$('head-zero').addEventListener('click', () => { if (head.ok) headZero(); });
+$('head-flip').addEventListener('click', () => { head.flip = !head.flip; press('head-flip', head.flip); head.ok = false; head.y0 = null; });
+window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'c' && gz.on && head.ok && !(e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))) headZero(); });
+
+resize(); setMode('eva'); requestAnimationFrame(frame);
+})();
+</script>
