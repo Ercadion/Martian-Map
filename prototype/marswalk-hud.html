@@ -117,7 +117,7 @@ body.tight #mini{width:150px;height:150px}
 .go:disabled{opacity:.4;cursor:default}
 .row2{display:flex;gap:6px;flex-wrap:wrap}
 #planstat{font-size:12px;line-height:1.5}
-#bigmap{width:100%;height:auto;aspect-ratio:1;display:block;border-radius:4px;cursor:crosshair;max-width:100%}
+#bigmap{width:min(100%,calc(88vh - 220px));height:auto;aspect-ratio:1;display:block;margin:0 auto;border-radius:4px;cursor:crosshair;max-width:100%}
 .lg{display:grid;gap:6px;font-size:12px}
 .lg label{display:flex;gap:6px;align-items:center}
 .sw{display:inline-block;width:12px;height:12px;border-radius:2px}
@@ -148,6 +148,55 @@ body.gaze .panel.gfocus{opacity:1}
   #stop{display:none} #cw{font-size:11px}
   #mapcard{grid-template-columns:1fr}
 }
+/* compact HUD: each panel shows only its key line until it is hovered, pinned (header click) or looked at */
+.panel.mini:not(:is(:hover,.open,.gfocus,:focus-within)) .xtra{display:none!important}
+.panel.mini:not(:is(:hover,.open,.gfocus,:focus-within)) #log{height:30px}
+.panel.mini h4{cursor:pointer}
+.panel [data-win],#relay,#cw,#mini{cursor:pointer}
+.panel [data-win]:hover{background:var(--hud-faint)}
+#cw.ack{opacity:.6}
+#mrot{font:inherit;font-size:10px;color:var(--hud);background:transparent;border:1px solid var(--hud-faint);border-radius:3px;padding:0 4px;cursor:pointer;margin-right:6px}
+.tagl.clk{pointer-events:auto;cursor:pointer}
+.tagl.done{opacity:.55}
+#demo{position:absolute;z-index:22;display:grid;gap:6px;padding:10px;width:246px;background:var(--chrome);border:1px solid var(--chrome-line);border-radius:8px;color:var(--chrome-fg);font-family:var(--sans);font-size:12px}
+#demo button{font:inherit;color:var(--chrome-fg);background:transparent;border:1px solid var(--chrome-line);border-radius:6px;padding:5px 10px;cursor:pointer;text-align:left}
+#demo button[aria-pressed="true"]{border-color:var(--hud);color:var(--hud)}
+#demo label{display:grid;gap:2px;color:var(--chrome-dim)}
+#demo p{margin:0;color:var(--chrome-dim);font-size:11px}
+#detail{position:absolute;z-index:36;right:max(12px,4.5%);top:13%;width:min(390px,92%);max-height:76%;overflow:auto;box-sizing:border-box;background:rgba(7,13,11,.95);border:1px solid var(--hud-dim);border-radius:6px;color:#e6fff0;font-family:var(--sans);font-size:12.5px;line-height:1.5;padding:12px 14px}
+#detail h3{margin:0 0 8px;font-size:14px;color:var(--hud);padding-right:60px}
+#detail h5{margin:10px 0 4px;font-size:11px;letter-spacing:.08em;color:var(--hud-dim)}
+#detail button{font:inherit;font-size:12px;color:#e6fff0;background:transparent;border:1px solid var(--hud-dim);border-radius:5px;padding:4px 9px;cursor:pointer}
+#detail button.go{color:#04140b;background:var(--hud);border-color:var(--hud);font-weight:700}
+#detail .dclose{position:absolute;right:10px;top:10px}
+#detail canvas{display:block;width:100%;margin:6px 0;border:1px solid rgba(141,255,179,.2);border-radius:3px}
+#detail input[type=text],#detail select,#detail textarea{font:inherit;font-size:12px;color:#e6fff0;background:#0a0e10;border:1px solid var(--hud-dim);border-radius:4px;padding:4px 6px;width:100%;box-sizing:border-box}
+#detail ol,#detail ul{margin:4px 0;padding-left:18px}
+#detail p{margin:4px 0}
+.drow{display:flex;justify-content:space-between;gap:10px;border-top:1px solid rgba(141,255,179,.14);padding:3px 0;font-variant-numeric:tabular-nums}
+.drow span{color:#a9c9b6} .drow b{font-weight:400;text-align:right}
+.dbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dnote{color:#8fae9c;font-size:11px}
+.pov3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pov3 div{border:1px dashed var(--hud-dim);border-radius:3px;height:58px;display:grid;place-items:center;text-align:center;font-size:10.5px;color:#a9c9b6;padding:3px}
+.chk{display:flex;gap:6px;align-items:flex-start;padding:2px 0}
+#gdock{position:absolute;z-index:34;left:50%;transform:translateX(-50%);display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.gbtn{font:700 14px var(--mono);color:var(--hud);background:rgba(3,14,9,.66);border:2px solid var(--hud-dim);border-radius:10px;min-width:var(--gw,132px);height:var(--gh,64px);padding:0 12px;cursor:pointer}
+.gbtn.confirm{border-color:var(--caution);color:var(--caution)}
+#gazetag.bad{color:var(--caution)}
+.lg .seg.wrap{flex-wrap:wrap}
+.lg .seg.wrap button{flex:1 0 30%;border-top:1px solid var(--chrome-line);margin-top:-1px}
+.lgbar{height:10px;border-radius:2px;margin:2px 0}
+#prof{width:min(100%,calc(88vh - 220px));display:block;margin:8px auto 0;border-radius:4px;background:#0c0806}
+.plist input[type=number]{width:44px;font:inherit;font-size:11px;color:var(--chrome-fg);background:#0a0e10;border:1px solid var(--chrome-line);border-radius:4px;padding:1px 3px;margin-left:auto}
+#calib .vdot{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--hud);box-shadow:0 0 0 6px rgba(141,255,179,.25)}
+#calibres{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,90%);background:var(--chrome);border:1px solid var(--chrome-line);border-radius:8px;padding:16px 18px;color:var(--chrome-fg);font-family:var(--sans);font-size:13px;line-height:1.55;text-align:center}
+#calibres button{font:inherit;color:var(--chrome-fg);background:transparent;border:1px solid var(--chrome-line);border-radius:6px;padding:5px 10px;cursor:pointer;margin:6px 3px 0}
+@media (max-width:1180px){ #simtag{display:none} #nav{white-space:normal;max-width:34%} }
+@media (max-width:760px){
+  #env{display:none!important} #comms{width:170px} #nav{white-space:normal;max-width:44%;font-size:11px}
+  #detail{top:auto;bottom:8px;right:4%;max-height:60%}
+}
 </style>
 
 <div id="app">
@@ -163,22 +212,29 @@ body.gaze .panel.gfocus{opacity:1}
       <button id="p-app" type="button" aria-pressed="true">접근 비행</button>
       <button id="p-land" type="button" aria-pressed="false">착륙 후 (고정)</button>
     </div>
-    <button id="b-auto" class="btn" type="button" aria-pressed="true">자동 보행</button>
-    <button id="b-ff" class="btn" type="button" aria-pressed="false">시간 ×1</button>
-    <button id="b-see" class="btn" type="button" aria-pressed="true" hidden>투시 ON</button>
-    <button id="b-home" class="btn" type="button">귀환 경로</button>
-    <button id="b-sep" class="btn" type="button">SEP 경보 시험</button>
-    <button id="b-los" class="btn" type="button" aria-pressed="false">통신 두절 시험</button>
     <button id="b-map" class="btn" type="button">전체 지도 (M)</button>
+    <button id="b-home" class="btn" type="button">귀환 경로</button>
+    <button id="b-see" class="btn" type="button" aria-pressed="true" hidden>투시 ON</button>
     <button id="b-gaze" class="btn" type="button" aria-pressed="false">시선 추적</button>
+    <button id="b-demo" class="btn" type="button" aria-expanded="false" aria-controls="demo">시연 제어 ▾</button>
     <span class="sp"></span>
     <span class="tag" id="gazetag" hidden></span>
     <span class="tag" id="simtag">프로토타입 · 지형·원격측정은 시뮬레이션</span>
     <button id="b-info" class="btn" type="button">데이터·조작법</button>
   </div>
 
+  <div id="demo" hidden>
+    <p>시연용 조작 · HUD 기능이 아님</p>
+    <button id="b-auto" type="button" aria-pressed="true">자동 보행</button>
+    <button id="b-ff" type="button" aria-pressed="false">시간 ×1</button>
+    <button id="b-sep" type="button" aria-pressed="false">SEP 경보 시험</button>
+    <button id="b-los" type="button" aria-pressed="false">통신 두절 시험</button>
+    <button id="b-compact" type="button" aria-pressed="true">간결 HUD (EVA)</button>
+    <label>현지 시각(LMST) <b id="t-lmst-v" style="color:var(--chrome-fg)"></b><input type="range" id="t-lmst" min="6" max="19" step="0.25" value="11" aria-label="현지 시각"></label>
+  </div>
+
   <div id="leftcol">
-    <div class="panel" id="minipanel"><h4><span id="mtitle">MAP · 북쪽 위</span><b id="mscale">150 m</b></h4><canvas id="mini" width="388" height="388"></canvas></div>
+    <div class="panel" id="minipanel"><h4><span id="mtitle">MAP</span><b><button id="mrot" type="button" aria-pressed="false" title="미니맵 방향 전환: 북쪽 위 / 진행 방향 위" aria-label="미니맵 방향 전환">북↑</button><span id="mscale">150 m</span></b></h4><canvas id="mini" width="388" height="388"></canvas></div>
     <div class="panel" id="route"></div>
     <div class="panel" id="cabin" hidden></div>
   </div>
@@ -187,17 +243,17 @@ body.gaze .panel.gfocus{opacity:1}
 
   <div class="panel" id="comms">
     <h4><span>COMMS</span><b id="relay">릴레이 —</b></h4>
-    <div class="vid">
+    <div class="vid xtra">
       <svg width="46" height="46" viewBox="0 0 46 46"><rect x="1" y="1" width="44" height="44" rx="4" fill="none" stroke="currentColor" stroke-opacity=".6"/><circle cx="23" cy="17" r="7" fill="none" stroke="currentColor"/><path d="M10 40c2-9 8-13 13-13s11 4 13 13" fill="none" stroke="currentColor"/></svg>
       <div><div id="callwho">EV2 · 동료 우주비행사</div><div id="callsub" style="color:var(--hud-dim)">음성 연결 · 지연 없음</div></div>
     </div>
-    <div class="tabs" role="group" aria-label="통신 채널">
+    <div class="tabs xtra" role="group" aria-label="통신 채널">
       <button type="button" data-ch="ev2" aria-pressed="true">EV2</button>
       <button type="button" data-ch="hab" aria-pressed="false">기지 HAB</button>
       <button type="button" data-ch="mcc" aria-pressed="false">지구 MCC</button>
     </div>
     <div id="log" aria-live="polite"></div>
-    <form id="sendf"><input id="msg" autocomplete="off" placeholder="메시지 입력" aria-label="메시지"><button type="submit">송신</button></form>
+    <form id="sendf" class="xtra"><input id="msg" autocomplete="off" placeholder="메시지 입력" aria-label="메시지"><button type="submit">송신</button></form>
   </div>
 
   <div class="panel" id="stop" hidden></div>
@@ -206,20 +262,30 @@ body.gaze .panel.gfocus{opacity:1}
   <div id="cw" hidden></div>
   <div id="nav"></div>
   <div id="tags"></div>
+  <div id="detail" hidden role="dialog" aria-labelledby="dtitle"><button class="dclose" type="button">닫기</button><h3 id="dtitle"></h3><div id="dbody"></div></div>
+  <div id="gdock" hidden role="group" aria-label="시선 조작 버튼"></div>
 
   <div class="sheet" id="mapsheet" hidden>
     <div class="card" id="mapcard">
-      <div><canvas id="bigmap" width="800" height="800" aria-label="주변 지도. 고른 도구에 따라 클릭한 지점에 경유지나 마커를 놓습니다."></canvas></div>
+      <div><canvas id="bigmap" width="800" height="800" aria-label="주변 지도. 조회 도구는 클릭한 지점의 데이터 값을, 다른 도구는 경유지나 마커를 놓습니다. 끌면 이동, 휠로 확대."></canvas>
+        <canvas id="prof" width="800" height="150" aria-label="경로 고도 단면"></canvas></div>
       <div class="lg">
         <button class="x" type="button" id="mapclose">닫기</button>
         <h2 id="maptitle">전체 지도</h2>
         <p id="mapsub" style="margin:0;color:var(--chrome-dim)"></p>
         <div class="seg" role="group" aria-label="지도 범위">
-          <button type="button" data-r="100" aria-pressed="false">반경 100 m</button><button type="button" data-r="200" aria-pressed="true">200 m</button><button type="button" data-r="400" aria-pressed="false">400 m</button>
+          <button type="button" data-r="100" aria-pressed="false">100 m</button><button type="button" data-r="200" aria-pressed="true">200 m</button><button type="button" data-r="400" aria-pressed="false">400 m</button><button type="button" id="mapcenter">중심 복귀</button>
         </div>
+        <h3>데이터 레이어</h3>
+        <div class="seg wrap" role="group" aria-label="데이터 레이어" id="lysel">
+          <button type="button" data-ly="none" aria-pressed="false">영상만</button><button type="button" data-ly="slope" aria-pressed="true">경사</button><button type="button" data-ly="elev" aria-pressed="false">고도</button><button type="button" data-ly="mineral" aria-pressed="false">광물</button><button type="button" data-ly="thermal" aria-pressed="false">열관성</button><button type="button" data-ly="los" aria-pressed="false">통신</button>
+        </div>
+        <label>투명도 <input type="range" id="ly-op" min="10" max="100" value="50" style="flex:1" aria-label="레이어 투명도"></label>
+        <div id="lylegend"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><label><input type="checkbox" id="ly-route" checked> 현재 경로</label><label><input type="checkbox" id="ly-ring" checked> 거리 링</label><label><input type="checkbox" id="ly-rock" checked> 바위</label></div>
         <h3>도구</h3>
         <div class="seg" role="group" aria-label="지도 도구">
-          <button type="button" data-tool="route" aria-pressed="true">경로 지점</button><button type="button" data-tool="marker" aria-pressed="false">마커</button><button type="button" data-tool="erase" aria-pressed="false">지우기</button>
+          <button type="button" data-tool="query" aria-pressed="true">조회</button><button type="button" data-tool="route" aria-pressed="false">경로 지점</button><button type="button" data-tool="marker" aria-pressed="false">마커</button><button type="button" data-tool="erase" aria-pressed="false">지우기</button>
         </div>
         <div id="mkopts" hidden style="display:grid;gap:6px">
           <select id="mktype" aria-label="마커 종류">
@@ -238,12 +304,6 @@ body.gaze .panel.gfocus{opacity:1}
         </div>
         <h3>마커</h3>
         <div id="mklist" class="plist"></div>
-        <h3>레이어</h3>
-        <label><input type="checkbox" id="ly-slope" checked> 경사 색</label>
-        <label><input type="checkbox" id="ly-route" checked> 현재 경로</label>
-        <label><input type="checkbox" id="ly-ring" checked> 거리 링 · 도보 귀환 한계</label>
-        <label><input type="checkbox" id="ly-rock" checked> 바위</label>
-        <div><span class="sw" style="background:#3fbf6a"></span> 0–10° <span class="sw" style="background:#e0b23a"></span> 10–20° <span class="sw" style="background:#e0553a"></span> 20°+</div>
         <div id="mapinfo" style="color:var(--chrome-dim)"></div>
       </div>
     </div>
@@ -255,7 +315,7 @@ body.gaze .panel.gfocus{opacity:1}
       <h2>Marswalk HUD 프로토타입</h2>
       <p>NASA Space Apps 2026 「Interplanetary Survival Guide: Martian Map」용 UI 시안이다. 게일 크레이터 Mount Sharp 박스워크 지대 탐사를 가정한다. <b>지형·바위·원격측정 값은 브라우저에서 만든 시뮬레이션</b>이며, 환경 수치의 범위만 아래 공개 자료를 따른다. 실제 HiRISE DTM·로버 사진은 해커톤 데이터 단계에서 교체한다.</p>
       <h3>조작</h3>
-      <p><kbd>드래그</kbd> 둘러보기 · <kbd>W A S D</kbd> 또는 방향키 걷기(자동 보행 해제) · <kbd>M</kbd> 전체 지도(경로 지점·마커 도구) · <kbd>Tab</kbd> 모드 전환 · <kbd>H</kbd> 귀환 경로(통신 두절 중에는 왔던 길 역추적) · 우주선 모드에서는 위쪽에서 <b>접근 비행 / 착륙 후</b>를 고르고 <b>시간 ×</b> 버튼으로 시간을 빨리 돌린다</p>
+      <p><kbd>드래그</kbd> 둘러보기 · <kbd>W A S D</kbd> 또는 방향키 걷기(자동 보행 해제) · <kbd>M</kbd> 전체 지도(데이터 레이어·지점 조회·경로 지점·마커) · <kbd>Esc</kbd> 창 닫기 · 패널·표지·경고 배너를 누르면 상세 창 · <kbd>Tab</kbd> 모드 전환 · <kbd>H</kbd> 귀환 경로(통신 두절 중에는 왔던 길 역추적) · 우주선 모드에서는 위쪽에서 <b>접근 비행 / 착륙 후</b>를 고르고 <b>시간 ×</b> 버튼으로 시간을 빨리 돌린다</p>
       <h3>두 가지 모드</h3>
       <table>
         <tr><th>모드</th><th>설계 의도</th></tr>
@@ -270,11 +330,14 @@ body.gaze .panel.gfocus{opacity:1}
         <tr><td>외기 온도·기압</td><td>약 −70 ~ +6 °C, 685 ~ 780 Pa 범위에서 시뮬레이션</td><td>Curiosity REMS 초기 관측 (<a href="https://livescience.com/23646-mars-weather-curiosity-rover-discovery.html" target="_blank" rel="noopener">Live Science</a>)</td></tr>
         <tr><td>접근 비행 궤적</td><td>화성 GM 42,828 km³/s², 반지름 3,389.5 km, 자전 24.6229시간으로 쌍곡선 접근 속도를 계산. 무한원 속도 2.24 km/s는 진입 속도가 약 5.4 km/s가 되도록 맞춘 시나리오 값</td><td><a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html" target="_blank" rel="noopener">NASA Mars Fact Sheet</a></td></tr>
         <tr><td>진입 절차</td><td>순항 단 분리 진입 약 10분 전, 진입 속도 약 19,500 km/h, 낙하산 진입 약 240초 뒤·고도 약 11 km, EDL 약 7분. 진입 고도 125 km는 시나리오 값</td><td><a href="https://www.jpl.nasa.gov/news/press_kits/mars_2020/landing/mission" target="_blank" rel="noopener">Mars 2020 착륙 보도자료</a></td></tr>
-        <tr><td>시선 추적</td><td>노트북 카메라 + WebGazer.js 3.3.0, 클릭 9점 보정. 얼굴 메시 랜드마크(눈꼬리·이마·턱)로 고개 yaw/pitch를 추정해 시선 보정과 화면 회전에 쓴다. claude.ai 화면 안에서는 카메라가 막혀 있어 마우스 체험 모드로 동작하고, 내려받은 HTML을 브라우저에서 직접 열면 카메라 모드를 쓸 수 있다</td><td><a href="https://webgazer.cs.brown.edu/" target="_blank" rel="noopener">WebGazer.js</a> (GPL-3.0)</td></tr>
+        <tr><td>시선 추적</td><td>노트북 카메라 + WebGazer.js 3.3.0, 클릭 13점 + 고개 돌리기 + 5점 검증 보정. 검증에서 잰 오차로 시선 버튼 크기와 응시 시간을 정한다. 얼굴 메시 랜드마크(눈꼬리·이마·턱)로 고개 yaw/pitch를 추정해 시선 보정과 화면 회전에 쓴다. claude.ai 화면 안에서는 카메라가 막혀 있어 마우스 체험 모드로 동작하고, 내려받은 HTML을 브라우저에서 직접 열면 카메라 모드를 쓸 수 있다</td><td><a href="https://webgazer.cs.brown.edu/" target="_blank" rel="noopener">WebGazer.js</a> (GPL-3.0)</td></tr>
         <tr><td>지구 통신 지연</td><td>편도 약 3 ~ 22.4분. 시안은 12분 40초 시나리오</td><td><a href="https://science.nasa.gov/mars/mars-relay-network/" target="_blank" rel="noopener">NASA Mars Relay Network</a></td></tr>
         <tr><td>릴레이 궤도선</td><td>TGO·MRO·Odyssey, 하루 2–4회 통과</td><td>같은 출처</td></tr>
         <tr><td>대기 성분</td><td>CO₂ 95.1 · N₂ 2.59 · Ar 1.94 · O₂ 0.16 · CO 0.06 %</td><td>Curiosity SAM 계절 평균 (<a href="https://www.nasa.gov/missions/with-mars-methane-mystery-unsolved-curiosity-serves-scientists-a-new-one-oxygen/" target="_blank" rel="noopener">NASA</a>)</td></tr>
         <tr><td>외기 기온·기압·바람·습도·UV</td><td>시나리오 곡선(기온 약 −79~−5 °C, 기압 약 740 Pa 하루 ±1%, 바람 수 m/s). 해커톤에서 REMS 실측 시계열로 교체</td><td>Curiosity REMS (<a href="https://deepblue.lib.umich.edu/bitstream/2027.42/108302/1/jgre20265.pdf" target="_blank" rel="noopener">첫 100 sol 개관</a>)</td></tr>
+        <tr><td>지도 레이어</td><td>경사·고도(지형), 황산염 지수(분광), 열관성(열), 통신 가시선. 모두 절차적 시뮬레이션</td><td>실데이터: HiRISE DTM, MRO CRISM, Odyssey THEMIS로 교체 예정</td></tr>
+        <tr><td>SEP 때 선량률</td><td>평소의 약 3배까지 상승, 착륙선 안 0.5배</td><td>시나리오 값</td></tr>
+        <tr><td>소모품 예비</td><td>O₂ 15%, 배터리 10%, 일몰 30분 전 귀환</td><td>팀 설정값</td></tr>
         <tr><td>도보 귀환 한계</td><td>착륙선에서 300 m</td><td>팀 설정값(시나리오)</td></tr>
         <tr><td>HUD 항목</td><td>슈트·생체 원격측정, 2D 지도, 귀환 브레드크럼, 이상치 경고</td><td>NASA SUITS 2024 미션 설명 (<a href="https://nasa.gov/wp-content/uploads/2023/09/fy24-suits-mission-description.pdf" target="_blank" rel="noopener">PDF</a>)</td></tr>
         <tr><td>투시 개념</td><td>선체 너머 360° 실시간 영상</td><td><a href="https://elbitsystems.com/news/elbit-systems-introduces-ironvisiontm-helmet-mounted-system-armored-fighting-vehicles" target="_blank" rel="noopener">Elbit Systems IronVision</a></td></tr>
@@ -291,13 +354,13 @@ body.gaze .panel.gfocus{opacity:1}
       <p>우주복 장갑을 끼면 손으로 조작하기 어렵다. 그래서 눈으로 화면을 다룬다.</p>
       <ul style="margin:0 0 8px;padding-left:18px">
         <li>바라보는 패널만 또렷해지고 나머지는 흐려진다.</li>
-        <li>버튼을 0.9초 바라보면 눌린다(통신 채널, 귀환 경로, 모드 전환 등).</li>
+        <li>화면 아래에 뜨는 큰 시선 버튼(지도, 귀환, 정차 카드, 채널)이나 3D 표지를 약 1초 바라보면 눌린다. 귀환·경로 전송은 ‘실행’ 버튼을 한 번 더 바라봐야 한다.</li><li>얼굴을 놓치거나 화면 밖을 보면 응시가 초기화되어 아무것도 눌리지 않는다.</li>
         <li>정차 지점·대원 표시를 바라보면 세부 정보가 펼쳐진다.</li>
         <li>화면 좌우 끝을 바라보면 시점이 그쪽으로 돈다.</li>
         <li>카메라 모드에서는 고개 방향도 읽는다. 고개를 돌린 만큼 시선 위치를 보정하고, 배경도 같은 방향·같은 각도로 돈다.</li>
         <li>지금 인식된 시선 위치는 형광 빨간 점으로 표시된다.</li>
       </ul>
-      <p style="color:var(--chrome-dim)">카메라 모드는 노트북 카메라로 눈을 추적한다(WebGazer.js, GPL-3.0). 영상은 브라우저 안에서만 처리되고 어디로도 전송되지 않는다. 시작하면 9개 점을 하나씩 바라보며 각각 3번씩 클릭해 보정한다.</p>
+      <p style="color:var(--chrome-dim)">카메라 모드는 노트북 카메라로 눈을 추적한다(WebGazer.js, GPL-3.0). 영상은 브라우저 안에서만 처리되고 어디로도 전송되지 않는다. 시작하면 ① 13개 점을 바라보며 각각 2번씩 클릭, ② 가운데 점을 보며 고개를 돌리기, ③ 5개 점을 바라보기만 하는 검증 순서로 보정하고, 측정한 오차에 맞춰 버튼 크기와 응시 시간을 정한다.</p>
       <p id="gazemsg" role="status"></p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="x" style="float:none" type="button" id="gaze-cam">카메라로 시작</button>
@@ -313,7 +376,7 @@ body.gaze .panel.gfocus{opacity:1}
       <p style="color:var(--chrome-dim);margin-bottom:0">고개를 오른쪽으로 돌렸는데 화면이 왼쪽으로 돌면 ‘좌우 반전’을 누른다. 키보드 <kbd>C</kbd>로도 정면을 다시 맞출 수 있다.</p>
     </div>
   </div>
-  <div id="calib" hidden><p>점을 바라본 채로 각 점을 3번씩 클릭하세요.<br>머리는 고정하고 눈만 움직이면 더 정확합니다.</p><button class="x skip" type="button" id="calibskip">보정 건너뛰기</button></div>
+  <div id="calib" hidden><p id="calibmsg"></p><div id="calibres" hidden></div><button class="x skip" type="button" id="calibskip">보정 건너뛰기</button></div>
   <svg id="greticle" viewBox="0 0 34 34" hidden aria-hidden="true"><circle id="gdot" cx="17" cy="17" r="3.5"/><circle id="gprog" cx="17" cy="17" r="14" stroke="#8dffb3" stroke-width="2.5" stroke-dasharray="0 88" transform="rotate(-90 17 17)"/></svg>
   <div class="sheet" id="edlsheet" hidden>
     <div class="card" style="text-align:center;max-width:520px">
@@ -376,6 +439,24 @@ for (let i = 0; i < 520; i++) {
   const r = 0.15 + Math.pow(hash(i, 99.1), 3) * 1.6;
   rocks.push({ x, z, r });
 }
+/* height grid (2 m posts): cheap lookups for map layers, profiles and line-of-sight */
+const MAPPX = 400, GST = (2 * HALF) / MAPPX, GN = MAPPX + 1, HS = new Float32Array(GN * GN);
+for (let j = 0; j < GN; j++) for (let i = 0; i < GN; i++) HS[j * GN + i] = H(-HALF + i * GST, -HALF + j * GST);
+function hGrid(x, z) {
+  const fx = Math.min(MAPPX - 1e-3, Math.max(0, (x + HALF) / GST)), fz = Math.min(MAPPX - 1e-3, Math.max(0, (z + HALF) / GST));
+  const i = fx | 0, j = fz | 0, u = fx - i, v = fz - j, a = HS[j * GN + i], b = HS[j * GN + i + 1], c = HS[(j + 1) * GN + i], d = HS[(j + 1) * GN + i + 1];
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+/* simulated science layers — stand-ins for CRISM (sulfate index) and THEMIS (thermal inertia) until the real rasters are wired in */
+function mineralAt(x, z) {
+  const m = smooth(170, 90, Math.hypot(x - BOX.x, z - BOX.z)), rd = m > 0 ? m * ridgeAt(x, z) : 0;
+  return Math.max(0, Math.min(1, .12 + .2 * m + .6 * rd + .12 * fbm(x / 60 + 4, z / 60 - 2, 3)));
+}
+function thermalAt(x, z) {   // J m⁻² K⁻¹ s⁻½: loose sand ≈ 200, cemented ridges and bedrock ≈ 500+
+  const m = smooth(170, 90, Math.hypot(x - BOX.x, z - BOX.z)), rd = m > 0 ? m * ridgeAt(x, z) : 0;
+  const mesa = smooth(50, 34, Math.hypot(x - MESA.x, z - MESA.z));
+  return 190 + 90 * (.5 + .5 * fbm(x / 45 - 7, z / 45 + 3, 3)) + 260 * rd + 220 * mesa;
+}
 
 /* ---------- route planner: A* on a 5 m grid ---------- */
 const CELL = 5, N = (2 * HALF) / CELL;
@@ -384,11 +465,12 @@ for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
   const x = -HALF + (i + .5) * CELL, z = -HALF + (j + .5) * CELL, s = slopeDeg(x, z);
   cSlope[j * N + i] = s; if (s > 25) cBlock[j * N + i] = 1;
 }
-rocks.forEach(r => { if (r.r > 0.9) { const i = Math.floor((r.x + HALF) / CELL), j = Math.floor((r.z + HALF) / CELL); if (i >= 0 && j >= 0 && i < N && j < N) cBlock[j * N + i] = 1; } });
+rocks.forEach(r => { if (r.r > 0.6) { const i = Math.floor((r.x + HALF) / CELL), j = Math.floor((r.z + HALF) / CELL); if (i >= 0 && j >= 0 && i < N && j < N) cBlock[j * N + i] = 1; } });
+const cSoft = new Uint8Array(N * N);   // loose sand (low thermal inertia) costs more to walk on
+for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) if (thermalAt(-HALF + (i + .5) * CELL, -HALF + (j + .5) * CELL) < 225) cSoft[j * N + i] = 1;
 function toCell(x, z) { return [Math.min(N - 1, Math.max(0, Math.floor((x + HALF) / CELL))), Math.min(N - 1, Math.max(0, Math.floor((z + HALF) / CELL)))]; }
 function astar(ax, az, bx, bz) {
   const [si, sj] = toCell(ax, az), [ti, tj] = toCell(bx, bz), S = sj * N + si, T = tj * N + ti;
-  cBlock[S] = 0; cBlock[T] = 0;
   const g = new Float32Array(N * N).fill(Infinity), came = new Int32Array(N * N).fill(-1), closed = new Uint8Array(N * N);
   const heap = []; const push = (k, f) => { heap.push([f, k]); let c = heap.length - 1; while (c > 0) { const p = (c - 1) >> 1; if (heap[p][0] <= heap[c][0]) break; [heap[p], heap[c]] = [heap[c], heap[p]]; c = p; } };
   const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let c = 0; for (;;) { const l = 2 * c + 1, r = l + 1; let m = c; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === c) break; [heap[m], heap[c]] = [heap[c], heap[m]]; c = m; } } return top; };
@@ -401,29 +483,60 @@ function astar(ax, az, bx, bz) {
       const ni = i + di, nj = j + dj; if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue;
       const nk = nj * N + ni; if (cBlock[nk] || closed[nk]) continue;
       const step = Math.hypot(di, dj) * CELL, s = cSlope[nk];
-      const ng = g[k] + step * (1 + Math.pow(s / 10, 2) * 0.8);
+      const ng = g[k] + step * (1 + Math.pow(s / 10, 2) * 0.8) * (cSoft[nk] ? 1.25 : 1);
       if (ng < g[nk]) { g[nk] = ng; came[nk] = k; push(nk, ng + Math.hypot(ni - ti, nj - tj) * CELL); }
     }
   }
-  if (came[T] < 0 && S !== T) return [[ax, az], [bx, bz]];
+  if (came[T] < 0 && S !== T) { const p = [[ax, az], [bx, bz]]; p.bad = true; return p; }   // unreachable: flagged, never silently accepted
   const pts = []; for (let k = T; k >= 0; k = came[k]) { pts.push([-HALF + (k % N + .5) * CELL, -HALF + (((k / N) | 0) + .5) * CELL]); if (k === S) break; }
   pts.reverse(); pts[0] = [ax, az]; pts[pts.length - 1] = [bx, bz];
-  let p = pts; for (let it = 0; it < 2; it++) { const q = [p[0]]; for (let a = 0; a < p.length - 1; a++) { const [x0, z0] = p[a], [x1, z1] = p[a + 1]; q.push([.75 * x0 + .25 * x1, .75 * z0 + .25 * z1], [.25 * x0 + .75 * x1, .25 * z0 + .75 * z1]); } q.push(p[p.length - 1]); p = q; }
-  return p;
+  // corner smoothing, backed off if a smoothed point would cut into a blocked cell
+  const clear = p => p.every(q => { const [i, j] = toCell(q[0], q[1]), k = j * N + i; return !cBlock[k] || k === S; });
+  for (let n = 2; n >= 0; n--) {
+    let p = pts; for (let it = 0; it < n; it++) { const q = [p[0]]; for (let a = 0; a < p.length - 1; a++) { const [x0, z0] = p[a], [x1, z1] = p[a + 1]; q.push([.75 * x0 + .25 * x1, .75 * z0 + .25 * z1], [.25 * x0 + .75 * x1, .25 * z0 + .75 * z1]); } q.push(p[p.length - 1]); p = q; }
+    if (n === 0 || clear(p)) return p;
+  }
+}
+function walkSpeed(sl) { return 1.1 * Math.exp(-3.5 * Math.abs(Math.tan(sl * Math.PI / 180) * .6 + .05)) / Math.exp(-3.5 * .05) * .9; }   // m/s
+function pathStats(p) {   // sampled every ≤2.5 m so a straight fallback line cannot hide a steep wall
+  let len = 0, t = 0, maxS = 0, nolos = 0;
+  for (let i = 1; i < p.length; i++) {
+    const d = Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]), n = Math.max(1, Math.ceil(d / 2.5));
+    for (let k = 1; k <= n; k++) { const x = p[i - 1][0] + (p[i][0] - p[i - 1][0]) * k / n, z = p[i - 1][1] + (p[i][1] - p[i - 1][1]) * k / n, s = slopeDeg(x, z);
+      if (s > maxS) maxS = s; t += d / n / walkSpeed(s); if (!losAt(x, z)) nolos += d / n; }
+    len += d;
+  }
+  return { len, t, maxS, nolos };
 }
 
 /* ---------- mission plan ---------- */
 const LANDER = { x: -10, z: 70 };
 const STOPS = [
-  { id: 'WP1', name: '정차 1 · 능선 단면', x: 30, z: 5, task: '능선과 골 사이 단면 관찰, 황산염 광맥 사진', dwell: '15분' },
-  { id: 'WP2', name: '정차 2 · 능선 시료', x: 88, z: -62, task: '굳은 능선 암석 시료 채취(유기물 분석용)', dwell: '25분' },
-  { id: 'WP3', name: '정차 3 · 경계부', x: 20, z: -138, task: '박스워크 경계에서 층 구성 변화 확인', dwell: '20분' },
+  { id: 'WP1', name: '정차 1 · 능선 단면', x: 30, z: 5, task: '능선과 골 사이 단면 관찰, 황산염 광맥 사진', dwell: '15분', dwellMin: 15,
+    goal: '지하수가 암석 틈에 남긴 광물(황산염)이 능선을 굳혔는지 단면에서 확인한다.', checks: ['능선–골 단면 전경 사진(축척 막대 포함)', '광맥 근접 사진 3장', '능선 높이·폭 측정 기록', '휴대 분광기로 광맥 1곳 측정'] },
+  { id: 'WP2', name: '정차 2 · 능선 시료', x: 88, z: -62, task: '굳은 능선 암석 시료 채취(유기물 분석용)', dwell: '25분', dwellMin: 25,
+    goal: '굳은 능선 암석에 유기물이 보존됐는지 분석할 시료를 채취한다.', checks: ['채취 전 표면 사진', '능선 암석 시료 1점 채취·밀봉', '주변 골 바닥 대조 시료 1점', '시료 번호·위치 기록'] },
+  { id: 'WP3', name: '정차 3 · 경계부', x: 20, z: -138, task: '박스워크 경계에서 층 구성 변화 확인', dwell: '20분', dwellMin: 20,
+    goal: '박스워크가 끝나는 경계에서 층 구성이 어떻게 바뀌는지 기록한다.', checks: ['경계 양쪽 파노라마', '층 경계 근접 사진', '경계 양쪽 분광 측정 2곳'] },
 ];
-let legs = [], legIdx = 0, routePts = [], target = STOPS[0];
+// the landing site and the planned stops are surveyed ground: never treated as blocked cells
+// (the airlock constant AIR is defined further down with the map tools)
+[LANDER, ...STOPS].forEach(s => { const [i, j] = toCell(s.x, s.z); cBlock[j * N + i] = 0; });
+let legs = [], legOff = [], legIdx = 0, routePts = [], target = STOPS[0];
+let work = null, evaDone = false, routeBad = false;   // science work in progress at a stop / airlock reached / active route has an unreachable leg
 function planFrom(x, z, list) {
   const seq = [{ x, z }, ...list]; legs = [];
   for (let a = 0; a < seq.length - 1; a++) legs.push({ to: seq[a + 1], pts: astar(seq[a].x, seq[a].z, seq[a + 1].x, seq[a + 1].z) });
   legIdx = 0; routePts = legs.flatMap((l, i) => i ? l.pts.slice(1) : l.pts);
+  let off = -1; legOff = legs.map((l, i) => off += (i ? l.pts.length - 1 : l.pts.length));   // index in routePts where each leg ends
+  work = null; evaDone = false; routeBad = legs.some(l => l.pts.bad);
+}
+/* line of sight to the lander's antenna mast (terrain masking only) */
+const MAST = 9;
+function losAt(x, z) {
+  const x0 = LANDER.x, z0 = LANDER.z, h0 = hGrid(x0, z0) + MAST, h1 = hGrid(x, z) + 1.7, d = Math.hypot(x - x0, z - z0), n = Math.max(2, Math.ceil(d / 4));
+  for (let i = 1; i < n; i++) { const t = i / n; if (hGrid(x0 + (x - x0) * t, z0 + (z - z0) * t) > h0 + (h1 - h0) * t + .05) return false; }
+  return true;
 }
 planFrom(LANDER.x, LANDER.z, [...STOPS, { id: 'AIR', name: '에어록 · 착륙선', x: LANDER.x, z: LANDER.z }]);
 
@@ -564,7 +677,9 @@ const st = {
   look: { yaw: 0, pitch: -0.06 }, iv: { yaw: Math.PI, pitch: -0.1 },
   elapsed: 72 * 60, dose: 0, o2: 0.78, batt: 0.81, hr: 92, sep: false, keys: {}, ch: 'ev2',
   sc: 'approach', app: { r: R0, t: 0, sep: false, entered: false, edl: -1 }, ivA: { yaw: 0, pitch: 0 },
-  warp: { eva: [1, 8], app: [60, 600, 3600] }, wi: { eva: 0, app: 1 }
+  warp: { eva: [1, 8, 30], app: [60, 600, 3600] }, wi: { eva: 0, app: 1 },
+  ev2: { x: LANDER.x + 8, z: LANDER.z - 3, o2: 0.74, batt: 0.79, hr: 96 },
+  compact: true, mrot: false, lmst0: 9.8, sepT: 0, sepSaved: null, ack: {}, alerts: [], alertKey: '', budget: null, hist: [], histT: 99
 };
 const inApproach = () => st.mode === 'iv' && st.sc === 'approach';
 const warpKey = () => inApproach() ? 'app' : 'eva';
@@ -584,7 +699,14 @@ canvas.addEventListener('pointerup', () => drag = null);
 window.addEventListener('keydown', e => {
   if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
   const k = e.key.toLowerCase();
-  if (k === 'tab') { setMode(st.mode === 'eva' ? 'iv' : 'eva'); e.preventDefault(); return; }
+  if (k === 'escape') {   // close whatever is on top
+    if (detail.key) closeDetail(); else if (!$('demo').hidden) $('b-demo').click();
+    else { const sh = [...document.querySelectorAll('#app .sheet:not([hidden])')].filter(x => x.id !== 'edlsheet').pop(); if (sh) sh.hidden = true; }
+    return;
+  }
+  const other = !$('infosheet').hidden || !$('gazesheet').hidden || gz.calib;   // another window owns the keyboard
+  if (other) return;
+  if (k === 'tab') { if ($('mapsheet').hidden) { setMode(st.mode === 'eva' ? 'iv' : 'eva'); e.preventDefault(); } return; }
   if (inApproach()) return;
   if (k === 'm') { toggleMap(); e.preventDefault(); return; }
   if (k === 'h') { st.los.on ? losReturn('수동') : goHome(); return; }
@@ -601,11 +723,13 @@ function applyChrome() {
   ['b-auto', 'b-home', 'b-sep', 'b-map', 'b-los'].forEach(id => { $(id).hidden = app; });
   if (app) { $('ret').hidden = true; $('homearr').hidden = true; $('comms').classList.remove('los'); }   // LOS belongs to the surface timeline
   $('status').hidden = m !== 'eva'; $('cabin').hidden = m !== 'iv'; $('env').hidden = app;
+  ['status', 'env', 'comms', 'route'].forEach(id => $(id).classList.toggle('mini', st.compact && m === 'eva'));
+  if (app) { canvas.style.filter = ''; st.br = null; if (detail.key && !/^edl/.test(detail.key)) closeDetail(); }
   if (!$('mapsheet').hidden) { if (app) $('mapsheet').hidden = true; else { computeDraft(); renderPlanSide(); drawBig(); } }
   const evTab = document.querySelector('#comms .tabs button[data-ch="ev2"]');
   evTab.hidden = app;
   if (app && st.ch === 'ev2') { st.ch = 'hab'; document.querySelectorAll('#comms .tabs button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ch === 'hab'))); }
-  chans.hab.who = app ? 'CREW · 선내 승무원' : 'HAB · 착륙선 승무원';
+  chans.hab.who = app ? 'CREW · 선내 승무원' : 'HAB · 착륙선 승무원'; if (app) chans.hab.sub = '선내 · 지연 없음';
   renderLog();
   $('b-ff').textContent = '시간 ×' + warpNow(); press('b-ff', warpNow() > 1);
   $('simtag').textContent = app ? '프로토타입 · 화성 표면 무늬·궤적은 시뮬레이션' : '프로토타입 · 지형·원격측정은 시뮬레이션';
@@ -629,10 +753,43 @@ $('b-ff').onclick = () => { const k = warpKey(); st.wi[k] = (st.wi[k] + 1) % st.
 $('b-see').onclick = () => { st.see = !st.see; press('b-see', st.see); $('b-see').textContent = st.see ? '투시 ON' : '투시 OFF'; };
 $('b-home').onclick = () => st.los.on ? losReturn('수동') : goHome();
 $('b-los').onclick = () => losSet(!st.los.on);
-$('b-sep').onclick = () => { st.sep = !st.sep; press('b-sep', st.sep); if (st.sep) { sys('[HAB] 태양 고에너지 입자(SEP) 경보 수신. EV팀 즉시 귀환.', 'them'); goHome(); } };
+$('b-sep').onclick = () => {
+  st.sep = !st.sep; press('b-sep', st.sep);
+  if (st.sep) {   // remember what was left of the plan so it can be resumed after the all-clear
+    st.sepT = 0; st.sepSaved = legs.slice(legIdx).map(l => l.to).filter(s => s.id !== 'AIR' && !s.done);
+    sys('[HAB] 태양 고에너지 입자(SEP) 경보 수신. 지표 선량률 상승 중. EV팀 즉시 귀환.', 'them'); goHome();
+  } else {
+    sys('[HAB] SEP 경보 해제 · 선량률 평상 수준으로 복귀', 'them');
+    if (st.sepSaved && st.sepSaved.length && !st.los.on) {
+      planFrom(st.ev1.x, st.ev1.z, [...st.sepSaved, AIR]); nearestIdx = 0; buildRibbon(); setAuto(true);
+      sys('중단했던 탐사 계획 복원 · ' + st.sepSaved.map(s => s.id).join(' → ') + ' → AIR', 'sys');
+    }
+    st.sepSaved = null;
+  }
+};
+$('b-demo').onclick = () => {
+  const d = $('demo'); d.hidden = !d.hidden; $('b-demo').setAttribute('aria-expanded', String(!d.hidden));
+  if (!d.hidden) { const r = $('b-demo').getBoundingClientRect(), a = $('app').getBoundingClientRect(); d.style.left = Math.max(8, Math.min(W - 270, r.left - a.left)) + 'px'; d.style.top = (r.bottom - a.top + 6) + 'px'; }
+};
+$('b-compact').onclick = () => { st.compact = !st.compact; press('b-compact', st.compact); applyChrome(); };
+$('t-lmst').oninput = e => { st.lmst0 = ((+e.target.value - st.elapsed / MH) % 24 + 24) % 24; };
+$('mrot').onclick = e => { e.stopPropagation(); st.mrot = !st.mrot; press('mrot', st.mrot); drawMini(); };
+$('mini').onclick = () => { if (!inApproach()) toggleMap(); };
+$('relay').onclick = () => openWin('relay');
+$('cw').onclick = () => { if (st.alertKey) openWin('alert:' + st.alertKey); };
+document.querySelector('#detail .dclose').onclick = () => closeDetail();
+// panels are re-rendered four times a second, so resolve the clicked element at click time
+$('app').addEventListener('click', e => {
+  const hit = document.elementFromPoint(e.clientX, e.clientY); if (!hit || !hit.closest) return;
+  const w = hit.closest('.panel [data-win]'); if (w) { openWin(w.dataset.win); return; }
+  const h = hit.closest('.panel.mini h4'); if (h && !hit.closest('button, #relay')) h.parentNode.classList.toggle('open');
+});
 $('b-map').onclick = toggleMap; $('mapclose').onclick = toggleMap;
 $('b-info').onclick = () => { $('infosheet').hidden = false; }; $('infoclose').onclick = () => { $('infosheet').hidden = true; };
-function goHome() { planFrom(st.ev1.x, st.ev1.z, [{ id: 'AIR', name: '에어록 · 착륙선', x: LANDER.x, z: LANDER.z }]); nearestIdx = 0; buildRibbon(); setAuto(true); sys('귀환 경로 계산 완료 · 에어록까지 ' + Math.round(pathLen(routePts)) + ' m', 'sys'); }
+function goHome() {
+  planFrom(st.ev1.x, st.ev1.z, [AIR]); nearestIdx = 0; buildRibbon(); setAuto(true);
+  sys(routeBad ? '귀환 경로를 찾지 못함 · 통행 불가 지형에 둘러싸임. 수동으로 벗어난 뒤 다시 계산하세요.' : '귀환 경로 계산 완료 · 에어록까지 ' + Math.round(pathLen(routePts)) + ' m', 'sys');
+}
 function pathLen(p) { let s = 0; for (let i = 1; i < p.length; i++) s += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return s; }
 
 /* ---------- comms ---------- */
@@ -665,106 +822,210 @@ $('sendf').addEventListener('submit', e => {
 renderLog();
 
 /* ---------- maps ---------- */
-const MAPPX = 400;
 const shade = document.createElement('canvas'); shade.width = shade.height = MAPPX;
 const slopeImg = document.createElement('canvas'); slopeImg.width = slopeImg.height = MAPPX;
 (function buildMaps() {
   const s = shade.getContext('2d'), sl = slopeImg.getContext('2d');
   const a = s.createImageData(MAPPX, MAPPX), b = sl.createImageData(MAPPX, MAPPX);
-  const step = (2 * HALF) / MAPPX, hs = new Float32Array((MAPPX + 1) * (MAPPX + 1));
-  for (let j = 0; j <= MAPPX; j++) for (let i = 0; i <= MAPPX; i++) hs[j * (MAPPX + 1) + i] = H(-HALF + i * step, -HALF + j * step);
   for (let j = 0; j < MAPPX; j++) for (let i = 0; i < MAPPX; i++) {
-    const h0 = hs[j * (MAPPX + 1) + i], hx = hs[j * (MAPPX + 1) + i + 1], hz = hs[(j + 1) * (MAPPX + 1) + i];
-    const gx = (hx - h0) / step, gz = (hz - h0) / step;
-    const lit = Math.max(0, Math.min(1, .62 + (-gx * .55 - gz * .45) * 1.4));
+    const h0 = HS[j * GN + i], hx = HS[j * GN + i + 1], hz = HS[(j + 1) * GN + i];
+    const gx = (hx - h0) / GST, gy = (hz - h0) / GST;
+    const lit = Math.max(0, Math.min(1, .62 + (-gx * .55 - gy * .45) * 1.4));
     const k = (j * MAPPX + i) * 4;
     a.data[k] = 30 + 150 * lit; a.data[k + 1] = 22 + 95 * lit; a.data[k + 2] = 18 + 70 * lit; a.data[k + 3] = 255;
-    const sd = Math.atan(Math.hypot(gx, gz)) * 180 / Math.PI;
+    const sd = Math.atan(Math.hypot(gx, gy)) * 180 / Math.PI;
     const c = sd < 10 ? [63, 191, 106] : sd < 20 ? [224, 178, 58] : [224, 85, 58];
-    b.data[k] = c[0]; b.data[k + 1] = c[1]; b.data[k + 2] = c[2]; b.data[k + 3] = 120;
+    b.data[k] = c[0]; b.data[k + 1] = c[1]; b.data[k + 2] = c[2]; b.data[k + 3] = 255;
   }
   s.putImageData(a, 0, 0); sl.putImageData(b, 0, 0);
 })();
+/* data layers: one overlay at a time over the shaded-relief base. Values are simulated; each names the NASA product that replaces it. */
+let ELO = 1e9, EHI = -1e9; for (let i = 0; i < HS.length; i++) { if (HS[i] < ELO) ELO = HS[i]; if (HS[i] > EHI) EHI = HS[i]; }
+const RAMP = { elev: ['#1d2f55', '#3f8f78', '#cdb866', '#f4ecd8'], mineral: ['#1a1436', '#5b2a86', '#c0508a', '#ffd27a'], thermal: ['#101c5a', '#2f7fd0', '#f0c040', '#e0402a'] };
+const LY = {
+  none: { name: '영상만', note: '음영 기복도만 표시 · 실데이터: HiRISE 정사영상(0.25 m)' },
+  slope: { name: '경사', note: '지형 경사 · 실데이터: HiRISE DTM(1 m)에서 계산' },
+  elev: { name: '고도', lo: ELO, hi: EHI, unit: 'm', f: hGrid, note: '기준면 대비 고도 · 실데이터: HiRISE DTM / MOLA' },
+  mineral: { name: '광물', lo: 0, hi: 1, unit: '', f: mineralAt, note: '황산염 지수(높을수록 광맥·굳은 능선) · 실데이터: MRO CRISM' },
+  thermal: { name: '열관성', lo: 150, hi: 700, unit: ' tiu', f: thermalAt, note: '낮으면 고운 모래(발 빠짐), 높으면 암반 · 실데이터: Odyssey THEMIS' },
+  los: { name: '통신', note: '착륙선 안테나(지상 9 m)와 직접 가시선이 닿는 구역 · DTM 가시성 분석' }
+};
+function rampRGB(cols, t) {
+  t = Math.max(0, Math.min(1, t)) * (cols.length - 1); const i = Math.min(cols.length - 2, Math.floor(t)), f = t - i;
+  const h = c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)], a = h(cols[i]), b = h(cols[i + 1]);
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+}
+const lyImg = { slope: slopeImg };
+function layerImg(k) {   // built on first use
+  if (lyImg[k]) return lyImg[k];
+  const c = document.createElement('canvas'); c.width = c.height = MAPPX; const g = c.getContext('2d'), im = g.createImageData(MAPPX, MAPPX), L = LY[k];
+  if (k === 'los') {
+    for (let j = 0; j < MAPPX; j += 2) for (let i = 0; i < MAPPX; i += 2) {
+      const ok = losAt(-HALF + (i + 1) * GST, -HALF + (j + 1) * GST), col = ok ? [70, 200, 255] : [16, 12, 26], al = ok ? 140 : 235;
+      for (let b = 0; b < 2; b++) for (let a = 0; a < 2; a++) { const q = ((j + b) * MAPPX + i + a) * 4; im.data[q] = col[0]; im.data[q + 1] = col[1]; im.data[q + 2] = col[2]; im.data[q + 3] = al; }
+    }
+  } else for (let j = 0; j < MAPPX; j++) for (let i = 0; i < MAPPX; i++) {
+    const [r, gg, b] = rampRGB(RAMP[k], (L.f(-HALF + (i + .5) * GST, -HALF + (j + .5) * GST) - L.lo) / (L.hi - L.lo)), q = (j * MAPPX + i) * 4;
+    im.data[q] = r; im.data[q + 1] = gg; im.data[q + 2] = b; im.data[q + 3] = 255;
+  }
+  g.putImageData(im, 0, 0); return lyImg[k] = c;
+}
+function legendHTML(k) {
+  const L = LY[k], sw = (c, t) => `<span class="sw" style="background:${c}"></span> ${t} `;
+  let h = '';
+  if (k === 'slope') h = sw('#3fbf6a', '0–10°') + sw('#e0b23a', '10–20°') + sw('#e0553a', '20°+ (25° 이상 통행 불가)');
+  else if (k === 'los') h = sw('#46c8ff', '직접 통신 가능') + sw('#100c1a', '가려짐 · 릴레이 필요');
+  else if (RAMP[k]) h = `<div class="lgbar" style="background:linear-gradient(90deg,${RAMP[k].join(',')})"></div><div style="display:flex;justify-content:space-between"><span>${L.lo.toFixed(k === 'mineral' ? 1 : 0)}${L.unit}</span><span>${L.hi.toFixed(k === 'mineral' ? 1 : 0)}${L.unit}</span></div>`;
+  return h + `<div style="color:var(--chrome-dim)">${L.note} · 값은 시뮬레이션</div>`;
+}
+function pointVals(x, z) {
+  const [i, j] = toCell(x, z), ev = st.ev1;
+  return { x, z, h: hGrid(x, z), s: slopeDeg(x, z), blocked: !!cBlock[j * N + i], soft: !!cSoft[j * N + i], min: mineralAt(x, z), ti: thermalAt(x, z), los: losAt(x, z),
+    dL: Math.hypot(x - LANDER.x, z - LANDER.z), brg: bearing(LANDER.x, LANDER.z, x, z), dE: Math.hypot(x - ev.x, z - ev.z) };
+}
 const w2m = (x, z, S, cx, cz, R) => [S / 2 + (x - cx) / R * (S / 2), S / 2 + (z - cz) / R * (S / 2)];
+// draw the world square (centre cx,cz, half-size R) of a map raster into a destination square; the part off the tile is clipped
+function blit(g, img, cx, cz, R, dx, dy, dS) {
+  const px = (cx - R + HALF) / (2 * HALF) * MAPPX, pz = (cz - R + HALF) / (2 * HALF) * MAPPX, pw = 2 * R / (2 * HALF) * MAPPX;
+  const sx0 = Math.max(0, px), sz0 = Math.max(0, pz), sx1 = Math.min(MAPPX, px + pw), sz1 = Math.min(MAPPX, pz + pw); if (sx1 <= sx0 || sz1 <= sz0) return;
+  g.drawImage(img, sx0, sz0, sx1 - sx0, sz1 - sz0, dx + (sx0 - px) / pw * dS, dy + (sz0 - pz) / pw * dS, (sx1 - sx0) / pw * dS, (sz1 - sz0) / pw * dS);
+}
 function drawRoute(g, map, S) {
-  g.strokeStyle = '#8dffb3'; g.lineWidth = Math.max(1.5, S / 260); g.setLineDash([S / 90, S / 140]); g.beginPath();
-  routePts.forEach((p, i) => { const [u, v] = map(p[0], p[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); }); g.stroke(); g.setLineDash([]);
+  g.lineWidth = Math.max(1.5, S / 260); g.setLineDash([S / 90, S / 140]);
+  legs.forEach(l => { g.strokeStyle = l.pts.bad ? '#ff5a4e' : '#8dffb3'; g.beginPath(); l.pts.forEach((p, i) => { const [u, v] = map(p[0], p[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); }); g.stroke(); });
+  g.setLineDash([]);
+}
+function drawTurn(g, map, tb, S) {   // where the crew has to turn back to keep the consumables reserve
+  if (!tb) return; const [u, v] = map(tb.x, tb.z), r = Math.max(6, S / 60);
+  g.strokeStyle = '#ffc24a'; g.lineWidth = Math.max(2, S / 300); g.beginPath(); g.arc(u, v, r, 0, 7); g.stroke();
+  g.beginPath(); g.moveTo(u - r * .5, v - r * .5); g.lineTo(u + r * .5, v + r * .5); g.moveTo(u + r * .5, v - r * .5); g.lineTo(u - r * .5, v + r * .5); g.stroke();
+  g.fillStyle = '#ffc24a'; g.fillText('회귀 한계', u + r + 4, v + 5);
 }
 function drawMini() {
   const c = $('mini'), g = c.getContext('2d'), S = c.width, R = 150, cx = st.ev1.x, cz = st.ev1.z;
+  const hd = st.mrot ? st.ev1.yaw + (st.mode === 'eva' ? st.look.yaw + hv.yaw : 0) : 0, ch = Math.cos(-hd), sh = Math.sin(-hd);
+  const map = (x, z) => { const [u, v] = w2m(x, z, S, cx, cz, R), a = u - S / 2, b = v - S / 2; return [S / 2 + a * ch - b * sh, S / 2 + a * sh + b * ch]; };
   g.fillStyle = '#05100a'; g.fillRect(0, 0, S, S);
-  const px = (cx - R + HALF) / (2 * HALF) * MAPPX, pz = (cz - R + HALF) / (2 * HALF) * MAPPX, pw = 2 * R / (2 * HALF) * MAPPX;
-  g.globalAlpha = .75; g.drawImage(shade, px, pz, pw, pw, 0, 0, S, S); g.globalAlpha = .35; g.drawImage(slopeImg, px, pz, pw, pw, 0, 0, S, S); g.globalAlpha = 1;
-  const map = (x, z) => w2m(x, z, S, cx, cz, R);
+  const k = st.mrot ? 1.45 : 1, o = S / 2 - S * k / 2;
+  g.save(); g.translate(S / 2, S / 2); g.rotate(-hd); g.translate(-S / 2, -S / 2);
+  g.globalAlpha = .75; blit(g, shade, cx, cz, R * k, o, o, S * k);
+  if (plan.layer !== 'none') { g.globalAlpha = plan.layer === 'slope' ? .18 : .3; blit(g, layerImg(plan.layer), cx, cz, R * k, o, o, S * k); }
+  g.globalAlpha = 1; g.restore();
+  g.font = `${S / 22}px "B612 Mono", monospace`; g.textAlign = 'left';
   drawRoute(g, map, S);
   g.fillStyle = '#ffc24a'; rocks.forEach(r => { if (r.r > .9) { const [u, v] = map(r.x, r.z); if (u > 0 && v > 0 && u < S && v < S) g.fillRect(u - 2, v - 2, 4, 4); } });
-  g.font = `${S / 22}px "B612 Mono", monospace`; g.textAlign = 'left';
-  [...STOPS, { id: 'AIR', x: LANDER.x, z: LANDER.z }].forEach(s => { const [u, v] = map(s.x, s.z); g.strokeStyle = '#8dffb3'; g.lineWidth = 2; g.strokeRect(u - 6, v - 6, 12, 12); g.fillStyle = '#8dffb3'; g.fillText(s.id, u + 9, v + 5); });
+  [...STOPS, AIR].forEach(s => { const [u, v] = map(s.x, s.z); g.strokeStyle = '#8dffb3'; g.globalAlpha = s.done ? .45 : 1; g.lineWidth = 2; g.strokeRect(u - 6, v - 6, 12, 12); g.fillStyle = '#8dffb3'; g.fillText(s.id, u + 9, v + 5); g.globalAlpha = 1; });
   plan.markers.forEach(m => { const [u, v] = map(m.x, m.z); if (u < 0 || v < 0 || u > S || v > S) return; g.fillStyle = MK[m.type][1]; g.beginPath(); g.arc(u, v, 6, 0, 7); g.fill(); g.fillText(m.id, u + 8, v - 6); });
-  const e2 = map(ev2Fig.position.x, ev2Fig.position.z); g.fillStyle = '#d9e4f2'; g.beginPath(); g.arc(e2[0], e2[1], 5, 0, 7); g.fill();
-  g.save(); g.translate(S / 2, S / 2); g.rotate(st.ev1.yaw + (st.mode === 'eva' ? st.look.yaw : 0));
+  if (st.budget) drawTurn(g, map, st.budget.tb, S);
+  const e2 = map(st.ev2.x, st.ev2.z); g.fillStyle = '#d9e4f2'; g.beginPath(); g.arc(e2[0], e2[1], 5, 0, 7); g.fill();
+  g.save(); g.translate(S / 2, S / 2); g.rotate(st.ev1.yaw + (st.mode === 'eva' ? st.look.yaw + hv.yaw : 0) - hd);
   g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(0, -14); g.lineTo(9, 10); g.lineTo(0, 5); g.lineTo(-9, 10); g.closePath(); g.fill(); g.restore();
   drawCrumbs(g, map, S, R);
   g.strokeStyle = 'rgba(141,255,179,.35)'; g.lineWidth = 1; g.beginPath(); g.arc(S / 2, S / 2, S * .33, 0, 7); g.stroke();
-  g.fillStyle = '#8dffb3'; g.fillText('N', S / 2 - 6, S / 22 + 4);
+  const nn = [S / 2 + (S * .44) * Math.sin(-hd), S / 2 - (S * .44) * Math.cos(-hd)]; g.fillStyle = '#8dffb3'; g.textAlign = 'center'; g.fillText('N', nn[0], nn[1] + 6); g.textAlign = 'left';
+  // the way home is always on the map: pinned to the edge when the lander is out of range
+  const [lu, lv] = map(LANDER.x, LANDER.z), ld = Math.hypot(lu - S / 2, lv - S / 2);
+  if (ld > S * .46) {
+    const ax = (lu - S / 2) / ld, ay = (lv - S / 2) / ld, ex = S / 2 + ax * S * .4, ey = S / 2 + ay * S * .4;
+    g.save(); g.translate(ex, ey); g.rotate(Math.atan2(ax, -ay)); g.fillStyle = '#ffc24a'; g.beginPath(); g.moveTo(0, -12); g.lineTo(9, 8); g.lineTo(-9, 8); g.closePath(); g.fill(); g.restore();
+    g.fillStyle = '#ffc24a'; g.textAlign = 'center'; g.fillText('AIR ' + Math.round(Math.hypot(LANDER.x - cx, LANDER.z - cz)) + ' m', Math.max(60, Math.min(S - 60, ex - ax * 34)), Math.max(20, Math.min(S - 8, ey - ay * 34 + 6))); g.textAlign = 'left';
+  }
 }
-/* ---------- nearby map: range, route planning, markers ---------- */
+/* ---------- nearby map: layers, point query, route planning, markers ---------- */
 const MK = { sci: ['과학 관심', '#86c9ff'], sample: ['시료 채취', '#d3a6ff'], haz: ['위험', '#ff6b5e'], note: ['메모', '#ffffff'] };
-const plan = { wps: [], markers: [], tool: 'route', range: 200, draft: [], stat: null, n: 0, m: 0 };
+const plan = { wps: [], markers: [], tool: 'query', range: 200, layer: 'slope', op: .5, center: null, draft: [], stat: null, n: 0, m: 0 };
+const samples = [];
 const AIR = { id: 'AIR', name: '에어록 · 착륙선', x: LANDER.x, z: LANDER.z };
 const WALKBACK = 300;   // scenario walk-back limit from the lander (m)
-const WALK = 1.1 * .9;  // average walking speed used by the route panel (m/s)
+const WALK = 1.1 * .9;  // average walking speed on level ground (m/s)
+const O2H = 8, BATH = 9, BATRES = .1, SUNMARGIN = 1800;   // scenario: hours of O₂ / battery when full, battery reserve, be inside 30 min before sunset
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const markerMat = {}; Object.keys(MK).forEach(k => { markerMat[k] = new THREE.MeshBasicMaterial({ color: MK[k][1] }); });
 const poleGeo = new THREE.CylinderGeometry(.12, .12, 3, 6), flagGeo = new THREE.BoxGeometry(1.1, .6, .05);
-function mapCenter() { return st.mode === 'iv' ? [LANDER.x, LANDER.z] : [st.ev1.x, st.ev1.z]; }
+function homeCenter() { return st.mode === 'iv' ? [LANDER.x, LANDER.z] : [st.ev1.x, st.ev1.z]; }
+function mapCenter() { return plan.center || homeCenter(); }   // frozen while the map is open so the ground does not slide under the cursor
 function mapFns() {
   const S = $('bigmap').width, R = plan.range, [cx, cz] = mapCenter();
   return { S, R, cx, cz, to: (x, z) => w2m(x, z, S, cx, cz, R), from: (u, v) => [cx + (u / S * 2 - 1) * R, cz + (v / S * 2 - 1) * R] };
 }
 function dur(t) { const m = Math.max(1, Math.round(t / 60)); return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간 ${m % 60}분`; }
 function bearing(fx, fz, x, z) { return ((Math.atan2(x - fx, -(z - fz)) * 180 / Math.PI) + 360) % 360; }
+/* consumables budget: what runs out first, and the point on a route where the crew must turn back */
+function avail() {
+  const E = envNow(), o2 = (st.o2 - RESERVE) * O2H * 3600, bt = (st.batt - BATRES) * BATH * 3600, sun = E.sunLeft - SUNMARGIN, t = Math.min(o2, bt, sun);
+  return { t, o2, bt, sun, by: t === o2 ? 'O₂ 예비 15%' : t === bt ? '배터리 예비 10%' : '일몰 30분 전' };
+}
+function turnBack(segs) {   // segs: [{pts, dwell(s)}]. First point where "time so far + walk home" no longer fits the budget.
+  const A = avail(), ret = p => Math.hypot(p[0] - LANDER.x, p[1] - LANDER.z) * 1.25 / WALK; let t = 0, d = 0;
+  for (const s of segs) {
+    const p = s.pts;
+    for (let i = 0; i < p.length; i++) {
+      if (i) { const dd = Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); d += dd; t += dd / WALK; }
+      if (t + ret(p[i]) > A.t) return { x: p[i][0], z: p[i][1], d, t, by: A.by };
+    }
+    t += s.dwell || 0; const e = p[p.length - 1];
+    if (s.dwell && t + ret(e) > A.t) return { x: e[0], z: e[1], d, t, by: A.by, atStop: true };
+  }
+  return null;
+}
+function activeSegs() {   // what is left of the active route, from where EV1 stands
+  const ev = st.ev1, out = [];
+  for (let i = legIdx; i < legs.length; i++) {
+    let pts = i === legIdx ? [[ev.x, ev.z], ...routePts.slice(nearestIdx + 1, legOff[i] + 1)] : routePts.slice(legOff[i - 1], legOff[i] + 1);
+    if (pts.length < 2) pts = [[ev.x, ev.z], [legs[i].to.x, legs[i].to.z]];
+    out.push({ pts, label: legs[i].to.id, bad: legs[i].pts.bad, dwell: i === legIdx && work ? work.t : i < legs.length - 1 ? (legs[i].to.dwellMin || 0) * 60 : 0 });
+  }
+  return out;
+}
 function computeDraft() {
   plan.draft = []; plan.stat = null;
   if (!plan.wps.length) return;
-  const seq = [{ x: st.ev1.x, z: st.ev1.z }, ...plan.wps, AIR];
-  let len = 0, maxS = 0;
-  for (let a = 0; a < seq.length - 1; a++) { const p = astar(seq[a].x, seq[a].z, seq[a + 1].x, seq[a + 1].z); plan.draft.push(p); len += pathLen(p); p.forEach(q => { maxS = Math.max(maxS, slopeDeg(q[0], q[1])); }); }
-  const far = Math.max(...plan.wps.map(w => Math.hypot(w.x - LANDER.x, w.z - LANDER.z)));
-  const t = len / WALK, o2Need = t / (8 * 3600);
-  plan.stat = { len, t, maxS, far, o2Need };
+  const seq = [{ x: st.ev1.x, z: st.ev1.z }, ...plan.wps, AIR], segs = [];
+  let len = 0, walk = 0, maxS = 0, nolos = 0, dwell = 0, bad = false;
+  for (let a = 0; a < seq.length - 1; a++) {
+    const p = astar(seq[a].x, seq[a].z, seq[a + 1].x, seq[a + 1].z), s = pathStats(p), dw = (seq[a + 1].dwellMin || 0) * 60;
+    plan.draft.push(p); len += s.len; walk += s.t; maxS = Math.max(maxS, s.maxS); nolos += s.nolos; dwell += dw; if (p.bad) bad = true;
+    segs.push({ pts: p, dwell: dw, label: seq[a + 1].id, bad: p.bad });
+  }
+  const far = Math.max(...plan.wps.map(w => Math.hypot(w.x - LANDER.x, w.z - LANDER.z))), t = walk + dwell;
+  plan.stat = { len, walk, dwell, t, maxS, far, nolos, bad, segs, o2Need: t / (O2H * 3600), battNeed: t / (BATH * 3600), A: avail(), tb: bad ? null : turnBack(segs) };
 }
 function renderPlanSide() {
   const iv = st.mode === 'iv';
   $('maptitle').textContent = iv ? '착륙선 주변 지도' : '전체 지도 · EV1 중심';
-  $('mapsub').textContent = iv ? '착륙선이 가운데 고정. 경로 지점을 찍어 EV팀 탐사 경로를 짜고, 마커로 위치를 공유한다.' : 'EV1이 가운데. 경로 지점을 찍어 다음 경로를 짜고, 마커로 본 것을 남긴다.';
+  $('mapsub').textContent = (iv ? '착륙선이 가운데.' : 'EV1이 가운데.') + ' 끌면 이동, 휠로 확대. ‘조회’로 지점의 데이터 값을 보고, ‘경로 지점’으로 경유지를 찍는다.';
   document.querySelectorAll('#mapcard [data-r]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.r === plan.range)));
   document.querySelectorAll('#mapcard [data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === plan.tool)));
+  document.querySelectorAll('#mapcard [data-ly]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ly === plan.layer)));
+  $('lylegend').innerHTML = legendHTML(plan.layer);
   $('mkopts').hidden = plan.tool !== 'marker';
   $('planlist').innerHTML = plan.wps.length
-    ? ['EV1 현재 위치', ...plan.wps.map(w => `${w.id} · 착륙선에서 ${Math.round(Math.hypot(w.x - LANDER.x, w.z - LANDER.z))} m, ${String(Math.round(bearing(LANDER.x, LANDER.z, w.x, w.z))).padStart(3, '0')}°`), 'AIR · 에어록 귀환']
-        .map((t, i) => `<div><span class="chip" style="background:${i === 0 ? '#fff' : t.startsWith('AIR') ? '#8dffb3' : '#5fe0ff'}"></span>${t}</div>`).join('')
-    : '<div style="color:var(--chrome-dim)">‘경로 지점’ 도구로 지도를 클릭해 경유지를 순서대로 찍는다. 끝에는 자동으로 에어록 귀환이 붙는다.</div>';
+    ? `<div><span class="chip" style="background:#fff"></span>EV1 현재 위치</div>` +
+      plan.wps.map((w, i) => `<div><span class="chip" style="background:#5fe0ff"></span>${w.id} · ${Math.round(Math.hypot(w.x - LANDER.x, w.z - LANDER.z))} m, ${String(Math.round(bearing(LANDER.x, LANDER.z, w.x, w.z))).padStart(3, '0')}°<input type="number" min="0" max="90" step="5" value="${w.dwellMin}" data-dw="${i}" aria-label="${w.id} 체류 시간(분)">분</div>`).join('') +
+      `<div><span class="chip" style="background:#8dffb3"></span>AIR · 에어록 귀환</div>`
+    : '<div style="color:var(--chrome-dim)">‘경로 지점’ 도구로 지도를 클릭해 경유지를 순서대로 찍는다. 끝에는 자동으로 에어록 귀환이 붙는다. 경유지마다 체류 시간(분)을 정할 수 있다.</div>';
   const S = plan.stat;
-  if (S) {
-    const o2Left = st.o2 - S.o2Need, short = o2Left < .15;
-    const bad = [S.maxS > 25 ? '25° 넘는 구간' : '', S.far > WALKBACK ? `도보 귀환 한계 ${WALKBACK} m 밖` : '', short ? 'O₂ 예비 15% 미만' : ''].filter(Boolean);
-    $('planstat').innerHTML = `총 ${Math.round(S.len)} m · 약 ${dur(S.t)} 소요 · 최대 경사 ${S.maxS.toFixed(0)}°<br>` +
-      `O₂ 소요 약 ${Math.round(S.o2Need * 100)}% → 귀환 시 ${Math.round(o2Left * 100)}% 남음` +
+  if (S && S.bad) {
+    $('planstat').innerHTML = `<span style="color:var(--warn)"><b>도달 불가</b> · 통행 불가 지형(경사 25° 이상·큰 바위)에 막힌 경유지가 있다. 빨간 구간의 경유지를 옮기거나 지워야 전송할 수 있다.</span>`;
+  } else if (S) {
+    const o2Left = st.o2 - S.o2Need, bLeft = st.batt - S.battNeed, sunLeft = S.A.sun + SUNMARGIN - S.t;
+    const bad = [S.maxS > 25 ? '25° 넘는 구간' : '', S.far > WALKBACK ? `도보 귀환 한계 ${WALKBACK} m 밖` : '', o2Left < RESERVE ? 'O₂ 예비 15% 미만' : '', bLeft < BATRES ? '배터리 예비 10% 미만' : '', sunLeft < SUNMARGIN ? '일몰 30분 전까지 귀환 불가' : ''].filter(Boolean);
+    $('planstat').innerHTML = `총 ${Math.round(S.len)} m · 보행 ${dur(S.walk)} + 체류 ${Math.round(S.dwell / 60)}분 = <b>${dur(S.t)}</b><br>` +
+      `최대 경사 ${S.maxS.toFixed(0)}° · 착륙선 가시선 밖 ${Math.round(S.nolos)} m<br>` +
+      `귀환 시 O₂ ${Math.round(o2Left * 100)}% · 배터리 ${Math.round(bLeft * 100)}% · 일몰까지 ${sunLeft > 0 ? dur(sunLeft) : '0분'}<br>` +
+      (S.tb ? `<span style="color:var(--caution)">회귀 한계: 출발 후 ${Math.round(S.tb.d)} m 지점(${S.tb.by} 기준)에서 돌아서야 한다</span>` : '회귀 한계: 전 구간 여유 있음') +
       (bad.length ? `<br><span style="color:var(--caution)">주의: ${bad.join(' · ')}</span>` : '');
   } else $('planstat').textContent = '';
-  $('plansend').disabled = !plan.wps.length;
+  $('plansend').disabled = !plan.wps.length || !!(S && S.bad);
   $('mklist').innerHTML = plan.markers.length
-    ? plan.markers.map((m, i) => `<div><span class="chip" style="background:${MK[m.type][1]}"></span>${m.id} · ${m.label} · ${Math.round(Math.hypot(m.x - LANDER.x, m.z - LANDER.z))} m<button type="button" data-del="${i}" aria-label="${m.id} 삭제">×</button></div>`).join('')
+    ? plan.markers.map((m, i) => `<div><span class="chip" style="background:${MK[m.type][1]}"></span>${m.id} · ${esc(m.label)} · ${Math.round(Math.hypot(m.x - LANDER.x, m.z - LANDER.z))} m<button type="button" data-del="${i}" aria-label="${m.id} 삭제">×</button></div>`).join('')
     : '<div style="color:var(--chrome-dim)">‘마커’ 도구로 지도를 클릭하면 놓인다. 3D 화면에도 깃대로 보인다.</div>';
 }
 function drawBig() {
   const c = $('bigmap'), g = c.getContext('2d'), F = mapFns(), { S, R, cx, cz } = F, map = F.to;
   g.fillStyle = '#120c09'; g.fillRect(0, 0, S, S);
-  const px = (cx - R + HALF) / (2 * HALF) * MAPPX, pz = (cz - R + HALF) / (2 * HALF) * MAPPX, pw = 2 * R / (2 * HALF) * MAPPX;
-  const drawSub = img => { // source rect may hang off the map edge: clip it and shrink the destination to match
-    const sx0 = Math.max(0, px), sz0 = Math.max(0, pz), sx1 = Math.min(MAPPX, px + pw), sz1 = Math.min(MAPPX, pz + pw); if (sx1 <= sx0 || sz1 <= sz0) return;
-    g.drawImage(img, sx0, sz0, sx1 - sx0, sz1 - sz0, (sx0 - px) / pw * S, (sz0 - pz) / pw * S, (sx1 - sx0) / pw * S, (sz1 - sz0) / pw * S); };
-  drawSub(shade); if ($('ly-slope').checked) { g.globalAlpha = .45; drawSub(slopeImg); g.globalAlpha = 1; }
+  blit(g, shade, cx, cz, R, 0, 0, S);
+  if (plan.layer !== 'none') { g.globalAlpha = plan.op; blit(g, layerImg(plan.layer), cx, cz, R, 0, 0, S); g.globalAlpha = 1; }
   g.font = '15px "B612 Mono", monospace'; g.textAlign = 'left';
   if ($('ly-ring').checked) {
     const [lu, lv] = map(LANDER.x, LANDER.z), k = S / 2 / R;
@@ -773,24 +1034,47 @@ function drawBig() {
     g.fillStyle = '#ffc24a'; g.fillText(`도보 귀환 한계 ${WALKBACK} m`, lu - 70, lv - WALKBACK * k - 8);
   }
   if ($('ly-rock').checked) { g.fillStyle = '#ffc24a'; const sz = Math.max(2, 600 / R); rocks.forEach(r => { if (r.r > .6) { const [u, v] = map(r.x, r.z); if (u > -5 && v > -5 && u < S + 5 && v < S + 5) g.fillRect(u - sz / 2, v - sz / 2, sz, sz); } }); }
-  if ($('ly-route').checked) drawRoute(g, map, S);
-  if (plan.draft.length) {   // planned (not yet sent) route
-    g.strokeStyle = '#5fe0ff'; g.lineWidth = 3; g.setLineDash([12, 7]); g.beginPath();
-    plan.draft.forEach(p => p.forEach((q, i) => { const [u, v] = map(q[0], q[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); })); g.stroke(); g.setLineDash([]);
+  if ($('ly-route').checked) { drawRoute(g, map, S); if (st.budget && !plan.draft.length) drawTurn(g, map, st.budget.tb, S); }
+  if (plan.draft.length) {   // planned (not yet sent) route; an unreachable leg is drawn red
+    g.lineWidth = 3; g.setLineDash([12, 7]);
+    plan.draft.forEach(p => { g.strokeStyle = p.bad ? '#ff5a4e' : '#5fe0ff'; g.beginPath(); p.forEach((q, i) => { const [u, v] = map(q[0], q[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); }); g.stroke(); });
+    g.setLineDash([]); if (plan.stat) drawTurn(g, map, plan.stat.tb, S);
   }
   g.font = '17px "B612 Mono", monospace';
-  [...STOPS, AIR].forEach(s => { const [u, v] = map(s.x, s.z); g.strokeStyle = '#8dffb3'; g.lineWidth = 3; g.strokeRect(u - 9, v - 9, 18, 18); g.fillStyle = '#eafff1'; g.fillText(s.id, u + 13, v + 6); });
+  [...STOPS, AIR].forEach(s => { const [u, v] = map(s.x, s.z); g.globalAlpha = s.done ? .5 : 1; g.strokeStyle = '#8dffb3'; g.lineWidth = 3; g.strokeRect(u - 9, v - 9, 18, 18); g.fillStyle = '#eafff1'; g.fillText(s.id + (s.done ? ' ✓' : ''), u + 13, v + 6); g.globalAlpha = 1; });
   plan.wps.forEach((w, i) => { const [u, v] = map(w.x, w.z); g.fillStyle = '#5fe0ff'; g.beginPath(); g.arc(u, v, 13, 0, 7); g.fill(); g.fillStyle = '#04140b'; g.textAlign = 'center'; g.fillText(String(i + 1), u, v + 6); g.textAlign = 'left'; });
   plan.markers.forEach(m => { const [u, v] = map(m.x, m.z), col = MK[m.type][1];
     g.strokeStyle = '#000'; g.lineWidth = 3; g.fillStyle = col; g.beginPath(); g.moveTo(u, v); g.lineTo(u - 9, v - 20); g.arc(u, v - 22, 9, Math.PI * .85, Math.PI * .15); g.closePath(); g.stroke(); g.fill();
     g.fillStyle = col; g.fillText(`${m.id} ${m.label}`, u + 12, v - 16); });
   drawCrumbs(g, map, S, R);
-  const e2 = map(ev2Fig.position.x, ev2Fig.position.z); g.fillStyle = '#d9e4f2'; g.beginPath(); g.arc(e2[0], e2[1], 6, 0, 7); g.fill();
+  const e2 = map(st.ev2.x, st.ev2.z); g.fillStyle = '#d9e4f2'; g.beginPath(); g.arc(e2[0], e2[1], 6, 0, 7); g.fill();
   const [u, v] = map(st.ev1.x, st.ev1.z); g.fillStyle = '#ffffff'; g.beginPath(); g.arc(u, v, 8, 0, 7); g.fill(); g.fillText('EV1', u + 12, v - 10);
-  const sb = R >= 300 ? 100 : 50, sbp = sb / R * S / 2;   // scale bar
+  if (plan.q) { const [qu, qv] = map(plan.q[0], plan.q[1]); g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(qu - 12, qv); g.lineTo(qu + 12, qv); g.moveTo(qu, qv - 12); g.lineTo(qu, qv + 12); g.stroke(); }
+  const sb = R >= 300 ? 100 : R >= 120 ? 50 : 20, sbp = sb / R * S / 2;   // scale bar
   g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 3; g.beginPath(); g.moveTo(S - 30 - sbp, S - 30); g.lineTo(S - 30, S - 30); g.stroke(); g.fillStyle = '#fff'; g.fillText(sb + ' m', S - 30 - sbp, S - 40);
   g.fillText('N ↑', 18, 30);
-  if (!plan.hover) $('mapinfo').textContent = '현재 경로 남은 ' + Math.round(pathLen(routePts.slice(nearestIdx))) + ' m · 지형은 시뮬레이션';
+  if (!plan.hover) $('mapinfo').textContent = '현재 경로 남은 ' + Math.round(pathLen(routePts.slice(nearestIdx))) + ' m · 지형·레이어 값은 시뮬레이션';
+  drawProfile($('prof'), plan.draft.length && plan.stat ? plan.stat.segs : activeSegs(), plan.draft.length ? '계획 중인 경로' : '현재 경로');
+}
+/* elevation profile along a route; colour = grade in the walking direction */
+function drawProfile(c, segs, title) {
+  const g = c.getContext('2d'), Wc = c.width, Hc = c.height; g.fillStyle = '#0c0806'; g.fillRect(0, 0, Wc, Hc);
+  g.font = '13px "B612 Mono", monospace'; g.textAlign = 'left';
+  const P = [], marks = []; let d = 0, prev = null;
+  segs.forEach(s => { s.pts.forEach(p => { if (prev) d += Math.hypot(p[0] - prev[0], p[1] - prev[1]); P.push([d, hGrid(p[0], p[1])]); prev = p; }); marks.push([d, s.label || '', s.bad]); });
+  if (P.length < 2 || d < 1) { g.fillStyle = '#8b9aa5'; g.fillText('경로 없음', 14, Hc / 2); return; }
+  let lo = 1e9, hi = -1e9; P.forEach(p => { lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); }); if (hi - lo < 4) { const m = (hi + lo) / 2; lo = m - 2; hi = m + 2; }
+  const x0 = 46, x1 = Wc - 12, y0 = Hc - 24, y1 = 22, X = q => x0 + q / d * (x1 - x0), Y = h => y0 - (h - lo) / (hi - lo) * (y0 - y1);
+  g.fillStyle = 'rgba(141,255,179,.08)'; g.beginPath(); g.moveTo(X(0), y0); P.forEach(p => g.lineTo(X(p[0]), Y(p[1]))); g.lineTo(X(d), y0); g.closePath(); g.fill();
+  g.lineWidth = 3; g.lineCap = 'round';
+  for (let i = 1; i < P.length; i++) {
+    const a = P[Math.max(0, i - 3)], b = P[Math.min(P.length - 1, i + 2)], gr = Math.atan(Math.abs(b[1] - a[1]) / Math.max(.5, b[0] - a[0])) * 180 / Math.PI;
+    g.strokeStyle = gr < 10 ? '#3fbf6a' : gr < 20 ? '#e0b23a' : '#e0553a'; g.beginPath(); g.moveTo(X(P[i - 1][0]), Y(P[i - 1][1])); g.lineTo(X(P[i][0]), Y(P[i][1])); g.stroke();
+  }
+  g.lineWidth = 1; g.setLineDash([3, 4]);
+  marks.forEach(m => { g.strokeStyle = m[2] ? '#ff5a4e' : 'rgba(255,255,255,.45)'; g.beginPath(); g.moveTo(X(m[0]), y1 - 6); g.lineTo(X(m[0]), y0); g.stroke(); g.fillStyle = m[2] ? '#ff5a4e' : '#eafff1'; g.textAlign = 'right'; g.fillText(m[1] + (m[2] ? ' ✕' : ''), X(m[0]) - 3, y1 + 6); });
+  g.setLineDash([]); g.textAlign = 'left'; g.fillStyle = '#8b9aa5';
+  g.fillText(hi.toFixed(0) + ' m', 4, y1 + 4); g.fillText(lo.toFixed(0) + ' m', 4, y0); g.fillText(`${title || '고도 단면'} · ${Math.round(d)} m · 색 = 진행 방향 경사`, x0, Hc - 6);
 }
 function mapEvt(e) { const c = $('bigmap'), r = c.getBoundingClientRect(); const u = (e.clientX - r.left) / r.width * c.width, v = (e.clientY - r.top) / r.height * c.height; const F = mapFns(); return { u, v, w: F.from(u, v), F }; }
 function addMarkerMesh(m) {
@@ -799,49 +1083,75 @@ function addMarkerMesh(m) {
   const flag = new THREE.Mesh(flagGeo, markerMat[m.type]); flag.position.set(.55, 2.7, 0); g.add(flag);
   g.position.set(m.x, y, m.z); scene.add(g); m.mesh = g;
 }
+function addMarker(type, label, x, z, extra) {
+  plan.m++; const m = Object.assign({ id: 'M' + plan.m, type, label: label.slice(0, 24), x, z, note: '' }, extra || {}); plan.markers.push(m); addMarkerMesh(m); return m;
+}
+function addWaypoint(x, z) { plan.n++; plan.wps.push({ id: 'P' + plan.n, name: '경유지 P' + plan.n, x, z, task: '지도에서 지정한 경유지 · 관찰·사진', dwell: '5분', dwellMin: 5 }); }
 function planChanged() { computeDraft(); renderPlanSide(); drawBig(); }
+let mapDrag = null;
+$('bigmap').addEventListener('pointerdown', e => { mapDrag = { x: e.clientX, y: e.clientY, moved: false, c: mapCenter().slice() }; $('bigmap').setPointerCapture(e.pointerId); });
+$('bigmap').addEventListener('pointerup', () => { setTimeout(() => { mapDrag = null; }, 0); });
+$('bigmap').addEventListener('wheel', e => { e.preventDefault(); plan.center = mapCenter().slice(); plan.range = Math.max(50, Math.min(560, Math.round(plan.range * (e.deltaY > 0 ? 1.15 : .87)))); renderPlanSide(); drawBig(); }, { passive: false });
 $('bigmap').addEventListener('click', e => {
+  if (mapDrag && mapDrag.moved) return;   // that was a pan, not a click
   const { u, v, w, F } = mapEvt(e); const [x, z] = w;
   if (Math.abs(x) > HALF - 3 || Math.abs(z) > HALF - 3) { $('mapinfo').textContent = '탐사 지역(800 m × 800 m) 밖입니다.'; return; }
-  if (plan.tool === 'route') {
-    plan.n++; plan.wps.push({ id: 'P' + plan.n, name: '경유지 P' + plan.n, x, z, task: '지도에서 지정한 경유지', dwell: '—' });
-  } else if (plan.tool === 'marker') {
-    const type = $('mktype').value, label = ($('mklabel').value.trim() || MK[type][0]).slice(0, 24);
-    plan.m++; const m = { id: 'M' + plan.m, type, label, x, z }; plan.markers.push(m); addMarkerMesh(m); $('mklabel').value = '';
-    sys(`[${st.mode === 'iv' ? 'HAB' : 'EV1'}] 마커 ${m.id} ‘${label}’ · 착륙선에서 ${Math.round(Math.hypot(x - LANDER.x, z - LANDER.z))} m, 방위 ${String(Math.round(bearing(LANDER.x, LANDER.z, x, z))).padStart(3, '0')}°`, 'sys');
+  const near = (list, r) => { let best = -1, bd = r; list.forEach((p, i) => { const [a, b] = F.to(p.x, p.z), d = Math.hypot(a - u, b - v); if (d < bd) { bd = d; best = i; } }); return best; };
+  if (plan.tool === 'query') {
+    const mi = near(plan.markers, 22), si = near([...STOPS, AIR], 18);
+    if (mi >= 0) openWin('mk:' + mi); else if (si >= 0) openWin(si === STOPS.length ? 'lander' : 'stop:' + STOPS[si].id);
+    else openWin('pt:' + x.toFixed(1) + ',' + z.toFixed(1));
+    drawBig(); return;
+  }
+  if (plan.tool === 'route') addWaypoint(x, z);
+  else if (plan.tool === 'marker') {
+    const type = $('mktype').value, label = $('mklabel').value.trim() || MK[type][0];
+    const m = addMarker(type, label, x, z); $('mklabel').value = '';
+    sys(`[${st.mode === 'iv' ? 'HAB' : 'EV1'}] 마커 ${m.id} ‘${m.label}’ · 착륙선에서 ${Math.round(Math.hypot(x - LANDER.x, z - LANDER.z))} m, 방위 ${String(Math.round(bearing(LANDER.x, LANDER.z, x, z))).padStart(3, '0')}°`, 'sys');
   } else {
-    let best = null, bd = 16;
-    plan.wps.forEach((p, i) => { const [a, b] = F.to(p.x, p.z), d = Math.hypot(a - u, b - v); if (d < bd) { bd = d; best = ['w', i]; } });
-    plan.markers.forEach((m, i) => { const [a, b] = F.to(m.x, m.z - 0), d = Math.min(Math.hypot(a - u, b - v), Math.hypot(a - u, b - 22 - v)); if (d < bd) { bd = d; best = ['m', i]; } });
-    if (best && best[0] === 'w') plan.wps.splice(best[1], 1); else if (best) delMarker(best[1]);
+    const wi = near(plan.wps, 16), mi = near(plan.markers, 22);
+    if (wi >= 0) plan.wps.splice(wi, 1); else if (mi >= 0) delMarker(mi);
   }
   planChanged();
 });
 $('bigmap').addEventListener('pointermove', e => {
+  if (mapDrag && e.buttons) {
+    const dx = e.clientX - mapDrag.x, dy = e.clientY - mapDrag.y;
+    if (mapDrag.moved || Math.hypot(dx, dy) > 5) { mapDrag.moved = true; const r = $('bigmap').getBoundingClientRect(), k = 2 * plan.range / r.width;
+      plan.center = [Math.max(-HALF, Math.min(HALF, mapDrag.c[0] - dx * k)), Math.max(-HALF, Math.min(HALF, mapDrag.c[1] - dy * k))]; drawBig(); return; }
+  }
   const { w } = mapEvt(e); const [x, z] = w; plan.hover = true;
   if (Math.abs(x) > HALF || Math.abs(z) > HALF) { $('mapinfo').textContent = '탐사 지역 밖'; return; }
-  $('mapinfo').textContent = `커서: 착륙선에서 ${Math.round(Math.hypot(x - LANDER.x, z - LANDER.z))} m · 방위 ${String(Math.round(bearing(LANDER.x, LANDER.z, x, z))).padStart(3, '0')}° · 경사 ${slopeDeg(x, z).toFixed(0)}° · EV1에서 ${Math.round(Math.hypot(x - st.ev1.x, z - st.ev1.z))} m`;
+  const L = LY[plan.layer], lv = L.f ? ` · ${L.name} ${L.f(x, z).toFixed(plan.layer === 'mineral' ? 2 : 0)}${L.unit}` : plan.layer === 'los' ? ` · 통신 ${losAt(x, z) ? '가능' : '가려짐'}` : '';
+  $('mapinfo').textContent = `커서: 착륙선에서 ${Math.round(Math.hypot(x - LANDER.x, z - LANDER.z))} m · 방위 ${String(Math.round(bearing(LANDER.x, LANDER.z, x, z))).padStart(3, '0')}° · 경사 ${slopeDeg(x, z).toFixed(0)}°${lv} · EV1에서 ${Math.round(Math.hypot(x - st.ev1.x, z - st.ev1.z))} m`;
 });
 $('bigmap').addEventListener('pointerleave', () => { plan.hover = false; });
-function delMarker(i) { const m = plan.markers[i]; if (m && m.mesh) scene.remove(m.mesh); plan.markers.splice(i, 1); }
+function delMarker(i) { const m = plan.markers[i]; if (m && m.mesh) scene.remove(m.mesh); plan.markers.splice(i, 1); if (detail.key && detail.key.startsWith('mk:')) closeDetail(); }
 $('mklist').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) { delMarker(+b.dataset.del); planChanged(); } });
+$('planlist').addEventListener('change', e => { const i = e.target.dataset.dw; if (i === undefined) return; const w = plan.wps[+i]; w.dwellMin = Math.max(0, Math.min(90, +e.target.value || 0)); w.dwell = w.dwellMin + '분'; planChanged(); });
 document.querySelectorAll('#mapcard [data-r]').forEach(b => b.addEventListener('click', () => { plan.range = +b.dataset.r; renderPlanSide(); drawBig(); }));
+$('mapcenter').addEventListener('click', () => { plan.center = homeCenter().slice(); drawBig(); });
 document.querySelectorAll('#mapcard [data-tool]').forEach(b => b.addEventListener('click', () => { plan.tool = b.dataset.tool; renderPlanSide(); }));
+document.querySelectorAll('#mapcard [data-ly]').forEach(b => b.addEventListener('click', () => { plan.layer = b.dataset.ly; renderPlanSide(); drawBig(); drawMini(); }));
+$('ly-op').addEventListener('input', e => { plan.op = +e.target.value / 100; drawBig(); });
 $('planundo').onclick = () => { plan.wps.pop(); planChanged(); };
 $('planclear').onclick = () => { plan.wps = []; planChanged(); };
-$('planreset').onclick = () => {
-  const left = STOPS.filter(s => !legs.slice(0, legIdx).some(l => l.to.id === s.id));
-  planFrom(st.ev1.x, st.ev1.z, [...left, AIR]); nearestIdx = 0; buildRibbon(); setAuto(true); drawBig(); sys('기본 탐사 계획으로 복원', 'sys');
-};
+function replan(list) { planFrom(st.ev1.x, st.ev1.z, list); nearestIdx = 0; buildRibbon(); setAuto(true); if (!$('mapsheet').hidden) drawBig(); }
+$('planreset').onclick = () => { replan([...STOPS.filter(s => !s.done), AIR]); sys('기본 탐사 계획으로 복원', 'sys'); };
 $('plansend').onclick = () => {
   if (!plan.wps.length) return; const S = plan.stat;
+  if (S && S.bad) return;
   if (st.los.on) { sys('[HAB] 경로 전송 실패 · EV 링크 두절. 링크가 돌아오면 다시 보내세요.', 'sys'); return; }
-  planFrom(st.ev1.x, st.ev1.z, [...plan.wps, AIR]); nearestIdx = 0; buildRibbon(); setAuto(true);
-  sys(`[HAB] 새 탐사 경로 전송 · ${plan.wps.map(w => w.id).join(' → ')} → AIR · ${Math.round(S.len)} m · 약 ${dur(S.t)}`, 'them');
+  replan([...plan.wps, AIR]);
+  sys(`[HAB] 새 탐사 경로 전송 · ${plan.wps.map(w => w.id).join(' → ')} → AIR · ${Math.round(S.len)} m · 약 ${dur(S.t)}(체류 포함)`, 'them');
   plan.wps = []; planChanged();
 };
-['ly-slope', 'ly-route', 'ly-rock', 'ly-ring'].forEach(id => $(id).addEventListener('change', drawBig));
-function toggleMap() { const s = $('mapsheet'); s.hidden = !s.hidden; if (!s.hidden) { computeDraft(); renderPlanSide(); drawBig(); } }
+['ly-route', 'ly-rock', 'ly-ring'].forEach(id => $(id).addEventListener('change', drawBig));
+function toggleMap() {
+  const s = $('mapsheet'); s.hidden = !s.hidden;
+  if (!s.hidden) { plan.center = homeCenter().slice(); plan.q = null; computeDraft(); renderPlanSide(); drawBig(); } else if (detail.key && /^(pt|mk):/.test(detail.key)) closeDetail();
+  layout();
+}
 
 /* ---------- HUD frame (SVG) ---------- */
 let W = 0, Hh = 0;
@@ -913,7 +1223,8 @@ function drawIV() {
     `M0 ${Hh} V${Hh * .74} Q${W / 2} ${Hh * .66} ${W} ${Hh * .74} V${Hh} Z`,
     `M0 ${Hh * .14} L${W * .1} ${Hh * .13} L${W * .16} ${Hh * .72} L0 ${Hh * .74} Z`,
     `M${W} ${Hh * .14} L${W * .9} ${Hh * .13} L${W * .84} ${Hh * .72} L${W} ${Hh * .74} Z`,
-    `M${W * .485} ${Hh * .1} L${W * .515} ${Hh * .1} L${W * .51} ${Hh * .68} L${W * .49} ${Hh * .68} Z`
+    `M${W * .295} ${Hh * .105} L${W * .315} ${Hh * .105} L${W * .31} ${Hh * .715} L${W * .3} ${Hh * .715} Z`,
+    `M${W * .685} ${Hh * .105} L${W * .705} ${Hh * .105} L${W * .7} ${Hh * .715} L${W * .69} ${Hh * .715} Z`
   ];
   parts.forEach(d => el('path', { d, fill: hull, 'fill-opacity': a, stroke: line, 'stroke-width': 1.2 }, ivG));
   for (let i = 1; i < 6; i++) el('line', { x1: W * i / 6, y1: Hh * .7, x2: W * i / 6 + (i - 3) * 20, y2: Hh, stroke: line, 'stroke-width': .8 }, ivG);
@@ -925,7 +1236,7 @@ function drawIV() {
 function bar(frac, cls) { return `<div class="bar"><i class="${cls || ''}" style="width:${Math.round(Math.max(0, Math.min(1, frac)) * 100)}%"></i></div>`; }
 function fmt(s) { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}`; }
 function layout() {
-  const top = Math.max(Hh * .1, 46);
+  const top = Math.max(Hh * .1, $('bar').offsetHeight + 6);
   const lc = $('leftcol'); lc.style.left = Math.max(12, W * .045) + 'px'; lc.style.top = top + 'px';
   const cm = $('comms'); cm.style.right = Math.max(12, W * .045) + 'px'; cm.style.top = top + 'px';
   $('cw').style.top = (Hh * .3) + 'px'; $('nav').style.top = (Hh * .3 + 34) + 'px';
@@ -938,12 +1249,18 @@ function layout() {
   document.body.classList.remove('tight');
   if (!su.hidden && lc.offsetTop + lc.offsetHeight > Hh - bot - su.offsetHeight - 8) document.body.classList.add('tight');
   const rt = $('ret');   // RETURN panel: bottom centre between SUIT and ENV when there is room, else under COMMS
-  if (W - 2 * (Math.max(12, W * .045) + 300 + 16) >= 280) { rt.style.left = '50%'; rt.style.right = 'auto'; rt.style.top = 'auto'; rt.style.transform = 'translateX(-50%)'; rt.style.bottom = (st.mode === 'eva' ? Hh * .2 : 20) + 'px'; }
+  if ($('gdock').hidden && W - 2 * (Math.max(12, W * .045) + 300 + 16) >= 280) { rt.style.left = '50%';   // the gaze dock owns the bottom centre when it is showing
+     rt.style.right = 'auto'; rt.style.top = 'auto'; rt.style.transform = 'translateX(-50%)'; rt.style.bottom = (st.mode === 'eva' ? Hh * .2 : 20) + 'px'; }
   else { rt.style.left = 'auto'; rt.style.transform = ''; rt.style.right = sp.style.right; rt.style.top = sp.style.top; rt.style.bottom = 'auto'; }
   sp.classList.remove('nopov'); sp.style.visibility = '';
   const clash = () => !sp.hidden && !en.hidden && sp.offsetTop + sp.offsetHeight > Hh - bot - en.offsetHeight - 8;
   if (clash()) sp.classList.add('nopov');
   if (clash()) sp.style.visibility = 'hidden';   // short screens: the next stop is still in ROUTE and the nav line
+  const gd = $('gdock');   // gaze buttons: bottom centre, between SUIT and ENV, above RETURN when that is showing
+  if (!gd.hidden) {
+    gd.style.bottom = (!$('mapsheet').hidden ? 6 : eva ? Hh * .2 : 22) + 'px';
+    gd.style.maxWidth = Math.max(280, W - 2 * (Math.max(12, W * .045) + 326)) + 'px';
+  }
 }
 function resize() {
   W = $('app').clientWidth; Hh = $('app').clientHeight;
@@ -952,38 +1269,78 @@ function resize() {
 window.addEventListener('resize', resize);
 
 /* ---------- labels projected from 3D ---------- */
-const tagBox = $('tags');
-function tagAt(x, y, z, text, cls, more) {
+// Labels are kept as DOM nodes between frames (so they can be clicked, dwelled on, and do not flicker) and pushed apart when they overlap.
+const tagBox = $('tags'), tagEls = new Map(); let tagList = [];
+function tagAt(key, x, y, z, text, cls, more, win) {
   const v = new THREE.Vector3(x, y, z).project(camera); let sx = (v.x * .5 + .5) * W, sy = (-v.y * .5 + .5) * Hh, edge = false;
   if (v.z > 1) { sx = W - sx; sy = Hh * .55; edge = true; }
   if (sx < 30 || sx > W - 30) edge = true; sx = Math.max(100, Math.min(W - 100, sx)); sy = Math.max(60, Math.min(Hh - 40, sy));
-  const d = document.createElement('div'); d.className = 'tagl ' + (cls || '') + (edge ? ' edge' : ''); d.style.left = sx + 'px'; d.style.top = sy + 'px'; if (sx <= 100) d.style.transform = 'translate(-12px,-100%)'; else if (sx >= W - 100) d.style.transform = 'translate(calc(-100% + 12px),-100%)';
-  d.textContent = text; const s = document.createElement('span'); s.className = 'd'; d.appendChild(s);
-  if (more && gz.on && !gz.calib && Math.hypot(gz.x - sx, gz.y - (sy - 10)) < 48) { d.classList.add('focus'); const m = document.createElement('span'); m.className = 'more'; m.textContent = more; d.appendChild(m); }
-  tagBox.appendChild(d);
+  tagList.push({ key, sx, sy, edge, text, cls: cls || '', more, win });
+}
+function flushTags() {
+  const seen = new Set(), placed = [], gazeOk = gz.on && !gz.calib && !gz.lost;
+  tagList.sort((a, b) => b.sy - a.sy);
+  for (const t of tagList) {
+    const w = t.text.length * 9 + 20; let y = t.sy, n = 0;
+    while (n++ < 10 && placed.some(p => Math.abs(p.x - t.sx) < (p.w + w) / 2 && Math.abs(p.y - y) < 20)) y -= 20;   // lift above the label it would cover
+    placed.push({ x: t.sx, y, w });
+    let d = tagEls.get(t.key);
+    if (!d) {
+      d = document.createElement('div'); d._t = document.createElement('span'); d._m = document.createElement('span'); d._m.className = 'more'; d._d = document.createElement('span'); d._d.className = 'd';
+      d.append(d._t, d._m, d._d); d.addEventListener('click', () => { if (d._win) openWin(d._win); }); tagBox.appendChild(d); tagEls.set(t.key, d);
+    }
+    const dist = gazeOk ? Math.hypot(gz.x - t.sx, gz.y - (y - 10)) : 1e9;
+    d._f = !!t.more && (d._f ? dist < 80 : dist < 48);   // hysteresis: opens at 48 px, closes at 80 px
+    const cn = 'tagl ' + t.cls + (t.edge ? ' edge' : '') + (t.win ? ' clk' : '') + (d._f ? ' focus' : '') + (gz.el === d ? ' gaze-hover' : '');
+    if (d.className !== cn) d.className = cn;
+    if (d._t.textContent !== t.text) d._t.textContent = t.text;
+    const mt = d._f ? t.more : ''; if (d._m.textContent !== mt) d._m.textContent = mt; d._m.hidden = !mt;
+    d._win = t.win; d.style.left = t.sx + 'px'; d.style.top = t.sy + 'px'; d._d.style.marginTop = (2 + t.sy - y) + 'px';
+    d.style.transform = t.sx <= 100 ? 'translate(-12px,-100%)' : t.sx >= W - 100 ? 'translate(calc(-100% + 12px),-100%)' : '';
+    seen.add(t.key);
+  }
+  tagEls.forEach((d, k) => { if (!seen.has(k)) { d.remove(); tagEls.delete(k); } });
+  tagList = [];
 }
 
 /* ---------- main loop ---------- */
 let last = performance.now(), hudTick = 0, relayT = 41 * 60 + 12;
+function doseRate() { return 27.9 * (st.sep ? 1 + 2 * (1 - Math.exp(-st.sepT / 240)) : 1); }   // µSv/h outside; the SEP ramp to about ×3 is a scenario
+function advanceLeg() { legIdx++; nearestIdx = Math.max(nearestIdx, legOff[legIdx - 1] || 0); buildRibbon(); }
+function startWork(s) {
+  work = { stop: s, t: s.dwellMin * 60, total: s.dwellMin * 60 };
+  sys(`${s.name || s.id} 도착 · 작업 시작(예정 ${s.dwellMin}분): ${s.task || '—'}`, 'sys'); openWin('stop:' + s.id);
+}
+function finishWork(early) {
+  if (!work) return; const s = work.stop; s.done = true; work = null;
+  sys(`${s.id} 작업 ${early ? '조기 종료' : '완료'} · 다음 구간 출발`, 'sys'); advanceLeg();
+  if (detail.key === 'stop:' + s.id) closeDetail();
+}
 function frame(now) {
   gazeTick(Math.min(.5, (now - last) / 1000));
   const dt = Math.min(.1, (now - last) / 1000); last = now;
   if (inApproach()) { approachFrame(dt); requestAnimationFrame(frame); return; }
   const sim = dt * warpNow();
   camera.up.set(0, 1, 0); camera.near = 0.1; camera.far = 20000;
-  const ev = st.ev1, ox = ev.x, oz = ev.z;
+  const ev = st.ev1, ox = ev.x, oz = ev.z, eva = st.mode === 'eva';
+  // science work at a stop: the walk pauses for the planned dwell time
+  if (work) { work.t -= sim; if (work.t <= 0) finishWork(false); }
   // movement
-  if (st.auto && routePts.length > 1) {
-    let best = nearestIdx, bd = 1e9;
-    for (let i = nearestIdx; i < Math.min(routePts.length, nearestIdx + 40); i++) { const d = Math.hypot(routePts[i][0] - ev.x, routePts[i][1] - ev.z); if (d < bd) { bd = d; best = i; } }
-    if (best !== nearestIdx) { nearestIdx = best; if (nearestIdx % 8 === 0) buildRibbon(); }
-    const tgt = routePts[Math.min(routePts.length - 1, nearestIdx + 3)];
-    const dx = tgt[0] - ev.x, dz = tgt[1] - ev.z, L = Math.hypot(dx, dz);
-    if (L > .3) { const sl = slopeDeg(ev.x, ev.z); const v = 1.1 * Math.exp(-3.5 * Math.abs(Math.tan(sl * Math.PI / 180) * .6 + .05)) / Math.exp(-3.5 * .05) * .9; ev.x += dx / L * v * sim; ev.z += dz / L * v * sim; const want = Math.atan2(dx, -dz); let dy = ((want - ev.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI; ev.yaw += dy * Math.min(1, sim * 1.5); }
-  } else if (!st.auto) {
+  if (st.auto) {
+    if (!work && !evaDone && routePts.length > 1) {
+      const end = legOff[legIdx] === undefined ? routePts.length - 1 : legOff[legIdx];
+      let best = nearestIdx, bd = 1e9;
+      for (let i = nearestIdx; i <= Math.min(end, nearestIdx + 40); i++) { const d = Math.hypot(routePts[i][0] - ev.x, routePts[i][1] - ev.z); if (d < bd) { bd = d; best = i; } }
+      if (best !== nearestIdx) { nearestIdx = best; if (nearestIdx % 8 === 0) buildRibbon(); }
+      const tgt = routePts[Math.min(end, nearestIdx + 3)];
+      const dx = tgt[0] - ev.x, dz = tgt[1] - ev.z, L = Math.hypot(dx, dz);
+      if (L > .3) { const v = walkSpeed(slopeDeg(ev.x, ev.z)), stp = Math.min(L, v * sim); ev.x += dx / L * stp; ev.z += dz / L * stp; const want = Math.atan2(dx, -dz); let dy = ((want - ev.yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI; ev.yaw += dy * Math.min(1, sim * 1.5); }
+    }
+  } else {
     const k = st.keys, f = (k.w || k.arrowup ? 1 : 0) - (k.s || k.arrowdown ? 1 : 0), r = (k.d || k.arrowright ? 1 : 0) - (k.a || k.arrowleft ? 1 : 0);
     ev.yaw += r * 1.4 * dt; const yaw = ev.yaw + st.look.yaw; const nx = ev.x + Math.sin(yaw) * f * 1.4 * sim, nz = ev.z - Math.cos(yaw) * f * 1.4 * sim;
-    if (slopeDeg(nx, nz) < 32 && Math.abs(nx) < HALF - 5 && Math.abs(nz) < HALF - 5) { ev.x = nx; ev.z = nz; }
+    const rockHit = f !== 0 && rocks.some(q => q.r > .5 && Math.hypot(q.x - nx, q.z - nz) < q.r + .35);
+    if (!rockHit && slopeDeg(nx, nz) < 32 && Math.abs(nx) < HALF - 5 && Math.abs(nz) < HALF - 5) { ev.x = nx; ev.z = nz; }
   }
   // breadcrumbs: a point every 5 m walked, always recorded (onboard, needs no link)
   const moved = Math.hypot(ev.x - ox, ev.z - oz), lc = crumbs[crumbs.length - 1];
@@ -991,18 +1348,33 @@ function frame(now) {
   if (st.los.on) losTick(sim, moved);
   // stop reached?
   const legTo = legs[legIdx] && legs[legIdx].to; target = legTo;
-  if (legTo && Math.hypot(legTo.x - ev.x, legTo.z - ev.z) < 6 && legIdx < legs.length - 1) { legIdx++; sys((legTo.name || legTo.id) + ' 도착 · 작업: ' + (legTo.task || '—'), 'sys'); }
+  if (legTo && !work && !evaDone && Math.hypot(legTo.x - ev.x, legTo.z - ev.z) < 6) {
+    if (legIdx < legs.length - 1) {
+      if (legTo.dwellMin && !st.sep && !st.los.home) startWork(legTo);
+      else { legTo.done = true; sys((legTo.name || legTo.id) + ' 통과', 'sys'); advanceLeg(); }
+    } else if (legTo.id === 'AIR') {
+      evaDone = true; sys(`에어록 도착 · EVA 종료 · ${fmt(st.elapsed)} · 누적 선량 ${st.dose.toFixed(0)} µSv · 시료 ${samples.length}점`, 'sys');
+    }
+  }
   // telemetry (scenario)
-  st.elapsed += sim; st.dose += sim / 3600 * 27.9; st.o2 = Math.max(0, st.o2 - sim / (8 * 3600)); st.batt = Math.max(0, st.batt - sim / (9 * 3600));
-  const sl = slopeDeg(ev.x, ev.z); st.hr += ((88 + sl * 2.2 + (st.auto || Object.values(st.keys).some(Boolean) ? 8 : 0)) - st.hr) * Math.min(1, dt * .5);
+  st.elapsed += sim; if (st.sep) st.sepT += sim; st.dose += sim / 3600 * doseRate() * (evaDone ? .5 : 1);
+  if (!evaDone) { st.o2 = Math.max(0, st.o2 - sim / (O2H * 3600)); st.batt = Math.max(0, st.batt - sim / (BATH * 3600)); }
+  const sl = slopeDeg(ev.x, ev.z), moving = moved > 1e-4;
+  st.hr += ((88 + sl * 2.2 + (moving ? 8 : work ? 3 : 0)) - st.hr) * Math.min(1, dt * .5);
   relayT -= sim; if (relayT < 0) relayT = 95 * 60;
+  // EV2: an independent crew member who follows a few metres behind with their own consumables
+  const e2 = st.ev2, t2x = ev.x + Math.cos(ev.yaw) * 4 - Math.sin(ev.yaw) * 3, t2z = ev.z + Math.sin(ev.yaw) * 4 + Math.cos(ev.yaw) * 3, d2t = Math.hypot(t2x - e2.x, t2z - e2.z);
+  let e2mov = false; if (d2t > 1.2) { const stp = Math.min(d2t - 1, 1.15 * sim); e2.x += (t2x - e2.x) / d2t * stp; e2.z += (t2z - e2.z) / d2t * stp; e2mov = true; }
+  if (!evaDone) { e2.o2 = Math.max(0, e2.o2 - sim / (7.6 * 3600)); e2.batt = Math.max(0, e2.batt - sim / (8.7 * 3600)); }
+  e2.hr += ((90 + slopeDeg(e2.x, e2.z) * 2 + (e2mov ? 9 : 0)) - e2.hr) * Math.min(1, dt * .4);
+  const d12 = Math.hypot(e2.x - ev.x, e2.z - ev.z);
+  if ((st.histT += sim) > 30) { st.histT = 0; st.hist.push([st.elapsed, st.o2, st.batt, st.hr, doseRate(), e2.o2]); if (st.hist.length > 360) st.hist.shift(); }
   // crew figures
-  const hy = H(ev.x, ev.z);
-  ev1Fig.position.set(ev.x, hy, ev.z); ev1Fig.rotation.y = -ev.yaw;
-  const e2x = ev.x + Math.cos(ev.yaw) * 4 - Math.sin(ev.yaw) * 3, e2z = ev.z + Math.sin(ev.yaw) * 4 + Math.cos(ev.yaw) * 3; ev2Fig.position.set(e2x, H(e2x, e2z), e2z);
+  const hy = H(ev.x, ev.z), h2 = H(e2.x, e2.z);
+  ev1Fig.position.set(ev.x, hy, ev.z); ev1Fig.rotation.y = -ev.yaw; ev2Fig.position.set(e2.x, h2, e2.z);
   // camera
-  if (st.mode === 'eva') {
-    ev1Fig.visible = false; ev2Fig.visible = true; const bob = reduceMotion ? 0 : Math.sin(now / 260) * .025 * (st.auto ? 1 : 0);
+  if (eva) {
+    ev1Fig.visible = false; ev2Fig.visible = true; const bob = reduceMotion ? 0 : Math.sin(now / 260) * .025 * (moving ? 1 : 0);
     camera.position.set(ev.x, hy + 1.65 + bob, ev.z); const yaw = ev.yaw + st.look.yaw + hv.yaw, p = Math.max(-1.3, Math.min(1.1, st.look.pitch + hv.pitch));
     camera.lookAt(ev.x + Math.sin(yaw) * Math.cos(p) * 10, hy + 1.65 + Math.sin(p) * 10, ev.z - Math.cos(yaw) * Math.cos(p) * 10);
     camera.fov = 70;
@@ -1013,45 +1385,57 @@ function frame(now) {
     camera.lookAt(LANDER.x + Math.sin(yaw) * Math.cos(p) * 10, ry + Math.sin(p) * 10, LANDER.z - Math.cos(yaw) * Math.cos(p) * 10);
     camera.fov = 78;
   }
-  rover.visible = st.mode === 'eva';
+  rover.visible = eva;
   camera.updateProjectionMatrix();
   renderer.render(scene, camera);
 
   // HUD overlays
-  const heading = ((st.mode === 'eva' ? (ev.yaw + st.look.yaw) : st.iv.yaw) + hv.yaw) * 180 / Math.PI;
-  helmetG.style.display = st.mode === 'eva' ? '' : 'none';
+  const heading = ((eva ? (ev.yaw + st.look.yaw) : st.iv.yaw) + hv.yaw) * 180 / Math.PI;
+  helmetG.style.display = eva ? '' : 'none';
   drawTape(heading); drawIV();
-  tagBox.innerHTML = '';
-  const legsLeft = legs.slice(legIdx).map(l => l.to);
-  legsLeft.forEach((s, i) => { const d = Math.hypot(s.x - ev.x, s.z - ev.z); if (st.mode === 'eva' && i > 1) return; tagAt(s.x, H(s.x, s.z) + 3, s.z, `${s.id} · ${Math.round(st.mode === 'eva' ? d : Math.hypot(s.x - LANDER.x, s.z - LANDER.z))} m`, '', s.task ? `${s.task} · 체류 ${s.dwell}` : '착륙선 · 귀환 지점'); });
-  if (st.mode === 'iv') {
+  const mmss = t => fmt(t).slice(3);
+  legs.slice(legIdx).map(l => l.to).forEach((s, i) => {
+    if (eva && i > 1) return; const d = Math.hypot(s.x - ev.x, s.z - ev.z), on = work && work.stop === s;
+    tagAt('s:' + s.id, s.x, H(s.x, s.z) + 3, s.z, on ? `${s.id} · 작업 중 ${mmss(work.t)}` : `${s.id} · ${Math.round(eva ? d : Math.hypot(s.x - LANDER.x, s.z - LANDER.z))} m`, '',
+      s.id === 'AIR' ? '착륙선 · 귀환 지점' : `${s.task || '경유지'} · 체류 ${s.dwellMin || 0}분`, s.id === 'AIR' ? 'lander' : 'stop:' + s.id);
+  });
+  if (!eva) {
     const d1 = Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z);
-    if (st.los.on) tagAt(ev.x, hy + 2.3, ev.z, `EV1 · 원격측정 끊김 ${fmt(st.los.t).slice(3)}`, 'haz', `마지막 수신 O₂ ${Math.round(st.los.last.o2 * 100)}% · 심박 ${Math.round(st.los.last.hr)} bpm · 착륙선 카메라로만 보임`);
-    else tagAt(ev.x, hy + 2.3, ev.z, `EV1 · ${Math.round(d1)} m · O₂ ${Math.round(st.o2 * 100)}%`, 'ev', `심박 ${Math.round(st.hr)} bpm · 배터리 ${Math.round(st.batt * 100)}% · 누적 선량 ${st.dose.toFixed(0)} μGy`);
-    tagAt(e2x, H(e2x, e2z) + 2.3, e2z, `EV2 · ${Math.round(Math.hypot(e2x - LANDER.x, e2z - LANDER.z))} m`, 'ev', 'EV1 뒤 15 m 동행 · 음성 채널 EV2');
-    tagAt(MESA.x, H(MESA.x, MESA.z) + 4, MESA.z, '급경사 대지 · 통행 불가', 'haz', '경사 25° 이상 · 경로 탐색에서 제외');
+    if (st.los.on) tagAt('ev1', ev.x, hy + 2.3, ev.z, `EV1 · 원격측정 끊김 ${mmss(st.los.t)}`, 'haz', `마지막 수신 O₂ ${Math.round(st.los.last.o2 * 100)}% · 심박 ${Math.round(st.los.last.hr)} bpm · 착륙선 카메라로만 보임`, 'crew:ev1');
+    else tagAt('ev1', ev.x, hy + 2.3, ev.z, `EV1 · ${Math.round(d1)} m · O₂ ${Math.round(st.o2 * 100)}%`, 'ev', `심박 ${Math.round(st.hr)} bpm · 배터리 ${Math.round(st.batt * 100)}% · 누적 선량 ${st.dose.toFixed(0)} µSv`, 'crew:ev1');
+    tagAt('ev2', e2.x, h2 + 2.3, e2.z, `EV2 · ${Math.round(Math.hypot(e2.x - LANDER.x, e2.z - LANDER.z))} m · O₂ ${Math.round(e2.o2 * 100)}%`, 'ev', `심박 ${Math.round(e2.hr)} bpm · EV1과 ${Math.round(d12)} m`, 'crew:ev2');
+    tagAt('mesa', MESA.x, H(MESA.x, MESA.z) + 4, MESA.z, '급경사 대지 · 통행 불가', 'haz', '경사 25° 이상 · 경로 탐색에서 제외', 'haz:mesa');
   } else {
-    let near = null, nd = 1e9; rocks.forEach(r => { if (r.r > .7) { const d = Math.hypot(r.x - ev.x, r.z - ev.z) - r.r; if (d < nd) { nd = d; near = r; } } });
-    if (near && nd < 12) tagAt(near.x, H(near.x, near.z) + near.r + .4, near.z, `바위 ${near.r.toFixed(1)} m · ${Math.max(0, nd).toFixed(0)} m`, 'haz', '경로 셀에서 제외됨 · 우회');
+    let near = -1, nd = 1e9; rocks.forEach((r, i) => { if (r.r > .7) { const d = Math.hypot(r.x - ev.x, r.z - ev.z) - r.r; if (d < nd) { nd = d; near = i; } } });
+    if (near >= 0 && nd < 12) { const r = rocks[near]; tagAt('rock', r.x, H(r.x, r.z) + r.r + .4, r.z, `바위 ${r.r.toFixed(1)} m · ${Math.max(0, nd).toFixed(0)} m`, 'haz', '경로 셀에서 제외됨 · 우회', 'rock:' + near); }
     ROCK_NEAR = nd;
+    if (d12 > 9) tagAt('ev2', e2.x, h2 + 2.3, e2.z, `EV2 · ${Math.round(d12)} m`, 'ev', `O₂ ${Math.round(e2.o2 * 100)}% · 심박 ${Math.round(e2.hr)} bpm`, 'crew:ev2');
   }
-  plan.markers.forEach(m => { const d = Math.hypot(m.x - ev.x, m.z - ev.z), dl = Math.hypot(m.x - LANDER.x, m.z - LANDER.z);
-    if (st.mode === 'eva' && d > 160) return;
-    tagAt(m.x, H(m.x, m.z) + 3.4, m.z, `${m.id} ${m.label} · ${Math.round(st.mode === 'eva' ? d : dl)} m`, 'mk-' + m.type, `${MK[m.type][0]} 마커 · 방위 ${String(Math.round(bearing(st.mode === 'eva' ? ev.x : LANDER.x, st.mode === 'eva' ? ev.z : LANDER.z, m.x, m.z))).padStart(3, '0')}°`); });
-  // caution & warning
-  const cw = $('cw'); let msg = '', cls = '';
-  if (st.sep) { msg = 'WARNING · SEP 경보 · 에어록으로 즉시 귀환'; cls = 'warn'; }
-  else if (st.mode === 'eva' && sl > 25) { msg = 'WARNING · 경사 ' + sl.toFixed(0) + '° · 통행 불가 구역'; cls = 'warn'; }
-  else if (st.mode === 'eva' && sl > 15) { msg = 'CAUTION · 경사 ' + sl.toFixed(0) + '°'; cls = 'caution'; }
-  else if (st.mode === 'eva' && ROCK_NEAR < 2.5) { msg = 'CAUTION · 바위 근접'; cls = 'caution'; }
-  else if (st.los.on && st.los.deadline <= 0) { msg = 'WARNING · 산소 마감 · 지금 귀환 출발'; cls = 'warn'; }
-  else if (st.los.on) { msg = st.mode === 'eva' ? 'CAUTION · 통신 두절 · 자율 귀환 항법' : 'CAUTION · EV 링크 두절 · 마지막 수신 ' + fmt(st.los.t).slice(3) + ' 전'; cls = 'caution'; }
-  else if (st.o2 < .25) { msg = 'CAUTION · O₂ 25% 미만'; cls = 'caution'; }
-  cw.hidden = !msg; cw.textContent = msg; cw.className = cls;
+  plan.markers.forEach((m, i) => { const d = Math.hypot(m.x - ev.x, m.z - ev.z), dl = Math.hypot(m.x - LANDER.x, m.z - LANDER.z);
+    if (eva && d > 160) return;
+    tagAt('mk:' + m.id, m.x, H(m.x, m.z) + 3.4, m.z, `${m.id} ${m.label} · ${Math.round(eva ? d : dl)} m`, 'mk-' + m.type, `${MK[m.type][0]} 마커 · 방위 ${String(Math.round(bearing(eva ? ev.x : LANDER.x, eva ? ev.z : LANDER.z, m.x, m.z))).padStart(3, '0')}°`, 'mk:' + i); });
+  flushTags();
+  // caution & warning: every active alert is listed (highest priority first); clicking the banner opens its procedure
+  const al = [], B = st.budget;
+  if (st.sep) al.push(['sep', 'warn', `WARNING · SEP 경보 · 에어록으로 즉시 귀환 · ${Math.round(doseRate())} µSv/h`]);
+  if (eva && sl > 25) al.push(['slope', 'warn', 'WARNING · 경사 ' + sl.toFixed(0) + '° · 통행 불가 구역']);
+  else if (eva && sl > 15) al.push(['slope', 'caution', 'CAUTION · 경사 ' + sl.toFixed(0) + '°']);
+  if (eva && ROCK_NEAR < 2.5) al.push(['rock', 'caution', 'CAUTION · 바위 근접']);
+  if (st.los.on && st.los.deadline <= 0) al.push(['o2dead', 'warn', 'WARNING · 산소 마감 · 지금 귀환 출발']);
+  if (st.los.on) al.push(['los', 'caution', eva ? 'CAUTION · 통신 두절 · 자율 귀환 항법' : 'CAUTION · EV 링크 두절 · 마지막 수신 ' + mmss(st.los.t) + ' 전']);
+  if (st.o2 < .25) al.push(['o2', 'caution', 'CAUTION · O₂ 25% 미만']);
+  if (B && B.tb && B.tb.d < 3 && !B.home) al.push(['tb', 'caution', `CAUTION · 회귀 한계 도달 · 지금 귀환 출발 (${B.tb.by})`]);
+  if (routeBad) al.push(['route', 'caution', 'CAUTION · 경로에 도달 불가 구간 · 지도에서 다시 계획']);
+  if (d12 > 25) al.push(['ev2', 'caution', `CAUTION · EV2 이격 ${Math.round(d12)} m`]);
+  Object.keys(st.ack).forEach(k => { if (!al.some(a => a[0] === k)) delete st.ack[k]; });   // an alert that clears and comes back must be acknowledged again
+  const top = al.find(a => !st.ack[a[0]]) || al[0], cw = $('cw');
+  st.alerts = al; st.alertKey = top ? top[0] : '';
+  cw.hidden = !top; if (top) { cw.textContent = top[2] + (al.length > 1 ? ` (+${al.length - 1})` : '') + (st.ack[top[0]] ? ' ✓' : ''); cw.className = top[1] + (st.ack[top[0]] ? ' ack' : ''); }
   // nav readout
   const rem = pathLen([[ev.x, ev.z], ...routePts.slice(nearestIdx + 1)]);
-  $('nav').innerHTML = st.mode === 'eva'
-    ? `<b>${legTo ? legTo.id : '—'}</b> ${legTo ? Math.round(Math.hypot(legTo.x - ev.x, legTo.z - ev.z)) : 0} m · 발밑 경사 ${sl.toFixed(0)}° · 전체 남은 ${Math.round(rem)} m`
+  $('nav').innerHTML = eva
+    ? (evaDone ? '<b>EVA 종료</b> · 에어록 도착' : work ? `<b>${work.stop.id} 작업 중</b> · 남은 ${mmss(work.t)} · 체크리스트는 정차 카드`
+      : `<b>${legTo ? legTo.id : '—'}</b> ${legTo ? Math.round(Math.hypot(legTo.x - ev.x, legTo.z - ev.z)) : 0} m · 발밑 경사 ${sl.toFixed(0)}° · 전체 남은 ${Math.round(rem)} m`)
     : `<b>EV1 추적${st.los.on ? '(카메라)' : ''}</b> ${Math.round(Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z))} m · 방위 ${String(Math.round(((Math.atan2(ev.x - LANDER.x, -(ev.z - LANDER.z)) * 180 / Math.PI) + 360) % 360)).padStart(3, '0')}°`;
 
   losArrow(heading);
@@ -1062,66 +1446,81 @@ let ROCK_NEAR = 99;
 /* outside environment — scenario values shaped by Curiosity REMS/SAM ranges at Gale crater */
 const COMP = [['CO₂', 95.1, '#e8a070'], ['N₂', 2.59, '#86c9ff'], ['Ar', 1.94, '#c9a0ff'], ['O₂', 0.16, '#8dffb3'], ['CO', 0.06, '#ffc24a']];   // SAM, Franz et al. 2017
 const SOL = 88775, MH = SOL / 24;   // one Mars hour ≈ 3,699 s
-function envNow() {
-  const h = (9.8 + st.elapsed / MH) % 24, tau = 2 * Math.PI / 24;
+function envAt(h) {   // daily curves at local mean solar time h (hours)
+  const tau = 2 * Math.PI / 24;
   const T = -42 + 37 * Math.cos(tau * (h - 14));                       // air: ≈ −5 °C mid-afternoon, ≈ −79 °C before dawn
   const sunUp = Math.sin(Math.PI * (h - 6) / 12);                       // >0 between 06 and 18 LMST
   const Tg = T + (sunUp > 0 ? 16 * sunUp : -6);                        // ground warmer than air by day
   const P = 742 * (1 + .012 * Math.cos(tau * (h - 7)));                 // daily thermal tide ±1%
+  return { T, Tg, P, sunUp };
+}
+function envNow() {
+  const h = (st.lmst0 + st.elapsed / MH) % 24, { T, Tg, P, sunUp } = envAt(h);
   const e = st.elapsed, wind = Math.max(.5, 4.5 + 2.5 * Math.sin(e / 700) + 1.3 * Math.sin(e / 173)), gust = wind * 1.8;
   const deg = (200 + 40 * Math.sin(e / 2400) + 360) % 360, dir = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(deg / 45) % 8];
   const rh = 1 + 69 * smooth(-35, -78, T);
   const uv = sunUp <= 0 ? '없음(밤)' : sunUp < .35 ? '보통' : sunUp < .75 ? '높음' : '매우 높음';
   const mm = x => { const H2 = Math.floor(x), M = Math.floor((x - H2) * 60); return String(H2).padStart(2, '0') + ':' + String(M).padStart(2, '0'); };
   const sunTxt = sunUp > 0 ? `일몰까지 ${mm(18 - h)}` : `일출까지 ${mm((30 - h) % 24)}`;
-  return { lmst: mm(h), T, Tg, P, wind, gust, dir, rh, uv, tau: .6 + .05 * Math.sin(e / 5000), sunTxt, sun: sunUp > 0.05 };
+  return { h, lmst: mm(h), T, Tg, P, wind, gust, dir, rh, uv, tau: .6 + .05 * Math.sin(e / 5000), sunTxt, sun: sunUp > 0.05, sunUp, sunLeft: sunUp > 0 ? (18 - h) * MH : 0 };
 }
 function updatePanels(sl, rem) {
-  const ev = st.ev1, legTo = legs[legIdx] && legs[legIdx].to;
-  $('mscale').textContent = '반경 150 m'; $('mtitle').textContent = 'MAP · 북쪽 위';
-  const speed = 1.1 * 3600 / 1000 * .9;
-  $('route').innerHTML = `<h4><span>ROUTE</span><b>${legIdx + 1}/${legs.length}</b></h4>` +
-    legs.map((l, i) => `<div class="row" style="opacity:${i < legIdx ? .45 : 1}"><span>${i === legIdx ? '▶' : i < legIdx ? '✓' : '·'} ${l.to.id}</span><span>${l.to.name ? l.to.name.split('·').pop().trim() : ''}</span></div>`).join('') +
-    `<div class="row" style="margin-top:4px;color:var(--hud-dim)"><span>남은 거리</span><span>${Math.round(rem)} m</span></div>` +
-    `<div class="row" style="color:var(--hud-dim)"><span>예상 시간</span><span>${fmt(rem / (speed / 3.6))}</span></div>`;
+  const ev = st.ev1, e2 = st.ev2, eva = st.mode === 'eva', legTo = legs[legIdx] && legs[legIdx].to, E = envNow();
+  $('mscale').textContent = '150 m'; $('mtitle').textContent = 'MAP'; $('mrot').textContent = st.mrot ? '진행↑' : '북↑';
+  // time of day drives the light and the plan budget
+  const br = Math.round((.3 + .7 * Math.min(1, Math.max(0, E.sunUp * 4))) * 20) / 20;
+  if (br !== st.br) { st.br = br; canvas.style.filter = br < 1 ? `brightness(${br})` : ''; }
+  sun.intensity = .2 + 1.1 * Math.max(0, E.sunUp); sun.position.set(Math.cos(Math.PI * (E.h - 6) / 12) * 320, 30 + Math.max(0, E.sunUp) * 110, -200);
+  $('t-lmst-v').textContent = E.lmst; if (document.activeElement !== $('t-lmst')) $('t-lmst').value = E.h;
+  // consumables budget for what is left of the active route
+  const segs = evaDone ? [] : activeSegs(), A = avail(); let remT = 0; segs.forEach(s => { remT += pathLen(s.pts) / WALK + s.dwell; });
+  const tb = evaDone ? null : turnBack(segs); st.budget = { A, remT, tb, home: legs.length - legIdx <= 1 && !work };
+  $('route').innerHTML = `<h4><span>ROUTE</span><b>${evaDone ? '완료' : (legIdx + 1) + '/' + legs.length}</b></h4>` +
+    legs.map((l, i) => `<div class="row${i === legIdx ? '' : ' xtra'}" data-win="leg:${i}" style="opacity:${i < legIdx ? .45 : 1}"><span>${evaDone || i < legIdx ? '✓' : i === legIdx ? '▶' : '·'} ${l.to.id}${l.pts.bad ? ' ✕' : ''}</span><span>${i === legIdx && work ? '작업 ' + fmt(work.t).slice(3) : l.to.name ? l.to.name.split('·').pop().trim() : ''}</span></div>`).join('') +
+    `<div class="row" style="margin-top:4px;color:var(--hud-dim)"><span>남은 거리</span><span>${evaDone ? 0 : Math.round(rem)} m</span></div>` +
+    `<div class="row xtra" style="color:var(--hud-dim)"><span>예상 시간(체류 포함)</span><span>${fmt(remT)}</span></div>` +
+    `<div class="row xtra ${tb ? 'caution' : ''}" style="${tb ? '' : 'color:var(--hud-dim)'}"><span>회귀 한계</span><span>${evaDone ? '—' : tb ? (tb.d < 3 ? '지금' : Math.round(tb.d) + ' m 앞') + ' · ' + tb.by : '여유 ' + dur(A.t - remT)}</span></div>`;
   const o2c = st.o2 < .25 ? 'warn' : st.o2 < .4 ? 'caution' : '';
-  const remain = st.o2 * 8 * 3600;
-  const watts = Math.round(255 + (st.auto || Object.values(st.keys).some(Boolean) ? 45 : 0) + 6 * Math.sin(st.elapsed / 300));
-  const battT = st.batt * 9 * 3600, limT = Math.min(remain, battT), co2 = 2.1 + .3 * Math.sin(st.elapsed / 900);
+  const remain = st.o2 * O2H * 3600, moving = st.auto ? !work && !evaDone : Object.values(st.keys).some(Boolean);
+  const watts = Math.round(255 + (moving ? 45 : 0) + 6 * Math.sin(st.elapsed / 300));
+  const battT = st.batt * BATH * 3600, limT = Math.min(remain, battT), co2 = 2.1 + .3 * Math.sin(st.elapsed / 900);
   const met = Math.round(110 + (st.hr - 60) * 6), cool = 17.5 + (st.hr - 90) * .05;
-  const cell = (k, v, c) => `<div><span>${k}</span><b style="font-weight:400" class="${c || ''}">${v}</b></div>`;
+  const cell = (k, v, c, win) => `<div${win ? ` data-win="${win}"` : ''}><span>${k}</span><b style="font-weight:400" class="${c || ''}">${v}</b></div>`;
+  const d12 = Math.hypot(e2.x - ev.x, e2.z - ev.z);
   $('status').innerHTML = `<h4><span>SUIT · EV1</span><b>EVA ${fmt(st.elapsed)}</b></h4>` +
-    `<div class="cells two">${cell('산소 O₂', `${Math.round(st.o2 * 100)}% · ${fmt(remain).slice(0, 5)}`, o2c)}${cell('전력 배터리', `${Math.round(st.batt * 100)}% · ${watts} W`)}` +
+    `<div class="cells two" data-win="suit">${cell('산소 O₂', `${Math.round(st.o2 * 100)}% · ${fmt(remain).slice(0, 5)}`, o2c)}${cell('전력 배터리', `${Math.round(st.batt * 100)}% · ${watts} W`)}` +
     `<div>${bar(st.o2, o2c)}</div><div>${bar(st.batt)}</div></div>` +
-    `<div class="cells">${cell('슈트 압력', '29.6 kPa')}${cell('O₂ 탱크', (6.2 * st.o2 / .78 > 6.2 ? 6.2 : 6.2 * st.o2 / .78).toFixed(1) + ' MPa')}${cell('헬멧 CO₂', co2.toFixed(1) + ' mmHg', co2 > 7.6 ? 'caution' : '')}` +
+    `<div class="cells xtra" data-win="suit">${cell('슈트 압력', '29.6 kPa')}${cell('O₂ 탱크', Math.min(6.2, 6.2 * st.o2 / .78).toFixed(1) + ' MPa')}${cell('헬멧 CO₂', co2.toFixed(1) + ' mmHg', co2 > 7.6 ? 'caution' : '')}` +
     `${cell('심박', Math.round(st.hr) + ' bpm', st.hr > 150 ? 'caution' : '')}${cell('대사량', met + ' W')}${cell('냉각수', cool.toFixed(1) + ' °C')}</div>` +
-    `<div class="pfoot"><span>소모품 여유 ${fmt(limT).slice(0, 5)} (${remain < battT ? 'O₂' : '배터리'} 기준)</span><span>선량 ${st.dose.toFixed(0)} µSv</span></div>` +
-    `<div class="pfoot" style="margin-top:2px"><span>EV2 · O₂ ${Math.round(st.o2 * 100 + 4)}% · 정상</span><span>${Math.round(Math.hypot(ev2Fig.position.x - ev.x, ev2Fig.position.z - ev.z))} m</span></div>`;
-  const E = envNow();
+    `<div class="pfoot xtra"><span>소모품 여유 ${fmt(limT).slice(0, 5)} (${remain < battT ? 'O₂' : '배터리'} 기준)</span><span>선량 ${st.dose.toFixed(0)} µSv</span></div>` +
+    `<div class="pfoot ${d12 > 25 ? 'caution' : ''}" style="margin-top:2px" data-win="crew:ev2"><span>EV2 · O₂ ${Math.round(e2.o2 * 100)}% · ${Math.round(e2.hr)} bpm</span><span>${Math.round(d12)} m</span></div>`;
+  const rate = doseRate();
   $('env').innerHTML = `<h4><span>ENV · 외기 · 게일</span><b>LMST ${E.lmst}</b></h4>` +
-    `<div class="cells">${cell('기온', `${E.T.toFixed(0)} °C`)}${cell('지면 온도', `${E.Tg.toFixed(0)} °C`)}${cell('기압', `${E.P.toFixed(0)} Pa`)}` +
-    `${cell('바람', `${E.dir} ${E.wind.toFixed(1)} m/s`)}${cell('돌풍', `${E.gust.toFixed(0)} m/s`, E.gust > 15 ? 'caution' : '')}${cell('상대 습도', `${E.rh.toFixed(0)}%`)}` +
-    `${cell('자외선', E.uv)}${cell('먼지 τ', E.tau.toFixed(2))}${cell('선량률', '약 28 µSv/h')}</div>` +
-    `<div class="comp" aria-hidden="true">${COMP.map(c => `<i style="width:${Math.max(c[1], .9)}%;background:${c[2]}"></i>`).join('')}</div>` +
-    `<div class="compl">${COMP.map(c => `<span><b>${c[0]}</b> ${c[1] < 1 ? c[1].toFixed(2) : c[1].toFixed(1)}%</span>`).join('')}</div>` +
-    `<div class="pfoot"><span>${E.sunTxt}</span><span>지구 기압의 ${(E.P / 101325 * 100).toFixed(1)}%</span></div>`;
+    `<div class="cells">${cell('기온', `${E.T.toFixed(0)} °C`, '', 'env')}${cell('기압', `${E.P.toFixed(0)} Pa`, '', 'env')}${cell('선량률', `${Math.round(rate)} µSv/h`, st.sep ? 'warn' : '', 'rad')}</div>` +
+    `<div class="cells xtra" style="margin-top:5px" data-win="env">${cell('지면 온도', `${E.Tg.toFixed(0)} °C`)}${cell('바람', `${E.dir} ${E.wind.toFixed(1)} m/s`)}${cell('돌풍', `${E.gust.toFixed(0)} m/s`, E.gust > 15 ? 'caution' : '')}` +
+    `${cell('상대 습도', `${E.rh.toFixed(0)}%`)}${cell('자외선', E.uv)}${cell('먼지 τ', E.tau.toFixed(2))}</div>` +
+    `<div class="pfoot xtra"><span>${E.sunTxt}</span><span>지구 기압의 ${(E.P / 101325 * 100).toFixed(1)}%</span></div>`;
   $('cabin').innerHTML = `<h4><span>CABIN · 착륙선</span><b>정상</b></h4>` +
-    `<div class="row"><span>객실 압력</span><span>70.3 kPa</span></div>` +
-    `<div class="row"><span>전력</span><span>${Math.round(st.batt * 100 + 9)}%</span></div>${bar(st.batt + .09)}` +
-    (st.los.on ? `<div class="row off"><span>EV1 O₂ · 심박</span><span>— 수신 없음</span></div>` :
-    `<div class="row"><span>EV1 O₂</span><span class="${o2c}">${Math.round(st.o2 * 100)}%</span></div>` +
-    `<div class="row"><span>EV1 심박</span><span>${Math.round(st.hr)} bpm</span></div>` +
-    `<div class="row"><span>EV 누적 선량</span><span>${st.dose.toFixed(0)} µSv</span></div>`) +
-    `<div class="row" style="color:var(--hud-dim)"><span>선량률(RAD 평균)</span><span>28 µSv/h</span></div>` +
+    `<div class="row" data-win="lander"><span>객실 압력</span><span>70.3 kPa</span></div>` +
+    `<div class="row" data-win="lander"><span>전력</span><span>${Math.round(st.batt * 100 + 9)}%</span></div>${bar(st.batt + .09)}` +
+    (st.los.on ? `<div class="row off" data-win="crew:ev1"><span>EV1 O₂ · 심박</span><span>— 수신 없음</span></div>` :
+    `<div class="row" data-win="crew:ev1"><span>EV1 O₂ · 심박</span><span class="${o2c}">${Math.round(st.o2 * 100)}% · ${Math.round(st.hr)} bpm</span></div>` +
+    `<div class="row" data-win="crew:ev2"><span>EV2 O₂ · 심박</span><span>${Math.round(e2.o2 * 100)}% · ${Math.round(e2.hr)} bpm</span></div>` +
+    `<div class="row" data-win="rad"><span>EV 누적 선량</span><span>${st.dose.toFixed(0)} µSv</span></div>`) +
+    `<div class="row ${st.sep ? 'warn' : ''}" data-win="rad" style="${st.sep ? '' : 'color:var(--hud-dim)'}"><span>외부 선량률</span><span>${Math.round(rate)} µSv/h</span></div>` +
+    (work ? `<div class="row" data-win="stop:${work.stop.id}"><span>${work.stop.id} 작업 중</span><span>${fmt(work.t).slice(3)}</span></div>` : '') +
     (st.los.on ? `<div class="row warn"><span>EV 링크</span><span>두절 ${fmt(st.los.t).slice(3)}</span></div>` : '');
   $('relay').textContent = st.los.on ? 'LOS · 신호 없음 ' + fmt(st.los.t).slice(3) : '다음 릴레이 TGO ' + fmt(relayT).slice(0, 5);
+  if (!st.los.on) chans.hab.sub = losAt(ev.x, ev.z) ? 'UHF 직접 가시선 · 지연 없음' : 'UHF 가시선 가려짐 · EV2·릴레이 경유';
+  if (st.ch === 'hab') $('callsub').textContent = chans.hab.sub;
   $('comms').classList.toggle('los', st.los.on);
   renderRet();
   const sp = $('stop');
-  if (st.mode === 'eva' && legTo && legTo.task && !st.los.on) {
+  if (eva && legTo && legTo.task && !st.los.on && !st.compact) {
     sp.hidden = false;
-    sp.innerHTML = `<h4><span>NEXT STOP</span><b>${legTo.id}</b></h4><div>${legTo.name}</div><div style="color:var(--hud-dim)">${legTo.task} · 예정 ${legTo.dwell}</div><div class="pov">현장 사진 자리<br>해커톤 단계에서 Curiosity 원본 이미지로 교체</div>`;
+    sp.innerHTML = `<h4><span>NEXT STOP</span><b>${legTo.id}</b></h4><div data-win="stop:${legTo.id}">${legTo.name}</div><div style="color:var(--hud-dim)">${legTo.task} · 예정 ${legTo.dwell}</div><div class="pov" data-win="stop:${legTo.id}">현장 사진 자리 · 눌러서 정차 카드 열기<br>해커톤 단계에서 Curiosity 원본 이미지로 교체</div>`;
   } else sp.hidden = true;
+  if (detail.tick) detail.tick();
   layout();
 }
 
@@ -1151,11 +1550,12 @@ function approachFrame(dt) {
   camera.up.copy(up); camera.lookAt(camPos.clone().add(dir)); camera.updateProjectionMatrix();
   renderer.render(scene2, camera);
 
-  helmetG.style.display = 'none'; tapeG.innerHTML = ''; drawIV(); tagBox.innerHTML = '';
+  helmetG.style.display = 'none'; tapeG.innerHTML = ''; drawIV();
   const alt = A.r - RM;
-  if (alt > 2500) tagAt(0, RM * 1.1, 0, `화성 · 표면까지 ${Math.round(alt).toLocaleString('ko-KR')} km`);
+  if (alt > 2500) tagAt('mars', 0, RM * 1.1, 0, `화성 · 표면까지 ${Math.round(alt).toLocaleString('ko-KR')} km`);
   const vis = gW.clone().normalize().dot(camPos.clone().sub(gW).normalize()) > 0;
-  tagAt(gW.x, gW.y, gW.z, vis ? '착륙 목표 · 게일 크레이터' : '착륙 목표 · 뒷면 (진입 시각에 맞춰 돌아옴)', vis ? '' : 'haz', '약 5.4°S 137.8°E · 지름 약 154 km · 중앙에 샤프 산');
+  tagAt('gale', gW.x, gW.y, gW.z, vis ? '착륙 목표 · 게일 크레이터' : '착륙 목표 · 뒷면 (진입 시각에 맞춰 돌아옴)', vis ? '' : 'haz', '약 5.4°S 137.8°E · 지름 약 154 km · 중앙에 샤프 산');
+  flushTags();
   const cw = $('cw');
   if (A.entered) { cw.hidden = false; cw.className = 'warn'; cw.textContent = 'EDL 진행 중 · 대기권 진입'; }
   else if (T <= 600) { cw.hidden = false; cw.className = 'caution'; cw.textContent = 'CAUTION · 순항 단 분리 · 진입 자세 정렬'; }
@@ -1168,7 +1568,7 @@ function updateApproachPanels(T) {
   const stage = !A.entered ? (T > 600 ? 0 : 1) : (A.edl < 240 ? 2 : A.edl < 420 ? 3 : 4);
   const steps = [['순항·접근', fmt(T) + ' 전'], ['순항 단 분리', 'E−10분'], ['대기권 진입', '고도 ' + HEI + ' km'], ['낙하산', 'E+240 s · 11 km'], ['착륙', 'E+약 7분']];
   $('route').innerHTML = `<h4><span>APPROACH · EDL</span><b>${stage + 1}/5</b></h4>` +
-    steps.map((s, i) => `<div class="row" style="opacity:${i < stage ? .45 : 1}"><span>${i === stage ? '▶' : i < stage ? '✓' : '·'} ${s[0]}</span><span>${s[1]}</span></div>`).join('') +
+    steps.map((s, i) => `<div class="row" data-win="edl:${i}" style="opacity:${i < stage ? .45 : 1}"><span>${i === stage ? '▶' : i < stage ? '✓' : '·'} ${s[0]}</span><span>${s[1]}</span></div>`).join('') +
     `<div class="row" style="margin-top:4px;color:var(--hud-dim)"><span>진입 예상 속도</span><span>${vAt(REI).toFixed(2)} km/s</span></div>` +
     `<div class="row" style="color:var(--hud-dim)"><span>시간 배속</span><span>×${warpNow()}</span></div>`;
   $('cabin').innerHTML = `<h4><span>SPACECRAFT · 캡슐</span><b>정상</b></h4>` +
@@ -1239,7 +1639,7 @@ function losTick(sim, moved) {
 }
 function losReturn(why) {
   const ev = st.ev1, pts = [[ev.x, ev.z], ...crumbs.slice().reverse()];
-  legs = [{ to: AIR, pts }]; legIdx = 0; routePts = pts; nearestIdx = 0; buildRibbon(); setAuto(true);
+  legs = [{ to: AIR, pts }]; legOff = [pts.length - 1]; legIdx = 0; routePts = pts; nearestIdx = 0; work = null; evaDone = false; routeBad = false; buildRibbon(); setAuto(true);
   st.los.home = true;
   sys(`[항법] ${why === '자동' ? `응답 없음 ${LOS_RULE}초 · 규칙에 따라 ` : ''}브레드크럼 역추적 귀환 시작 · 왔던 길 ${Math.round(pathLen(pts))} m`, 'sys');
 }
@@ -1297,7 +1697,9 @@ function headPose(P) {
   const L = P[33], R = P[263], F = P[10], C = P[152];
   if (!L || !R || !F || !C) return null;
   // turning to the user's right brings the left eye (263) closer → its z gets smaller
-  const yaw = Math.atan2(-(R[2] - L[2]), R[0] - L[0]);
+  let yaw = Math.atan2(-(R[2] - L[2]), R[0] - L[0]);
+  const A = P[234], B = P[454];   // face-oval sides: a second, wider baseline for the same angle halves the landmark noise
+  if (A && B) yaw = (yaw + Math.atan2(-(B[2] - A[2]), B[0] - A[0])) / 2;
   // tilting the head up brings the chin closer than the forehead
   const pitch = Math.atan2(-(C[2] - F[2]), C[1] - F[1]);
   return [yaw, pitch];
@@ -1324,45 +1726,261 @@ function headViewTick(dt) {
 /* eye + head fusion: screen gaze = WebGazer estimate + a + k·(head angle change).
    Prior k from geometry: a head turn of θ moves the gaze on the screen by about D·tanθ (D ≈ 55 cm, screen ≈ 30 cm wide).
    The 9-point calibration then refines a, k by ridge regression pulled toward that prior. */
-const fuse = { ax: 0, ay: 0, kx: 0, ky: 0, samples: [] };
+const fuse = { ax: 0, ay: 0, kx: 0, ky: 0, samples: [], hs: [] };
 function fusePrior() { const ppr = W * 55 / 30; fuse.ax = fuse.ay = 0; fuse.kx = ppr; fuse.ky = -ppr; }
 function ridge2(rs, ds, prior) {   // minimise Σ(r − a − k·d)² + λa·a² + λk·(k − prior)²
-  const n = rs.length, la = n, lk = n * 0.0025;
+  const n = rs.length, la = n * 0.05, lk = n * 0.0025;   // light pull on the offset, firmer pull of k toward the geometric prior
   let sd = 0, sdd = 0, sr = 0, srd = 0; for (let i = 0; i < n; i++) { sd += ds[i]; sdd += ds[i] * ds[i]; sr += rs[i]; srd += rs[i] * ds[i]; }
   const A = n + la, B = sd, D = sdd + lk, e = sr, f = srd + lk * prior, det = A * D - B * B;
   return det > 1e-9 ? [(e * D - B * f) / det, (A * f - B * e) / det] : [0, prior];
 }
 function fuseFit() {
   fusePrior();
-  const S = fuse.samples.slice(3);   // the first dots come before the model has learned anything
+  // click dots (head still → they pin the offset) + head-sweep samples (eye still → they pin k)
+  const hs = fuse.hs, stepN = Math.max(1, Math.floor(hs.length / 120)), S = fuse.samples.slice(3).concat(hs.filter((_, i) => i % stepN === 0));
   if (S.length < 4) return;
-  const fx = ridge2(S.map(s => s.cx - s.px), S.map(s => s.dy), fuse.kx), fy = ridge2(S.map(s => s.cy - s.py), S.map(s => s.dp), fuse.ky);
-  fuse.ax = fx[0]; fuse.kx = fx[1]; fuse.ay = fy[0]; fuse.ky = fy[1];
+  const px = fuse.kx, py = fuse.ky;
+  const fx = ridge2(S.map(s => s.cx - s.px), S.map(s => s.dy), px), fy = ridge2(S.map(s => s.cy - s.py), S.map(s => s.dp), py);
+  const sane = (k, p) => k / p > .3 && k / p < 2.5;   // a fit that flips sign or runs away is noise: keep the geometric prior
+  fuse.ax = fx[0]; fuse.ay = fy[0]; if (sane(fx[1], px)) fuse.kx = fx[1]; if (sane(fy[1], py)) fuse.ky = fy[1];
 }
+
+/* ---------- detail windows: what opens when a HUD element, label or map point is clicked ---------- */
+const detail = { key: null, tick: null };
+function showDetail(key, title, html, tick) {
+  detail.key = key; detail.tick = tick || null; $('dtitle').textContent = title; $('dbody').innerHTML = html; $('detail').hidden = false; $('detail').scrollTop = 0;
+  if (tick) tick();
+}
+function closeDetail() { detail.key = null; detail.tick = null; $('detail').hidden = true; if (plan.q) { plan.q = null; if (!$('mapsheet').hidden) drawBig(); } }
+function openWin(key) { const i = key.indexOf(':'), k = i < 0 ? key : key.slice(0, i), f = WIN[k]; if (f) f(i < 0 ? '' : key.slice(i + 1)); }
+const drow = (k, v, c) => `<div class="drow"><span>${k}</span><b class="${c || ''}">${v}</b></div>`;
+const b3 = d => String(Math.round(d)).padStart(3, '0') + '°';
+const on = (id, fn) => { const e = $(id); if (e) e.onclick = fn; };
+function valsHTML(v) {
+  return drow('착륙선에서', `${Math.round(v.dL)} m · ${b3(v.brg)}`) + drow('EV1에서', `${Math.round(v.dE)} m`) +
+    drow('고도 (지형)', `${v.h.toFixed(1)} m`) + drow('경사 (지형)', `${v.s.toFixed(0)}°`, v.s > 25 ? 'warn' : v.s > 15 ? 'caution' : '') +
+    drow('통행', v.blocked ? '불가 (급경사·큰 바위)' : v.soft ? '가능 · 고운 모래(느림)' : '가능', v.blocked ? 'warn' : '') +
+    drow('황산염 지수 (분광)', `${v.min.toFixed(2)} · ${v.min > .6 ? '풍부(광맥·능선)' : v.min > .35 ? '중간' : '낮음'}`) +
+    drow('열관성 (열)', `${Math.round(v.ti)} tiu · ${v.ti < 225 ? '고운 모래' : v.ti < 420 ? '굳은 토양' : '암반·자갈'}`) +
+    drow('착륙선 통신 가시선', v.los ? '있음' : '가려짐', v.los ? '' : 'caution');
+}
+function trend(c, H_, series, lines) {   // small time-series plot from the telemetry history
+  const g = c.getContext('2d'), Wc = c.width, Hc = c.height; g.fillStyle = '#060b09'; g.fillRect(0, 0, Wc, Hc); g.font = '12px "B612 Mono", monospace';
+  if (H_.length < 2) { g.fillStyle = '#8fae9c'; g.fillText('기록을 모으는 중… (30초마다 1점)', 12, Hc / 2); return; }
+  const t0 = H_[0][0], t1 = H_[H_.length - 1][0], X = t => 8 + (t - t0) / Math.max(1, t1 - t0) * (Wc - 16);
+  (lines || []).forEach(l => { const y = Hc - 6 - (l[0] - l[1]) / (l[2] - l[1]) * (Hc - 14); g.strokeStyle = l[3]; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(8, y); g.lineTo(Wc - 8, y); g.stroke(); g.setLineDash([]); g.fillStyle = l[3]; g.fillText(l[4], 10, y - 3); });
+  series.forEach(s => { g.strokeStyle = s.col; g.lineWidth = 2; g.beginPath(); H_.forEach((h, i) => { const y = Hc - 6 - (s.f(h) - s.lo) / (s.hi - s.lo) * (Hc - 14); i ? g.lineTo(X(h[0]), y) : g.moveTo(X(h[0]), y); }); g.stroke(); });
+  let lx = Wc - 8; g.textAlign = 'right'; series.forEach(s => { g.fillStyle = s.col; g.fillText(s.name, lx, 13); lx -= g.measureText(s.name).width + 12; }); g.textAlign = 'left';
+}
+function findStop(id) { return [...STOPS, ...legs.map(l => l.to), ...plan.wps].find(s => s.id === id); }
+function addSample(s) {
+  const ev = st.ev1, E = envNow(), n = samples.length + 1, sm = { id: 'S' + n, stop: s.id, x: ev.x, z: ev.z, lmst: E.lmst, min: mineralAt(ev.x, ev.z) };
+  samples.push(sm); addMarker('sample', `${sm.id} ${s.id}`, ev.x, ev.z, { note: `시료 ${sm.id} · ${s.id} · LMST ${E.lmst} · 황산염 지수 ${sm.min.toFixed(2)}` });
+  sys(`[EV1] 시료 ${sm.id} 기록 · ${s.id} · 착륙선에서 ${Math.round(Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z))} m, ${b3(bearing(LANDER.x, LANDER.z, ev.x, ev.z))} · LMST ${E.lmst}`, 'sys');
+}
+const ALERT = {
+  sep: ['태양 고에너지 입자(SEP)가 화성에 도달했다. 화성은 전역 자기장이 없고 대기가 얇아 지표 선량률이 평소의 몇 배로 오른다.', ['작업을 멈추고 장비를 고정한다', '화면의 귀환 경로를 따라 에어록으로 돌아간다(자동 계산됨)', '착륙선 안 차폐 구역에서 대기한다', '경보 해제와 HAB 승인 뒤에 계획을 다시 시작한다']],
+  slope: ['발밑 경사가 한계에 가깝다. 15°부터 주의, 25° 이상은 통행 불가 구역(팀 설정값).', ['멈추고 발 디딜 곳을 확인한다', '미니맵 경사색에서 초록·노랑 쪽으로 물러난다', '경로 리본에서 벗어났다면 리본으로 돌아간다']],
+  rock: ['큰 바위가 2.5 m 안에 있다. 우주복 무릎·생명유지 장치 충돌 위험.', ['바위 표지(주황)를 확인한다', '경로 리본을 따라 우회한다']],
+  o2dead: ['통신 두절 상태에서 산소 기준 출발 마감 시각이 지났다. 지금 출발해도 예비 15%를 쓰게 된다.', ['즉시 왔던 길(브레드크럼)로 귀환한다', 'EV2와 함께 이동한다', '대사량을 낮게 유지한다(천천히, 쉬지 않고)']],
+  los: ['착륙선·궤도선 링크가 끊겼다. 우주복은 관성 항법·브레드크럼·지형 대조·태양 나침반·비컨으로 위치를 유지한다.', ['EV2와 직접 무선을 유지한다', '90초 기다린다(자동 카운트)', '응답이 없으면 왔던 길로 귀환한다(H 키)', 'RETURN 패널의 출발 마감을 넘기지 않는다']],
+  o2: ['산소 잔량이 25% 아래다.', ['작업을 마무리하고 귀환 경로를 연다', 'EV2 잔량을 확인한다', '예비 15%는 비상용으로 남긴다']],
+  tb: ['남은 경로를 끝까지 가면 예비(산소 15%·배터리 10%·일몰 30분 전)를 지키며 돌아올 수 없다.', ['남은 정차 지점을 건너뛰거나 지금 귀환한다', 'ROUTE의 구간을 눌러 ‘건너뛰기’를 쓴다', '지도에서 더 짧은 경로를 다시 계획한다']],
+  route: ['현재 경로에 통행 불가 지형으로 막힌 구간(✕)이 있다. 직선으로 표시된 구간은 걸을 수 없다.', ['지도를 열어 막힌 경유지를 옮기거나 지운다', '‘기본 계획’으로 되돌린다']],
+  ev2: ['EV2와 25 m 넘게 떨어졌다. 2인 1조 규칙 위반.', ['멈추고 EV2 위치를 미니맵에서 확인한다', 'EV2 채널로 호출한다', '합류한 뒤 이동한다']]
+};
+const EDL = [
+  ['순항·접근', '쌍곡선 궤도로 화성에 접근. 접근 속도는 화성 중력으로 계속 빨라진다. 자세는 순항 자세.'],
+  ['순항 단 분리', '진입 약 10분 전. 태양전지·추진 모듈을 버리고 진입 캡슐만 남긴다. 이후 진입 자세로 정렬.'],
+  ['대기권 진입', '고도 약 125 km(시나리오)에서 약 5.4 km/s로 진입. 약 75초 뒤 열 차폐막 최고 가열.'],
+  ['낙하산', '진입 약 240초 뒤, 고도 약 11 km에서 초음속 낙하산 전개. 이후 열 차폐막 분리, 레이더 고도 측정.'],
+  ['착륙', '진입 후 약 7분. 동력 하강으로 게일 크레이터 목표 지점에 착지. 지구에는 약 12분 40초 뒤에 도착 소식이 닿는다(시나리오).']
+];
+const WIN = {
+  leg(a) {
+    const i = +a, l = legs[i]; if (!l) return; const s = pathStats(l.pts), dw = i < legs.length - 1 ? (l.to.dwellMin || 0) : 0;
+    showDetail('leg:' + i, `구간 ${i + 1} → ${l.to.id}`,
+      (l.pts.bad ? `<p class="warn">이 구간은 통행 불가 지형에 막혀 경로를 찾지 못했다. 아래 값은 직선 기준이다.</p>` : '') +
+      drow('거리', `${Math.round(s.len)} m`) + drow('보행 시간', dur(s.t)) + drow('목적지 체류', dw ? dw + '분' : '—') +
+      drow('최대 경사', `${s.maxS.toFixed(0)}°`, s.maxS > 25 ? 'warn' : s.maxS > 15 ? 'caution' : '') + drow('착륙선 가시선 밖', `${Math.round(s.nolos)} m`) +
+      drow('O₂ 소요', `${((s.t + dw * 60) / (O2H * 3600) * 100).toFixed(1)}%`) +
+      `<canvas id="dprof" width="700" height="150"></canvas><div class="dbtns">` +
+      (l.to.id !== 'AIR' ? `<button type="button" id="d-stop">정차 카드</button>` : '') +
+      (i > legIdx && i < legs.length - 1 && !work ? `<button type="button" id="d-first">다음 목적지로 당기기</button>` : '') +
+      (i >= legIdx && i < legs.length - 1 && !work ? `<button type="button" id="d-skip">이 정차 건너뛰기</button>` : '') + `</div>`);
+    drawProfile($('dprof'), [{ pts: l.pts, label: l.to.id, bad: l.pts.bad }], '구간 단면');
+    const rest = () => legs.slice(legIdx).map(q => q.to);
+    on('d-stop', () => openWin('stop:' + l.to.id));
+    on('d-skip', () => { replan(rest().filter(q => q !== l.to)); sys(`${l.to.id} 건너뜀 · 경로 다시 계산`, 'sys'); closeDetail(); });
+    on('d-first', () => { replan([l.to, ...rest().filter(q => q !== l.to)]); sys(`${l.to.id}을(를) 다음 목적지로 변경`, 'sys'); closeDetail(); });
+  },
+  stop(id) {
+    const s = findStop(id); if (!s) return; if (s.id === 'AIR') return WIN.lander();
+    const checks = s.checks || ['현장 관찰 기록', '사진 촬영']; s.chk = s.chk || checks.map(() => false);
+    showDetail('stop:' + id, s.name || s.id,
+      (s.goal ? `<p><b>과학 목표</b> · ${s.goal}</p>` : '') + `<p class="dnote">작업: ${s.task || '—'} · 예정 체류 ${s.dwellMin || 0}분</p>` +
+      `<div class="drow"><span>상태</span><b id="d-state"></b></div>` +
+      `<h5>작업 체크리스트</h5>` + checks.map((c, i) => `<label class="chk"><input type="checkbox" data-c="${i}" ${s.chk[i] ? 'checked' : ''}> <span>${c}</span></label>`).join('') +
+      `<div class="dbtns"><button type="button" id="d-sample">시료 기록 (현재 위치·시각 자동)</button><button type="button" class="go" id="d-go" hidden>작업 종료 · 출발</button></div><div id="d-samples" class="dnote"></div>` +
+      `<h5>도착하면 보이는 모습</h5><div class="pov3"><div>Mastcam<br>능선 전경</div><div>Navcam<br>진행 방향</div><div>MAHLI<br>암석 근접</div></div><p class="dnote">사진 자리 · 해커톤 단계에서 가장 가까운 Curiosity 원본 이미지 3장으로 교체</p>` +
+      `<h5>이 지점의 데이터</h5>` + valsHTML(pointVals(s.x, s.z)),
+      () => {
+        const here = work && work.stop === s;
+        $('d-state').textContent = here ? `작업 중 · 남은 ${fmt(work.t).slice(3)} · ${s.chk.filter(Boolean).length}/${checks.length} 완료` : s.done ? '완료' : `대기 · EV1에서 ${Math.round(Math.hypot(s.x - st.ev1.x, s.z - st.ev1.z))} m`;
+        $('d-go').hidden = !here;
+        $('d-samples').textContent = samples.filter(q => q.stop === s.id).map(q => `${q.id} (LMST ${q.lmst}, 황산염 ${q.min.toFixed(2)})`).join(' · ');
+      });
+    $('dbody').querySelectorAll('[data-c]').forEach(c => c.onchange = () => { s.chk[+c.dataset.c] = c.checked; detail.tick(); });
+    on('d-sample', () => { addSample(s); detail.tick(); });
+    on('d-go', () => finishWork(work && work.t > 1));
+  },
+  suit() {
+    showDetail('suit', 'SUIT · EV1 추세와 예측', `<canvas id="d-tr" width="700" height="170"></canvas><div id="d-rows"></div><p class="dnote">슈트 수치는 시나리오 값이다. 한계선: O₂ 주의 25%, 예비 15%.</p>`, () => {
+      trend($('d-tr'), st.hist, [{ name: 'O₂ %', col: '#8dffb3', lo: 0, hi: 1, f: h => h[1] }, { name: '배터리 %', col: '#86c9ff', lo: 0, hi: 1, f: h => h[2] }, { name: '심박', col: '#ffc24a', lo: 40, hi: 200, f: h => h[3] }, { name: 'EV2 O₂', col: '#d9e4f2', lo: 0, hi: 1, f: h => h[5] }],
+        [[.25, 0, 1, 'rgba(255,194,74,.7)', 'O₂ 25%'], [.15, 0, 1, 'rgba(255,90,78,.7)', '예비 15%']]);
+      const B = st.budget || { remT: 0, A: avail() }, o2r = st.o2 - B.remT / (O2H * 3600), btr = st.batt - B.remT / (BATH * 3600), e2 = st.ev2;
+      $('d-rows').innerHTML = drow('남은 경로 예상 시간', fmt(B.remT)) +
+        drow('귀환 시 O₂ 예상', `${Math.round(o2r * 100)}%`, o2r < RESERVE ? 'warn' : o2r < .25 ? 'caution' : '') + drow('귀환 시 배터리 예상', `${Math.round(btr * 100)}%`, btr < BATRES ? 'warn' : '') +
+        drow('가장 먼저 닿는 한계', `${B.A.by} · ${B.A.t > 0 ? dur(B.A.t) + ' 뒤' : '지남'}`) + drow('슈트 압력', '29.6 kPa (정상 범위)') + drow('헬멧 CO₂ 한계', '7.6 mmHg (설정값)') +
+        `<h5>EV2 비교</h5>` + drow('O₂', `EV1 ${Math.round(st.o2 * 100)}% · EV2 ${Math.round(e2.o2 * 100)}%`) + drow('배터리', `EV1 ${Math.round(st.batt * 100)}% · EV2 ${Math.round(e2.batt * 100)}%`) + drow('심박', `EV1 ${Math.round(st.hr)} · EV2 ${Math.round(e2.hr)} bpm`);
+    });
+  },
+  env() {
+    showDetail('env', 'ENV · 하루(sol) 곡선', `<canvas id="d-env" width="700" height="190"></canvas><div id="d-rows"></div>` +
+      `<h5>대기 성분</h5><div class="comp" aria-hidden="true">${COMP.map(c => `<i style="width:${Math.max(c[1], .9)}%;background:${c[2]}"></i>`).join('')}</div>` +
+      `<div class="compl" style="display:flex">${COMP.map(c => `<span><b>${c[0]}</b> ${c[1] < 1 ? c[1].toFixed(2) : c[1].toFixed(1)}%</span>`).join('')}</div>` +
+      `<p class="dnote">대기 성분은 Curiosity SAM 측정값. 기온·기압 곡선은 REMS 관측 범위에 맞춘 시나리오이며 해커톤에서 같은 계절(Ls)의 REMS 실측 시계열로 바꾼다.</p>`, () => {
+      const c = $('d-env'), g = c.getContext('2d'), Wc = c.width, Hc = c.height, E = envNow(); g.fillStyle = '#060b09'; g.fillRect(0, 0, Wc, Hc); g.font = '12px "B612 Mono", monospace';
+      const X = h => 36 + h / 24 * (Wc - 48), Y = T => 12 + (10 - T) / 100 * (Hc - 36);
+      g.fillStyle = 'rgba(255,220,150,.07)'; g.fillRect(X(6), 8, X(18) - X(6), Hc - 30);
+      [[-80, '−80'], [-40, '−40'], [0, '0 °C']].forEach(([t, l]) => { g.strokeStyle = 'rgba(141,255,179,.15)'; g.beginPath(); g.moveTo(36, Y(t)); g.lineTo(Wc - 12, Y(t)); g.stroke(); g.fillStyle = '#8fae9c'; g.fillText(l, 2, Y(t) + 4); });
+      [0, 6, 12, 18, 24].forEach(h => { g.fillStyle = '#8fae9c'; g.fillText(String(h).padStart(2, '0'), X(h) - 7, Hc - 6); });
+      [['T', '#8dffb3', '기온'], ['Tg', '#ffc24a', '지면']].forEach(([k, col, name], n) => { g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); for (let h = 0; h <= 24; h += .25) { const y = Y(envAt(h)[k]); h ? g.lineTo(X(h), y) : g.moveTo(X(h), y); } g.stroke(); g.fillStyle = col; g.fillText(name, Wc - 60 - n * 50, 20); });
+      g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.moveTo(X(E.h), 8); g.lineTo(X(E.h), Hc - 22); g.stroke(); g.fillStyle = '#fff'; g.fillText('지금 ' + E.lmst, Math.min(Wc - 90, X(E.h) + 4), 34);
+      $('d-rows').innerHTML = drow('기온 / 지면', `${E.T.toFixed(0)} / ${E.Tg.toFixed(0)} °C`) + drow('기압', `${E.P.toFixed(0)} Pa (하루 ±1% 조석)`) + drow('바람 / 돌풍', `${E.dir} ${E.wind.toFixed(1)} / ${E.gust.toFixed(0)} m/s`) + drow('먼지 광학 깊이 τ', E.tau.toFixed(2)) + drow('태양', E.sunTxt);
+    });
+  },
+  rad() {
+    showDetail('rad', '방사선 · 우주 기상', `<canvas id="d-tr" width="700" height="150"></canvas><div id="d-rows"></div>` +
+      `<p class="dnote">평상 값은 Curiosity RAD 평균 0.67 mSv/일(≈ 28 µSv/h). SEP 때의 상승폭(약 3배까지)과 차폐 계수는 시나리오다. 이벤트 목록은 해커톤에서 NASA DONKI(FLR·CME·SEP)로 바꾼다. 과거 측정에 기반한 참고 추정이며 예보가 아니다.</p>`, () => {
+      trend($('d-tr'), st.hist, [{ name: '선량률 µSv/h', col: '#ff8f6b', lo: 0, hi: 100, f: h => h[4] }], [[27.9, 0, 100, 'rgba(141,255,179,.6)', 'RAD 평균 28']]);
+      const r = doseRate(), DAY = 1000, tHome = Math.hypot(st.ev1.x - LANDER.x, st.ev1.z - LANDER.z) * 1.25 / WALK;
+      let h = drow('현재 선량률(외부)', `${Math.round(r)} µSv/h`, st.sep ? 'warn' : '') + drow('착륙선 안(차폐 0.5, 시나리오)', `${Math.round(r * .5)} µSv/h`) +
+        drow('이번 EVA 누적', `${st.dose.toFixed(0)} µSv`) + `<div class="bar" style="height:6px"><i class="${st.dose > DAY ? 'warn' : ''}" style="width:${Math.min(100, st.dose / DAY * 100)}%"></i></div>` +
+        drow('하루 관리 기준(팀 설정값)', `${DAY} µSv 중 ${(st.dose / DAY * 100).toFixed(0)}%`);
+      if (st.sep) h += `<h5>SEP 경보 진행</h5>` + drow('경보 뒤 경과', fmt(st.sepT).slice(3)) + drow('에어록까지', `약 ${dur(tHome)}`) + drow('귀환 중 추가 피폭 예상', `${(r * tHome / 3600).toFixed(1)} µSv`) + drow('밖에 1시간 더 있으면', `+${Math.round(27.9 * 3)} µSv (평소 +28)`, 'caution') +
+        `<h5>이벤트 (시뮬레이션)</h5>` + drow('T−38분', 'X급 태양 플레어 (FLR)') + drow('T−31분', '코로나 질량 방출 (CME) 관측') + drow('T+0', '고에너지 양성자 문턱 초과 (SEP)', 'warn');
+      else h += `<h5>이벤트 (시뮬레이션)</h5>` + drow('최근 72시간', '보고된 플레어·CME·SEP 없음');
+      $('d-rows').innerHTML = h;
+    });
+  },
+  alert(k) {
+    const A = ALERT[k], cur = st.alerts.find(a => a[0] === k); if (!A) return;
+    showDetail('alert:' + k, cur ? cur[2] : '경고 해제됨', `<p>${A[0]}</p><h5>권고 절차</h5><ol>${A[1].map(x => `<li>${x}</li>`).join('')}</ol>` +
+      (st.alerts.length > 1 ? `<h5>함께 켜진 경고</h5>` + st.alerts.filter(a => a[0] !== k).map(a => `<div class="drow"><span class="${a[1]}">${a[2]}</span><b><button type="button" data-al="${a[0]}">보기</button></b></div>`).join('') : '') +
+      `<div class="dbtns"><button type="button" class="go" id="d-ack">확인</button>${k === 'sep' ? '<button type="button" id="d-rad">방사선 상세</button>' : ''}${k === 'tb' || k === 'route' ? '<button type="button" id="d-map">지도 열기</button>' : ''}</div>`);
+    on('d-ack', () => { st.ack[k] = true; closeDetail(); }); on('d-rad', () => openWin('rad')); on('d-map', () => { closeDetail(); if ($('mapsheet').hidden) toggleMap(); });
+    $('dbody').querySelectorAll('[data-al]').forEach(b => b.onclick = () => openWin('alert:' + b.dataset.al));
+  },
+  relay() {
+    showDetail('relay', 'COMMS · 링크와 릴레이', `<div id="d-rows"></div><p class="dnote">릴레이 통과 시각은 가상 카운트다운이다(TGO·MRO·Odyssey, 하루 2–4회 통과 가정). 지구 지연은 12분 40초 시나리오.</p>`, () => {
+      const ev = st.ev1, los = losAt(ev.x, ev.z);
+      $('d-rows').innerHTML = drow('EV2 직접 무선', '연결 · 지연 없음') +
+        drow('착륙선(HAB)', st.los.on ? '신호 없음 (LOS)' : los ? '직접 가시선 · UHF' : '가시선 가려짐 · EV2/릴레이 경유', st.los.on ? 'warn' : los ? '' : 'caution') +
+        drow('지구(MCC) 편도 지연', '12:40') + drow('왕복 응답 최소', '25:20') +
+        `<h5>다음 궤도선 통과</h5>` + drow('TGO', fmt(relayT).slice(0, 5) + ' 뒤') + drow('MRO', fmt(relayT + 37 * 60).slice(0, 5) + ' 뒤') + drow('Odyssey', fmt(relayT + 71 * 60).slice(0, 5) + ' 뒤') +
+        `<h5>송신 대기열</h5>` + drow('두절 중 보관', `${losQueue.length}건`) + drow('지구행 전송 대기', `${chans.mcc.log.filter(l => l[0] === 'me').length}건`);
+    });
+  },
+  pt(a) {
+    const [x, z] = a.split(',').map(Number), v = pointVals(x, z); plan.q = [x, z];
+    let ri = -1, rd = 1e9; rocks.forEach((r, i) => { if (r.r > .6) { const d = Math.hypot(r.x - x, r.z - z) - r.r; if (d < rd) { rd = d; ri = i; } } });
+    showDetail('pt:' + a, '지점 조회', valsHTML(v) + drow('가장 가까운 바위', ri < 0 ? '—' : `${Math.max(0, rd).toFixed(0)} m · 지름 ${(rocks[ri].r * 2).toFixed(1)} m`) +
+      `<p class="dnote">지형(고도·경사), 분광(광물), 열(열관성), 통신 가시선을 한 지점에서 겹쳐 본 값이다. 모두 시뮬레이션이며 실데이터로 교체된다.</p>` +
+      `<div class="dbtns"><button type="button" id="d-wp" ${v.blocked ? 'disabled' : ''}>경유지 추가</button><button type="button" id="d-mk">마커 놓기</button><button type="button" class="go" id="d-goto" ${v.blocked ? 'disabled' : ''}>여기로 이동</button></div>` +
+      (v.blocked ? `<p class="warn">통행 불가 셀이라 경유지로 쓸 수 없다.</p>` : ''));
+    on('d-wp', () => { addWaypoint(x, z); plan.tool = 'route'; closeDetail(); planChanged(); });
+    on('d-mk', () => { const m = addMarker('sci', MK.sci[0], x, z); closeDetail(); planChanged(); openWin('mk:' + (plan.markers.length - 1)); sys(`마커 ${m.id} 놓음 · 착륙선에서 ${Math.round(v.dL)} m, ${b3(v.brg)}`, 'sys'); });
+    on('d-goto', () => { if (st.los.on && st.mode === 'iv') { sys('[HAB] 전송 실패 · EV 링크 두절', 'sys'); return; }
+      replan([{ id: 'GO', name: '지정 지점', x, z, task: '지도에서 지정한 지점 확인', dwell: '5분', dwellMin: 5 }, AIR]); sys(`지정 지점으로 경로 변경 · ${Math.round(v.dE)} m${routeBad ? ' · 도달 불가' : ''}`, 'sys'); closeDetail(); });
+  },
+  mk(a) {
+    const i = +a, m = plan.markers[i]; if (!m) return; const v = pointVals(m.x, m.z);
+    showDetail('mk:' + i, `마커 ${m.id}`, `<label>이름<input type="text" id="d-name" maxlength="24" value="${esc(m.label)}"></label>` +
+      `<label>종류<select id="d-type">${Object.keys(MK).map(k => `<option value="${k}" ${k === m.type ? 'selected' : ''}>${MK[k][0]}</option>`).join('')}</select></label>` +
+      `<label>메모<textarea id="d-note" rows="2" maxlength="200">${esc(m.note || '')}</textarea></label>` +
+      `<div class="dbtns"><button type="button" class="go" id="d-save">저장</button><button type="button" id="d-del">삭제</button></div><h5>이 지점의 데이터</h5>` + valsHTML(v));
+    on('d-save', () => { m.label = ($('d-name').value.trim() || MK[m.type][0]).slice(0, 24); m.note = $('d-note').value.slice(0, 200); const t = $('d-type').value;
+      if (t !== m.type) { m.type = t; scene.remove(m.mesh); addMarkerMesh(m); } closeDetail(); if (!$('mapsheet').hidden) planChanged(); });
+    on('d-del', () => { delMarker(i); if (!$('mapsheet').hidden) planChanged(); closeDetail(); });
+  },
+  rock(a) {
+    const r = rocks[+a]; if (!r) return; let gap = 1e9; rocks.forEach(q => { if (q !== r && q.r > .5) gap = Math.min(gap, Math.hypot(q.x - r.x, q.z - r.z) - q.r - r.r); });
+    showDetail('rock:' + a, '바위 · 장애물', drow('지름', `${(r.r * 2).toFixed(1)} m`) + drow('높이(추정)', `${(r.r * 1.4).toFixed(1)} m`) + drow('EV1에서', `${Math.round(Math.hypot(r.x - st.ev1.x, r.z - st.ev1.z))} m`) +
+      drow('옆 바위와 통과 폭', gap > 50 ? '트여 있음' : `${Math.max(0, gap).toFixed(1)} m`, gap < 1.2 ? 'caution' : '') + drow('경로 처리', r.r > .6 ? '이 셀(5 m)은 경로에서 제외' : '작아서 경로에는 영향 없음') +
+      `<p class="dnote">우주복 어깨 폭과 생명유지 장치를 감안해 통과 폭 1.2 m 미만은 주의로 본다(팀 설정값). 실데이터 단계에서는 HiRISE 정사영상(0.25 m)에서 표시한 바위를 쓴다.</p>`);
+  },
+  haz() {
+    showDetail('haz:mesa', '급경사 대지 · 통행 불가', drow('높이', '약 16 m') + drow('가장자리 경사', '25° 이상', 'warn') + drow('착륙선에서', `${Math.round(Math.hypot(MESA.x - LANDER.x, MESA.z - LANDER.z))} m · ${b3(bearing(LANDER.x, LANDER.z, MESA.x, MESA.z))}`) +
+      drow('경로 처리', '가장자리 셀 전부 제외') + `<p class="dnote">대지 뒤쪽은 착륙선 안테나에서 가려진다. 지도의 ‘통신’ 레이어에서 확인할 수 있다.</p>`);
+  },
+  crew(who) {
+    showDetail('crew:' + who, who === 'ev1' ? 'EV1 · 원격측정' : 'EV2 · 원격측정', `<div class="pov3" style="grid-template-columns:1fr"><div style="height:74px">헬멧 카메라 영상 자리</div></div><div id="d-rows"></div>`, () => {
+      const p = who === 'ev1' ? st.ev1 : st.ev2, lost = st.los.on && st.mode === 'iv';
+      const o2 = who === 'ev1' ? st.o2 : st.ev2.o2, bt = who === 'ev1' ? st.batt : st.ev2.batt, hr = who === 'ev1' ? st.hr : st.ev2.hr;
+      $('d-rows').innerHTML = (lost ? `<p class="warn">링크 두절 · 아래는 마지막 수신값이 아니라 시뮬레이션의 실제 값이다. 운용 시에는 표시되지 않는다.</p>` : '') +
+        drow('착륙선에서', `${Math.round(Math.hypot(p.x - LANDER.x, p.z - LANDER.z))} m · ${b3(bearing(LANDER.x, LANDER.z, p.x, p.z))}`) +
+        drow('O₂', `${Math.round(o2 * 100)}% · ${fmt(o2 * O2H * 3600).slice(0, 5)}`, o2 < .25 ? 'warn' : '') + drow('배터리', `${Math.round(bt * 100)}%`) + drow('심박', `${Math.round(hr)} bpm`) +
+        drow('누적 선량', `${st.dose.toFixed(0)} µSv`) + drow('발밑 경사', `${slopeDeg(p.x, p.z).toFixed(0)}°`) + drow('착륙선 가시선', losAt(p.x, p.z) ? '있음' : '가려짐') +
+        drow('대원 간 거리', `${Math.round(Math.hypot(st.ev1.x - st.ev2.x, st.ev1.z - st.ev2.z))} m`) + (who === 'ev1' && work ? drow('작업', `${work.stop.id} · 남은 ${fmt(work.t).slice(3)}`) : '');
+    });
+  },
+  edl(a) { const s = EDL[+a]; if (s) showDetail('edl:' + a, `EDL ${+a + 1}/5 · ${s[0]}`, `<p>${s[1]}</p>` + drow('진입 예상 속도', `${vAt(REI).toFixed(2)} km/s`) + drow('진입 고도(시나리오)', `${HEI} km`) + `<p class="dnote">절차와 시각은 Mars 2020 착륙 보도자료를 따랐다.</p>`); },
+  lander() {
+    showDetail('lander', '착륙선 · 에어록', `<div id="d-rows"></div>`, () => {
+      const ev = st.ev1, d = Math.hypot(ev.x - LANDER.x, ev.z - LANDER.z);
+      $('d-rows').innerHTML = drow('EV1에서', `${Math.round(d)} m · ${b3(bearing(ev.x, ev.z, LANDER.x, LANDER.z))}`) + drow('걸어서', `약 ${dur(d * 1.25 / WALK)}`) + drow('객실 압력', '70.3 kPa') +
+        drow('비컨', `송신 중 · 반경 ${BEACON_R} m`) + drow('안테나 높이', `${MAST} m`) + drow('방사선 차폐(시나리오)', '외부의 0.5배') + drow('도보 귀환 한계', `${WALKBACK} m (팀 설정값)`);
+    });
+  }
+};
 
 /* ---------- gaze (eye tracking) ---------- */
-const gz = { on: false, src: '', calib: false, x: -1, y: -1, raw: null, el: null, t0: 0, cool: 0, used: null, wg: null };
-const DWELL = 0.9, DWELL_SEL = '#bar button, #comms .tabs button, #mapclose, #edlgo, #mapcard .seg button, #plansend, #planundo';
+const gz = { on: false, src: '', calib: false, x: -1, y: -1, raw: null, rawT: 0, lost: true, lostT: 0, why: '', err: 0, dwell: .9, el: null, t0: 0, miss: 0, cool: 0, used: null, wg: null, pending: null, dockSig: '', timers: [], hook: null };
+// Dwell targets: the large gaze dock, 3D labels, the alert banner and a few window controls. The small operator-bar buttons are deliberately not gaze targets.
+const DWELL_SEL = '.gbtn, .tagl.clk, #cw, #comms .tabs button, #mapclose, #edlgo, .dclose, #mapcard .seg button';
 const reticle = $('greticle'), gprog = $('gprog');
-function gazeTag(t) { const g = $('gazetag'); g.hidden = !t; g.textContent = t || ''; }
+function gazeTag(t, bad) { const g = $('gazetag'); g.hidden = !t; g.textContent = t || ''; g.classList.toggle('bad', !!bad); }
 function gazeMsg(t) { $('gazemsg').textContent = t || ''; }
 function appXY(cx, cy) { const r = $('app').getBoundingClientRect(); return [cx - r.left, cy - r.top]; }
-window.addEventListener('pointermove', e => { if (gz.on && gz.src === 'mouse') gz.raw = appXY(e.clientX, e.clientY); });
+/* One Euro filter: heavy smoothing while the eye rests on something, almost none during a jump — and independent of the display's frame rate */
+function oneEuro(minCut, beta) {
+  let x = null, dx = 0; const al = (c, dt) => 1 / (1 + 1 / (2 * Math.PI * c * dt));
+  return { reset() { x = null; dx = 0; }, f(v, dt) { if (x === null) { x = v; return v; } const d = (v - x) / dt; dx += (d - dx) * al(1, dt); x += (v - x) * al(minCut + beta * Math.abs(dx), dt); return x; } };
+}
+const fX = oneEuro(1.2, .007), fY = oneEuro(1.2, .007);
+window.addEventListener('pointermove', e => { if (gz.on && gz.src === 'mouse') { gz.raw = appXY(e.clientX, e.clientY); gz.rawT = performance.now(); } });
 // a real click on the same element cancels its dwell so it is not pressed twice
 window.addEventListener('pointerdown', e => { if (gz.on) { gz.used = e.target.closest && e.target.closest(DWELL_SEL); gz.t0 = 0; } }, true);
+function later(fn, ms) { const t = setTimeout(fn, ms); gz.timers.push(t); return t; }
 
 function gazeStart(src) {
-  gz.on = true; gz.src = src; gz.x = gz.y = -1; gz.raw = null; gz.pred = null;
-  head.ok = false; head.y0 = head.p0 = null; head.vy = head.vp = 0; fusePrior();
-  document.body.classList.add('gaze'); reticle.toggleAttribute('hidden', false);
-  press('b-gaze', true); gazeTag(src === 'cam' ? '시선 · 카메라' : '시선 · 마우스 체험');
+  gz.on = true; gz.src = src; gz.x = gz.y = -1; gz.raw = null; gz.pred = null; gz.err = src === 'cam' ? 180 : 0; gz.lost = true; gz.lostT = 0; gz.pending = null; gz.dockSig = '';
+  fX.reset(); fY.reset(); head.ok = false; head.y0 = head.p0 = null; fusePrior(); gazeSize();
+  document.body.classList.add('gaze'); reticle.toggleAttribute('hidden', false); $('gdock').hidden = false;
+  press('b-gaze', true); gazeTag(src === 'cam' ? '시선 · 카메라' : '시선 · 마우스 체험'); layout();
 }
 function gazeStop() {
-  gz.on = false; gz.calib = false; $('calib').hidden = true;
+  gz.on = false; gz.calib = false; gz.hook = null; gz.pending = null; gz.timers.forEach(clearTimeout); gz.timers = []; $('calib').hidden = true;
   if (gz.wg) { try { gz.wg.end(); } catch (e) {} gz.wg = null; }
-  document.body.classList.remove('gaze'); reticle.toggleAttribute('hidden', true);
+  document.body.classList.remove('gaze'); reticle.toggleAttribute('hidden', true); $('gdock').hidden = true; $('gdock').innerHTML = '';
   document.querySelectorAll('.gfocus,.gaze-hover').forEach(el => el.classList.remove('gfocus', 'gaze-hover'));
   press('b-gaze', false); gazeTag('');
+}
+function gazeSize() {   // targets and dwell time follow the measured accuracy
+  const e = gz.err, d = $('gdock');
+  d.style.setProperty('--gw', Math.round(Math.max(132, Math.min(210, e * 1.4))) + 'px'); d.style.setProperty('--gh', Math.round(Math.max(64, Math.min(110, e * .7))) + 'px');
+  gz.dwell = Math.max(.9, Math.min(1.5, .7 + e / 300));
 }
 function loadWG() {
   if (window.webgazer) return Promise.resolve(window.webgazer);
@@ -1387,22 +2005,30 @@ async function gazeCamera() {
   try {
     wg.saveDataAcrossSessions(false);
     wg.setGazeListener(d => {
-      if (!d || !gz.on || gz.src !== 'cam') return;
+      if (!d || !gz.on || gz.src !== 'cam') return;   // no face → no update; gazeTick sees the estimate go stale and drops the dwell
       headUpdate(wg);
+      const now = performance.now(), gap = now - gz.rawT, dt = Math.min(.2, Math.max(.004, gap / 1000));
       gz.pred = appXY(d.x, d.y);                        // WebGazer's eye-only estimate
       const [dy, dp] = headRel();
-      gz.raw = [gz.pred[0] + fuse.ax + fuse.kx * dy, gz.pred[1] + fuse.ay + fuse.ky * dp];   // + head term
+      if (gap > 400) { fX.reset(); fY.reset(); }
+      gz.raw = [fX.f(gz.pred[0] + fuse.ax + fuse.kx * dy, dt), fY.f(gz.pred[1] + fuse.ay + fuse.ky * dp, dt)];   // + head term, then One Euro
+      gz.rawT = now; if (gz.hook) gz.hook(now);
     });
     await wg.begin();
     wg.showPredictionPoints(false); wg.applyKalmanFilter(true); wg.setVideoViewerSize(240, 180); wg.showVideoPreview(true);
   } catch (e) { gazeMsg('시선 추적을 시작하지 못했습니다: ' + (e.message || e.name)); return; }
   gz.wg = wg; gazeMsg(''); $('gazesheet').hidden = true; gazeStart('cam'); calibStart();
 }
+/* calibration: ① 13 click dots out to the screen edges → ② head sweep on a centre dot (fits the head term) → ③ 5-point validation (measures the error) */
+const CAL = [[5, 5], [50, 5], [95, 5], [5, 50], [50, 50], [95, 50], [5, 95], [50, 95], [95, 95], [27.5, 27.5], [72.5, 27.5], [27.5, 72.5], [72.5, 72.5]];
+function calibClear() { const c = $('calib'); c.querySelectorAll('.dot,.vdot').forEach(d => d.remove()); $('calibres').hidden = true; gz.hook = null; gz.timers.forEach(clearTimeout); gz.timers = []; }
 function calibStart() {
-  const c = $('calib'); c.querySelectorAll('.dot').forEach(d => d.remove());
-  gz.calib = true; c.hidden = false; reticle.toggleAttribute('hidden', false); gazeTag('시선 · 보정 0/9');
-  let done = 0; fuse.samples = []; head.y0 = head.p0 = null;   // neutral pose = pose at calibration start
-  [10, 50, 90].forEach(py => [10, 50, 90].forEach(px => {
+  const c = $('calib'); calibClear(); if (!$('mapsheet').hidden) toggleMap(); closeDetail();
+  gz.calib = true; c.hidden = false; reticle.toggleAttribute('hidden', false); gazeTag(`시선 · 보정 0/${CAL.length}`);
+  $('calibmsg').innerHTML = '① 점을 바라본 채로 각 점을 2번씩 클릭하세요.<br>머리는 고정하고 눈만 움직입니다.';
+  if (gz.wg) { try { gz.wg.showVideoPreview(true); if (gz.wg.addMouseEventListeners) gz.wg.addMouseEventListeners(); } catch (e) {} }
+  let done = 0; fuse.samples = []; fuse.hs = []; fusePrior(); head.y0 = head.p0 = null;   // neutral pose = pose at calibration start
+  CAL.forEach(([px, py]) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'dot'; b.dataset.n = '0';
     b.style.left = px + '%'; b.style.top = py + '%'; b.setAttribute('aria-label', '보정 점');
     b.addEventListener('click', () => {   // WebGazer learns from every click at the click position
@@ -1410,48 +2036,150 @@ function calibStart() {
       // first click on a dot = the model has not been trained on this spot yet → honest residual sample
       if (n === 1 && gz.pred && head.ok) { const r = $('app').getBoundingClientRect(), bb = b.getBoundingClientRect(); const [hy, hp] = headRel();
         fuse.samples.push({ px: gz.pred[0], py: gz.pred[1], dy: hy, dp: hp, cx: bb.left + bb.width / 2 - r.left, cy: bb.top + bb.height / 2 - r.top }); }
-      if (n >= 3) { b.classList.add('done'); done++; gazeTag(`시선 · 보정 ${done}/9`); if (done === 9) calibEnd(); }
+      if (n >= 2) { b.classList.add('done'); done++; gazeTag(`시선 · 보정 ${done}/${CAL.length}`); if (done === CAL.length) calibHead(); }
     });
     c.appendChild(b);
-  }));
+  });
+}
+function vdot(px, py) { const c = $('calib'); c.querySelectorAll('.vdot').forEach(d => d.remove()); const d = document.createElement('div'); d.className = 'vdot'; d.style.left = px + '%'; d.style.top = py + '%'; c.appendChild(d); }
+function calibHead() {   // the eye stays on the centre while the head turns: every residual is then the head's doing
+  calibClear();
+  if (!gz.wg || !head.ok) { calibValidate(); return; }
+  vdot(50, 50); gazeTag('시선 · 고개 보정');
+  let left = 8; const say = () => { $('calibmsg').innerHTML = `② 가운데 점에서 눈을 떼지 말고 고개를 천천히<br>왼쪽 → 오른쪽 → 위 → 아래로 돌리세요. (${left}초)`; $('calibmsg').style.top = '64%'; };
+  say(); gz.hook = () => { if (gz.pred && head.ok) { const [hy, hp] = headRel(); fuse.hs.push({ px: gz.pred[0], py: gz.pred[1], dy: hy, dp: hp, cx: W / 2, cy: Hh / 2 }); } };
+  const step = () => { left--; if (left <= 0) { gz.hook = null; fuseFit(); calibValidate(); } else { say(); later(step, 1000); } };
+  later(step, 1000);
+}
+function calibValidate() {   // look only, no clicks: the gap between dot and estimate is the accuracy the HUD has to live with
+  calibClear(); $('calibmsg').style.top = '64%';
+  if (!gz.wg) { calibEnd(); return; }
+  try { if (gz.wg.removeMouseEventListeners) gz.wg.removeMouseEventListeners(); } catch (e) {}   // from here on, mouse moves and drags must not train the model
+  const pts = [[50, 50], [20, 25], [80, 25], [20, 75], [80, 75]], res = []; let i = 0; gazeTag('시선 · 검증');
+  const next = () => {
+    if (i >= pts.length) { gz.hook = null; calibResult(res); return; }
+    const [px, py] = pts[i], t0 = performance.now(), buf = []; vdot(px, py);
+    $('calibmsg').innerHTML = `③ 검증 ${i + 1}/${pts.length} · 점을 바라보기만 하세요.`;
+    gz.hook = now => { if (now - t0 > 700 && gz.raw) buf.push(gz.raw.slice()); };
+    later(() => { if (buf.length >= 4) { const md = k => buf.map(b => b[k]).sort((a, b) => a - b)[buf.length >> 1]; res.push([W * px / 100 - md(0), Hh * py / 100 - md(1)]); } i++; next(); }, 1900);
+  };
+  next();
+}
+function calibResult(res) {
+  $('calib').querySelectorAll('.vdot').forEach(d => d.remove()); $('calibmsg').innerHTML = '';
+  let txt;
+  if (res.length < 3) { gz.err = 240; txt = '시선을 충분히 읽지 못했습니다. 얼굴이 카메라 가운데에 오도록 앉고, 정면 조명을 켠 뒤 다시 보정하세요.'; }
+  else {
+    const bx = res.reduce((s, r) => s + r[0], 0) / res.length, by = res.reduce((s, r) => s + r[1], 0) / res.length;
+    const before = res.reduce((s, r) => s + Math.hypot(r[0], r[1]), 0) / res.length;
+    fuse.ax += bx; fuse.ay += by;   // remove the common offset; what is left is the scatter the targets must absorb
+    gz.err = res.reduce((s, r) => s + Math.hypot(r[0] - bx, r[1] - by), 0) / res.length;
+    const deg = Math.atan(gz.err / (W / 30) / 55) * 180 / Math.PI, q = gz.err <= 120 ? '양호' : gz.err <= 220 ? '보통 · 버튼을 크게, 응시 시간을 길게 맞춥니다' : '낮음 · 마우스 체험을 권합니다';
+    txt = `<b>평균 오차 ${Math.round(gz.err)} px (약 ${deg.toFixed(1)}°)</b> · ${q}<br><span style="color:var(--chrome-dim)">치우침 보정 전 ${Math.round(before)} px · 시선 버튼 ${Math.round(Math.max(132, Math.min(210, gz.err * 1.4)))} px · 응시 ${Math.max(.9, Math.min(1.5, .7 + gz.err / 300)).toFixed(1)}초</span>`;
+  }
+  const r = $('calibres'); r.hidden = false;
+  r.innerHTML = `<div>${txt}</div><button type="button" id="cr-ok">계속</button><button type="button" id="cr-re">다시 보정</button><button type="button" id="cr-mouse">마우스로 전환</button>`;
+  $('cr-ok').onclick = calibEnd; $('cr-re').onclick = calibStart; $('cr-mouse').onclick = () => { gazeStop(); gazeStart('mouse'); };
 }
 function calibEnd() {
-  gz.calib = false; $('calib').hidden = true; reticle.toggleAttribute('hidden', false);
-  if (gz.wg) gz.wg.showVideoPreview(false);
-  fuseFit();
+  calibClear(); gz.calib = false; $('calib').hidden = true; $('calibmsg').style.top = ''; reticle.toggleAttribute('hidden', false);
+  if (gz.wg) { try { gz.wg.showVideoPreview(false); if (gz.wg.removeMouseEventListeners) gz.wg.removeMouseEventListeners(); } catch (e) {} }
+  gazeSize(); gz.dockSig = '';
   gazeTag(gz.src === 'cam' ? '시선 · 카메라' : '시선 · 마우스 체험');
-  sys('[시스템] 시선 보정 완료 · 버튼을 0.9초 바라보면 눌립니다', 'them');
+  sys(`[시스템] 시선 보정 완료 · 오차 약 ${Math.round(gz.err)} px · 큰 버튼이나 표지를 ${gz.dwell.toFixed(1)}초 바라보면 눌립니다`, 'them');
 }
+/* gaze dock: a few large context buttons sized from the measured error; risky actions need a second look at "실행" */
+function dockItems() {
+  if (gz.pending) return [{ id: 'ok', t: '실행: ' + gz.pending.label, cls: 'confirm', fn: () => { const f = gz.pending.fn; gz.pending = null; f(); } }, { id: 'no', t: '취소', fn: () => { gz.pending = null; } }];
+  const it = [];
+  if (detail.key) it.push({ id: 'dx', t: '창 닫기', fn: closeDetail });
+  if (!$('mapsheet').hidden) {
+    it.push({ id: 'mx', t: '지도 닫기', fn: toggleMap });
+    if (plan.wps.length && !(plan.stat && plan.stat.bad)) it.push({ id: 'ps', t: '경로 전송', confirm: '경로 전송', fn: () => $('plansend').click() });
+    return it;
+  }
+  if (document.querySelector('#app .sheet:not([hidden])') || inApproach()) return it;
+  it.push({ id: 'map', t: '지도', fn: toggleMap });
+  if (!evaDone) it.push({ id: 'home', t: '귀환', confirm: '귀환 경로', fn: () => $('b-home').click() });
+  const s = legs[legIdx] && legs[legIdx].to; if (s && s.id !== 'AIR') it.push({ id: 'st' + s.id, t: s.id + ' 카드', fn: () => openWin('stop:' + s.id) });
+  if (st.alertKey && !st.ack[st.alertKey]) it.push({ id: 'al' + st.alertKey, t: '경고 확인', fn: () => openWin('alert:' + st.alertKey) });
+  if (gz.src === 'cam' && (gz.lostT > 3 || gz.err > 220)) it.push({ id: 'recal', t: '재보정', fn: calibStart });
+  return it;
+}
+function dockTick(now) {
+  if (gz.pending && now > gz.pending.until) gz.pending = null;
+  const it = dockItems(), sig = it.map(i => i.id).join('|');
+  if (sig === gz.dockSig) return; gz.dockSig = sig;
+  const d = $('gdock'); d.innerHTML = '';
+  it.forEach(i => { const b = document.createElement('button'); b.type = 'button'; b.className = 'gbtn ' + (i.cls || ''); b.textContent = i.t; b._item = i; b.onclick = () => i.fn(); d.appendChild(b); });
+  layout();
+}
+function gazeTarget(cx, cy) {   // nearest dwell target within a snap radius that grows with the measured error
+  const snap = Math.max(24, Math.min(90, gz.err * .6)), hit = document.elementFromPoint(cx, cy);
+  const cont = hit && hit.closest ? hit.closest('.panel, #detail, .sheet .card, #gdock') : null, modal = document.querySelector('#app .sheet:not([hidden])');
+  let best = null, bd = 1e9;
+  document.querySelectorAll(DWELL_SEL).forEach(el => {
+    if (el.disabled || !el.offsetParent || el.id === 'b-gaze') return;
+    const dock = el.classList.contains('gbtn');
+    if (modal && !dock && !modal.contains(el) && !el.classList.contains('dclose')) return;   // a window is open: nothing behind it can be pressed
+    if (cont && !dock && !cont.contains(el)) return;                                           // looking at a panel: do not reach through it
+    const b = el.getBoundingClientRect(), d = Math.hypot(Math.max(b.left - cx, 0, cx - b.right), Math.max(b.top - cy, 0, cy - b.bottom));
+    if (d <= snap && d < bd) { bd = d; best = el; }
+  });
+  return best;
+}
+function dwellReset() { if (gz.el) gz.el.classList.remove('gaze-hover'); gz.el = null; gz.t0 = 0; gprog.setAttribute('stroke-dasharray', '0 88'); }
 
 function gazeTick(dt) {
   headViewTick(dt);
-  if (!gz.on || !gz.raw) return;
-  const a = gz.src === 'cam' ? 0.25 : 1;   // smooth the noisy camera estimate
-  if (gz.x < 0) { gz.x = gz.raw[0]; gz.y = gz.raw[1]; } else { gz.x += (gz.raw[0] - gz.x) * a; gz.y += (gz.raw[1] - gz.y) * a; }
+  if (!gz.on) return;
+  const now = performance.now(), cam = gz.src === 'cam', M = 40;
+  const stale = cam && now - gz.rawT > 300, out = !!gz.raw && (gz.raw[0] < -M || gz.raw[0] > W + M || gz.raw[1] < -M || gz.raw[1] > Hh + M);
+  gz.lost = !gz.raw || stale || out; gz.why = !gz.raw || stale ? 'face' : out ? 'out' : ''; gz.lostT = gz.lost ? gz.lostT + dt : 0;
+  reticle.style.opacity = gz.lost ? .25 : 1;
+  if (!gz.lost) {
+    const k = cam ? 1 - Math.exp(-dt * 25) : 1;   // the samples are already filtered; this only bridges camera frames, at any display rate
+    if (gz.x < 0) { gz.x = gz.raw[0]; gz.y = gz.raw[1]; } else { gz.x += (gz.raw[0] - gz.x) * k; gz.y += (gz.raw[1] - gz.y) * k; }
+  }
   const x = Math.max(0, Math.min(W, gz.x)), y = Math.max(0, Math.min(Hh, gz.y));
   reticle.style.left = x + 'px'; reticle.style.top = y + 'px';
   if (gz.calib) { gprog.setAttribute('stroke-dasharray', '0 88'); return; }   // show the dot only while calibrating
-  if (gz.src === 'cam' && (gz.tagT = (gz.tagT || 0) + dt) > .3) { gz.tagT = 0;
-    const [hy, hp] = headRel(); gazeTag(head.ok ? `시선 · 카메라 · 고개 ${hy >= 0 ? '우' : '좌'} ${Math.abs(hy * 57.3).toFixed(0)}° ${hp >= 0 ? '위' : '아래'} ${Math.abs(hp * 57.3).toFixed(0)}°` : '시선 · 카메라 · 얼굴 찾는 중'); }
+  if (cam && (gz.tagT = (gz.tagT || 0) + dt) > .3) { gz.tagT = 0;
+    const [hy, hp] = headRel(), q = gz.err <= 120 ? '양호' : gz.err <= 220 ? '보통' : '낮음';
+    if (gz.lost && gz.lostT > .3) gazeTag(gz.why === 'out' ? '시선 · 화면 밖 · 응시 중지' : `시선 · 얼굴 놓침 ${gz.lostT.toFixed(0)}초${gz.lostT > 3 ? ' · 자세를 바로 하거나 재보정' : ''}`, true);
+    else gazeTag(`시선 · ${q} · 오차 약 ${Math.round(gz.err)} px · 고개 ${hy >= 0 ? '우' : '좌'} ${Math.abs(hy * 57.3).toFixed(0)}° ${hp >= 0 ? '위' : '아래'} ${Math.abs(hp * 57.3).toFixed(0)}°`, gz.err > 220); }
+  dockTick(now);
   const r = $('app').getBoundingClientRect();
-  const hit = document.elementFromPoint(r.left + x, r.top + y);
-  // panel focus: the panel being looked at is sharp, the others fade
+  // panel focus: the panel being looked at is sharp, the others fade; held 0.3 s so it does not flicker at the border
   document.querySelectorAll('#app .panel').forEach(p => {
     if (p.hidden) return; const b = p.getBoundingClientRect();
-    p.classList.toggle('gfocus', x + r.left > b.left - 20 && x + r.left < b.right + 20 && y + r.top > b.top - 20 && y + r.top < b.bottom + 20);
+    if (!gz.lost && x + r.left > b.left - 20 && x + r.left < b.right + 20 && y + r.top > b.top - 20 && y + r.top < b.bottom + 20) p._gt = now;
+    p.classList.toggle('gfocus', now - (p._gt || -1e9) < 300);
   });
-  // dwell-to-press
-  const tgt = hit && hit.closest ? hit.closest(DWELL_SEL) : null;
-  const ok = tgt && tgt.id !== 'b-gaze' && !tgt.disabled && tgt !== gz.used;
-  if (tgt !== gz.used) gz.used = null;
   if (gz.cool > 0) gz.cool -= dt;
-  if (ok && tgt === gz.el) gz.t0 += dt; else { if (gz.el) gz.el.classList.remove('gaze-hover'); gz.el = ok ? tgt : null; gz.t0 = 0; if (gz.el) gz.el.classList.add('gaze-hover'); }
-  const prog = gz.el && gz.cool <= 0 ? Math.min(1, gz.t0 / DWELL) : 0;
+  if (gz.lost) { dwellReset(); return; }   // no face, stale estimate or off-screen gaze never presses anything
+  // dwell-to-press
+  const tgt = gazeTarget(r.left + x, r.top + y);
+  if (tgt !== gz.used) gz.used = null;
+  if (!tgt) gz.needLeave = false;   // after a press the eye must leave every target before the next one can start (a confirm button may appear right under the gaze)
+  const ok = tgt && tgt !== gz.used && !gz.needLeave ? tgt : null;
+  if (ok && ok === gz.el) { if (gz.cool <= 0) gz.t0 += dt; gz.miss = 0; }
+  else if (gz.el && !ok && (gz.miss += dt) < .15) { /* brief jitter off the target: keep the progress */ }
+  else { if (gz.el) gz.el.classList.remove('gaze-hover'); gz.el = ok; gz.t0 = 0; gz.miss = 0; if (gz.el) gz.el.classList.add('gaze-hover'); }
+  const prog = gz.el && gz.cool <= 0 ? Math.min(1, gz.t0 / gz.dwell) : 0;
   gprog.setAttribute('stroke-dasharray', `${(prog * 88).toFixed(1)} 88`);
-  if (prog >= 1) { const el = gz.el; el.classList.remove('gaze-hover'); gz.used = el; gz.el = null; gz.t0 = 0; gz.cool = 1.2; el.click(); }
+  if (prog >= 1) {
+    const el = gz.el, it = el._item; el.classList.remove('gaze-hover'); gz.used = el; gz.el = null; gz.t0 = 0; gz.cool = 1.2; gz.needLeave = true;
+    if (cam) {   // each completed dwell is a free calibration point: nudge the offset toward the target centre
+      const b = el.getBoundingClientRect(), ex = b.left + b.width / 2 - r.left - gz.x, ey = b.top + b.height / 2 - r.top - gz.y;
+      if (Math.hypot(ex, ey) < 160) { fuse.ax += Math.max(-25, Math.min(25, ex * .2)); fuse.ay += Math.max(-25, Math.min(25, ey * .2)); }
+    }
+    if (it && it.confirm) gz.pending = { label: it.confirm, fn: it.fn, until: now + 8000 }; else el.click();
+  }
   // edge pan: looking at the left or right edge of the open view turns it
-  const overUI = hit && hit.closest && hit.closest('.panel, #bar, .sheet, #stop');
-  const headSteer = gz.src === 'cam' && head.view && head.ok;   // head turning already steers the view
+  const hit = document.elementFromPoint(r.left + x, r.top + y);
+  const overUI = hit && hit.closest && hit.closest('.panel, #bar, .sheet, #stop, #detail, #gdock, #demo');
+  const headSteer = cam && head.view && head.ok;   // head turning already steers the view
   if (!overUI && !headSteer && y > Hh * .2 && y < Hh * .85 && !document.querySelector('#app .sheet:not([hidden])')) {
     const L = st.mode === 'eva' ? st.look : inApproach() ? st.ivA : st.iv;
     const e = x < W * .07 ? -(1 - x / (W * .07)) : x > W * .93 ? (x - W * .93) / (W * .07) : 0;
